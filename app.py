@@ -1262,7 +1262,25 @@ def _parse_json(text: str) -> dict | None:
 LABEL_RE = re.compile(r"\[([A-Z]{1,2}\d+)\]")
 
 
-def _history_snippet(history: list[dict], n: int = 4) -> str:
+_FOLLOWUP_RE = re.compile(
+    r"\b(it|its|they|them|their|those|these|he|she|again|previous|earlier|above|former|latter|same|"
+    r"what about|how about|and the|elaborate|expand|continue)\b",
+    re.I,
+)
+
+
+def is_followup(query: str) -> bool:
+    """Only a follow-up question needs the earlier turns ("what datasets did it use?"). A
+    self-contained one (a URL, a full standalone question) is answered without them, so
+    the previous answer cannot leak into this one."""
+    if re.search(r"https?://", query):
+        return False
+    return len(query.split()) <= 6 or bool(_FOLLOWUP_RE.search(query))
+
+
+def _history_snippet(history: list[dict], n: int = 4, query: str = "") -> str:
+    if not is_followup(query):
+        return ""
     return "\n".join(f"{h['role']}: {LABEL_RE.sub('', h['content'])[:300]}" for h in (history or [])[-n:])
 
 
@@ -1290,7 +1308,7 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
                 corpus=app_config.CORPUS_DESCRIPTION, sources=", ".join(sources[:40]) or "(none)"
             )
             user = state["query"]
-            hist = _history_snippet(state.get("history", []))
+            hist = _history_snippet(state.get("history", []), query=state["query"])
             if hist:
                 user = f"Recent conversation:\n{hist}\n\nCurrent query: {state['query']}"
             raw = await call_llm_fo(run, tr, decision, [SystemMessage(dated(system)), HumanMessage(user)])
@@ -1308,6 +1326,15 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
         if "summary" not in agents and re.search(r"\bsummar(y|ise|ize)\b|\btl;?dr\b", state["query"], re.I):
             agents.insert(0, "summary")  # an explicit summary request always gets the summary agent
             await tr("plan", "query asks for a summary -> summary agent added to the plan")
+        if (
+            "summary" not in agents
+            and "research" in agents
+            and plan.get("needs_live")
+            and re.search(r"\b(compare|contrast|versus|vs\.?)\b", state["query"], re.I)
+            and _NEWS_RE.search(_summary_target(state["query"]))
+        ):
+            agents.insert(0, "summary")  # news on one side of a comparison: the summary agent gathers it
+            await tr("plan", "query compares live news with other material -> summary agent added to the plan")
         complexity = "complex" if plan.get("complexity") == "complex" or len(agents) > 1 else "simple"
         update = {
             "planned": True,
@@ -1544,8 +1571,12 @@ _NEWS_RE = re.compile(r"\b(news|latest|recent|recently|today|this week|this mont
 
 
 def _summary_target(query: str) -> str:
-    """The part of the request that asks for a summary, before any comparison clause."""
-    return re.split(r"\b(?:and\s+)?(?:compare|contrast|versus|vs\.?)\b", query, maxsplit=1, flags=re.I)[0]
+    """The part of the request that asks for a summary, before any comparison clause.
+    For "Compare X with Y" the first subject (X) comes after the keyword."""
+    parts = re.split(r"\b(?:and\s+)?(?:compare|contrast|versus|vs\.?)\b", query, maxsplit=1, flags=re.I)
+    if not parts[0].strip() and len(parts) > 1:
+        return re.split(r"\b(?:with|to|against|and|versus|vs\.?)\b", parts[1], maxsplit=1, flags=re.I)[0]
+    return parts[0]
 
 
 @safe_worker("summary")
@@ -1819,7 +1850,8 @@ believe them to be true.
 - If an agent failed or the evidence does not cover something, say so plainly. Do not invent \
 facts or citations. If there is no evidence at all, say you could not retrieve any, and keep \
 any general-knowledge remark short and clearly marked as ungrounded.
-- The conversation so far is context only, not evidence: never cite a label from it.
+- Answer only the CURRENT question. Earlier turns are context only, not evidence: never cite a \
+label from them and never repeat or redo an earlier answer.
 - Be direct and concise."""
 
 MAX_EVIDENCE_BLOCKS = 12
@@ -1843,7 +1875,9 @@ def renumber_citations(citations: list[dict], outputs: dict, plan: list[str]) ->
     return fixed, {name: sub(text) for name, text in outputs.items()}
 
 
-def _history_text(history: list[dict], n: int = 4) -> str:
+def _history_text(history: list[dict], n: int = 4, query: str = "") -> str:
+    if not is_followup(query):
+        return ""
     return "\n".join(f"{h['role']}: {LABEL_RE.sub('', h['content'])[:400]}" for h in (history or [])[-n:])
 
 
@@ -1870,9 +1904,12 @@ async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # mus
     await tr("route", f"synthesize -> {decision.provider} ({decision.dimension}): {decision.reason}")
 
     user = f"Question: {state['query']}\n"
-    hist = _history_text(state.get("history", []))
+    hist = _history_text(state.get("history", []), query=state["query"])
     if hist:
-        user = f"Conversation so far:\n{hist}\n\n" + user
+        user = (
+            "Earlier turns, only for resolving words like 'it' or 'that'. Do not repeat, redo or "
+            f"continue them:\n{hist}\n\n" + user.replace("Question:", "CURRENT question (answer only this):", 1)
+        )
     user += f"\nAgent notes:\n{notes or '(none)'}\n\nEvidence:\n{evidence or '(none)'}"
     if err_text:
         user += f"\n\nAgent problems:\n{err_text}"
