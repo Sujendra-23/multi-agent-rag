@@ -176,7 +176,8 @@ class State(TypedDict, total=False):
     needs_live: bool
     complexity: str  # simple | complex
     plan_reason: str
-    next: str  # research | summary | data | synthesize
+    next: list[str]  # workers to run now, in parallel: research | summary | data, or ["synthesize"]
+    slots: dict[str, int]  # worker -> position in the current parallel batch (its own citation-label range)
     steps: int
 
     # accumulated by workers (reducers append/merge so workers never overwrite each other)
@@ -1331,14 +1332,15 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
     done = set(state.get("completed", []))
     steps = state.get("steps", 0) + 1
     remaining = [a for a in state["plan"] if a not in done]
-    nxt = remaining[0] if remaining and steps <= MAX_STEPS else "synthesize"
-    await tr("dispatch", f"completed={sorted(done)} -> next={nxt}")
-    update.update({"next": nxt, "steps": steps, "trace": tr.entries})
+    batch = remaining if remaining and steps <= MAX_STEPS else ["synthesize"]
+    where = "in parallel" if len(batch) > 1 else "now"
+    await tr("dispatch", f"completed={sorted(done)} -> next={batch} ({where})")
+    update.update({"next": batch, "slots": {a: i for i, a in enumerate(batch)}, "steps": steps, "trace": tr.entries})
     return update
 
 
-def next_node(state: State) -> str:
-    return state["next"]
+def next_node(state: State) -> list[str]:
+    return state["next"]  # several names = LangGraph runs those workers in parallel
 
 
 # ============================================================================
@@ -1360,7 +1362,10 @@ def safe_worker(name: str):
             run: Run = config["configurable"]["run"]
             tr = Tracer(run, name)
             try:
-                return await fn(state, config, run, tr)
+                update = await fn(state, config, run, tr)
+                for c in update.get("citations", []):
+                    c.setdefault("agent", name)
+                return update
             except Exception as e:  # noqa: BLE001
                 msg = f"{type(e).__name__}: {e}"
                 await tr("error", f"{name} agent failed: {msg}")
@@ -1378,9 +1383,14 @@ def safe_worker(name: str):
     return deco
 
 
-def _next_label(state: State, prefix: str, offset: int = 0) -> int:
-    used = sum(1 for c in state.get("citations", []) if c["id"].startswith(prefix))
-    return used + offset + 1
+# Workers of one parallel batch cannot see each other's citations, so each starts its labels in
+# its own block; the synthesizer renumbers everything densely (C1, C2, ...) afterwards.
+LABEL_BLOCK = {"C": 40, "W": 10, "S": 5}
+
+
+def _next_label(state: State, prefix: str, agent: str = "") -> int:
+    top = max((int(c["id"][1:]) for c in state.get("citations", []) if c["id"].startswith(prefix)), default=0)
+    return top + 1 + state.get("slots", {}).get(agent, 0) * LABEL_BLOCK[prefix]
 
 
 def _short(text: str, n: int) -> str:
@@ -1431,8 +1441,8 @@ async def research_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer)
     query = state["query"]
     await tr("start", "research agent: RAG retrieval + live web as needed")
     new_citations: list[dict] = []
-    n_corpus = _next_label(state, "C")
-    n_web = _next_label(state, "W")
+    n_corpus = _next_label(state, "C", "research")
+    n_web = _next_label(state, "W", "research")
     warnings: list[str] = []
 
     if state.get("needs_corpus", True):
@@ -1542,8 +1552,8 @@ def _summary_target(query: str) -> str:
 async def summary_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) -> dict:
     query = state["query"]
     await tr("start", "summary agent: choose material, summarize with citations")
-    n_corpus = _next_label(state, "C")
-    n_web = _next_label(state, "W")
+    n_corpus = _next_label(state, "C", "summary")
+    n_web = _next_label(state, "W", "summary")
     new_citations: list[dict] = []
 
     urls = URL_RE.findall(query)
@@ -1633,8 +1643,10 @@ SQL_SYSTEM = """You are the DATA agent. Write ONE read-only SQLite query that an
 question using only the schema below. Rules: a single SELECT (or WITH ... SELECT) statement, \
 no semicolons inside, no writes, add LIMIT 50 unless aggregating. If the question asks about \
 each, every or all items, return every matching row (no smaller LIMIT). The query must read from \
-the tables below; never SELECT a constant or answer from your own knowledge. If the tables cannot \
-answer the question, reply with exactly NO_SQL. Otherwise reply with ONLY the SQL, no markdown \
+the tables below; never SELECT a constant or answer from your own knowledge. The question may have \
+several parts handled by other agents (paper content, web news, summaries): write SQL only for the \
+part about the indexed collection's own statistics, and ignore the rest. If NO part of the question \
+can be answered from the tables, reply with exactly NO_SQL. Otherwise reply with ONLY the SQL, no markdown \
 fences, no explanation.
 
 Schema:
@@ -1768,7 +1780,7 @@ async def data_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) -> 
             HumanMessage(f"Question: {query}\n\nSQL:\n{sql}\n\nRows ({len(rows)}):\n{table[:SQL_EVIDENCE_CHARS]}"),
         ],
     )
-    n_sql = _next_label(state, "S")
+    n_sql = _next_label(state, "S", "data")
     cite = {
         "id": f"S{n_sql}",
         "kind": "sql",
@@ -1813,6 +1825,24 @@ any general-knowledge remark short and clearly marked as ungrounded.
 MAX_EVIDENCE_BLOCKS = 12
 
 
+def renumber_citations(citations: list[dict], outputs: dict, plan: list[str]) -> tuple[list[dict], dict]:
+    """Workers that ran in parallel numbered their citations in separate blocks (C1, C41, W1, W11).
+    Put the citations in plan order, number each kind 1..n, and rewrite the labels in the agents'
+    notes to match, so the answer and the Citations tab show C1, C2, C3... as before."""
+    rank = {a: i for i, a in enumerate(plan)}
+    ordered = sorted(citations, key=lambda c: (rank.get(c.get("agent"), len(rank)), c["id"][0], int(c["id"][1:])))
+    count: dict[str, int] = {}
+    mapping: dict[str, str] = {}
+    fixed = []
+    for c in ordered:
+        count[c["id"][0]] = count.get(c["id"][0], 0) + 1
+        new = f"{c['id'][0]}{count[c['id'][0]]}"
+        mapping[c["id"]] = new
+        fixed.append({**c, "id": new})
+    sub = lambda text: LABEL_RE.sub(lambda m: f"[{mapping.get(m.group(1), m.group(1))}]", text) if isinstance(text, str) else text
+    return fixed, {name: sub(text) for name, text in outputs.items()}
+
+
 def _history_text(history: list[dict], n: int = 4) -> str:
     return "\n".join(f"{h['role']}: {LABEL_RE.sub('', h['content'])[:400]}" for h in (history or [])[-n:])
 
@@ -1824,6 +1854,7 @@ async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # mus
     outputs = state.get("agent_outputs", {})
     errors = state.get("errors", [])
 
+    citations, outputs = renumber_citations(citations, outputs, state.get("plan", []))
     notes = "\n\n".join(f"--- notes from {name} agent ---\n{text}" for name, text in outputs.items())
     evidence = "\n\n".join(_evidence_block(c) for c in citations[:MAX_EVIDENCE_BLOCKS])
     err_text = "\n".join(f"- {e['agent']} agent: {e['error']}" for e in errors)
@@ -1905,7 +1936,7 @@ def build_graph():
     g.add_conditional_edges(
         "supervisor",
         next_node,
-        {"research": "research", "summary": "summary", "data": "data", "synthesize": "synthesizer"},
+        {"research": "research", "summary": "summary", "data": "data", "synthesize": "synthesizer"},  # a list fans out
     )
     for worker in ("research", "summary", "data"):
         g.add_edge(worker, "supervisor")  # workers always return to the supervisor

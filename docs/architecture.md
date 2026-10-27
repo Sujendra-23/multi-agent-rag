@@ -7,10 +7,10 @@ Multi-agent RAG system: a LangGraph **supervisor** pattern with three specialise
 ```mermaid
 flowchart TD
     U([Browser: POST /chat]) --> S
-    S{{"supervisor<br/>(plans once, then dispatches from state)"}}
-    S -->|next = research| R["research agent<br/>rag.retrieve + tavily_search"]
-    S -->|next = summary| M["summary agent<br/>corpus doc / tavily_extract / tavily_search"]
-    S -->|next = data| D["data agent<br/>text-to-SQL, read-only SQLite"]
+    S{{"supervisor<br/>(plans once, then dispatches all pending workers in parallel)"}}
+    S -->|next includes research| R["research agent<br/>rag.retrieve + tavily_search"]
+    S -->|next includes summary| M["summary agent<br/>corpus doc / tavily_extract / tavily_search"]
+    S -->|next includes data| D["data agent<br/>text-to-SQL, read-only SQLite"]
     R --> S
     M --> S
     D --> S
@@ -24,7 +24,9 @@ flowchart TD
     D --> Q[(SQLite)]
 ```
 
-Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge from the supervisor driven by `state["next"]`, `worker → supervisor` for every worker, and `synthesizer → END`. Nothing is hard-coded per query: the supervisor classifies the query with an LLM (falling back to a regex heuristic plan if the call or its JSON fails), writes the plan into state, and on every visit picks the first unfinished worker in `state["plan"]`. `MAX_STEPS = 6` bounds the loop.
+Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge from the supervisor driven by `state["next"]`, `worker → supervisor` for every worker, and `synthesizer → END`. Nothing is hard-coded per query: the supervisor classifies the query with an LLM (falling back to a regex heuristic plan if the call or its JSON fails), writes the plan into state, and on every visit sends **all** unfinished workers in `state["plan"]` at once: `state["next"]` is a list, and LangGraph runs the listed workers in parallel in one step, then returns to the supervisor once they have all finished. Workers do not depend on each other (the data agent's handoff to research adds research to the plan, and the supervisor dispatches it on the next visit). `MAX_STEPS = 6` bounds the loop. Parallel dispatch cut the worker phase of a three-agent question (summary, research, data) from 19 s to 14 s, and the mixed news + ReAct question from 41 s to 22 s in total; the run now takes as long as its slowest worker, not the sum.
+
+**Citation labels under parallel dispatch.** Workers started together cannot see each other's citations, so each starts its labels in its own block (`slots`, `LABEL_BLOCK`: C 40, W 10, S 5 apart) and every citation is tagged with the agent that made it. The synthesizer then puts the citations in plan order, numbers each kind 1..n, and rewrites the labels inside the agents' notes to match, so the answer and the Citations tab show `C1, C2, W1, S1…` with no gaps.
 
 ### State schema (`class State(TypedDict)`)
 
@@ -32,7 +34,7 @@ Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge
 |---|---|---|---|
 | `query`, `history` | `str`, `list[dict]` | overwrite | input; history is sent by the browser (stateless server) |
 | `planned`, `plan`, `needs_corpus`, `needs_live`, `complexity`, `plan_reason` | bool / list / bool / bool / `simple\|complex` / str | overwrite | the supervisor's inspectable routing decision |
-| `next`, `steps` | str, int | overwrite | which node runs next; loop counter |
+| `next`, `slots`, `steps` | `list[str]`, `dict[str,int]`, int | overwrite | workers to run now (several = in parallel) and each one's citation-label block; loop counter |
 | `completed` | `list[str]` | `operator.add` | workers that finished (success or failure) |
 | `agent_outputs` | `dict[str, Any]` | `merge_dicts` | each worker's notes, keyed by agent |
 | `citations` | `list[dict]` | `operator.add` | `[C#]` corpus chunks, `[W#]` web results, `[S#]` SQL queries |
@@ -41,7 +43,7 @@ Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge
 | `trace` | `list[dict]` | `operator.add` | orchestration events shown in the UI trace panel |
 | `answer` | str | overwrite | final text |
 
-List/dict fields use reducers so parallel or sequential workers append instead of overwriting each other.
+List/dict fields use reducers so parallel workers append instead of overwriting each other.
 
 ## 2. Agents: responsibilities, tools, prompts, providers
 
