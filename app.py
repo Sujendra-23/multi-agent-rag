@@ -1257,8 +1257,12 @@ def _parse_json(text: str) -> dict | None:
         return None
 
 
+# Citation-like labels ([C4], [S1], [U1], ...); earlier turns' labels mean nothing in this turn.
+LABEL_RE = re.compile(r"\[([A-Z]{1,2}\d+)\]")
+
+
 def _history_snippet(history: list[dict], n: int = 4) -> str:
-    return "\n".join(f"{h['role']}: {h['content'][:300]}" for h in (history or [])[-n:])
+    return "\n".join(f"{h['role']}: {LABEL_RE.sub('', h['content'])[:300]}" for h in (history or [])[-n:])
 
 
 # NOTE: the parameter MUST be named `config` - LangGraph looks for that exact name.
@@ -1300,6 +1304,9 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
 
         agents = [a for a in plan.get("agents", []) if a in WORKERS] or ["research"]
         agents = list(dict.fromkeys(agents))  # de-dupe, keep order
+        if "summary" not in agents and re.search(r"\bsummar(y|ise|ize)\b|\btl;?dr\b", state["query"], re.I):
+            agents.insert(0, "summary")  # an explicit summary request always gets the summary agent
+            await tr("plan", "query asks for a summary -> summary agent added to the plan")
         complexity = "complex" if plan.get("complexity") == "complex" or len(agents) > 1 else "simple"
         update = {
             "planned": True,
@@ -1800,13 +1807,14 @@ believe them to be true.
 - If an agent failed or the evidence does not cover something, say so plainly. Do not invent \
 facts or citations. If there is no evidence at all, say you could not retrieve any, and keep \
 any general-knowledge remark short and clearly marked as ungrounded.
+- The conversation so far is context only, not evidence: never cite a label from it.
 - Be direct and concise."""
 
 MAX_EVIDENCE_BLOCKS = 12
 
 
 def _history_text(history: list[dict], n: int = 4) -> str:
-    return "\n".join(f"{h['role']}: {h['content'][:400]}" for h in (history or [])[-n:])
+    return "\n".join(f"{h['role']}: {LABEL_RE.sub('', h['content'])[:400]}" for h in (history or [])[-n:])
 
 
 async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # must be named `config`
@@ -1866,6 +1874,13 @@ async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # mus
         if answer is None:
             raise err
 
+    valid = {c["id"] for c in citations}
+    bad = sorted(set(LABEL_RE.findall(answer)) - valid)
+    if bad:  # a label with no evidence behind it: drop it and resend the cleaned answer
+        answer = re.sub(r"[ \t]*\[(" + "|".join(map(re.escape, bad)) + r")\]", "", answer)
+        await tr("warn", f"removed citation labels with no matching evidence: {bad}")
+        await run.emit("reset")
+        await run.emit("token", text=answer)
     used = set(re.findall(r"\[([CWS]\d+)\]", answer))
     await tr("done", f"answer {len(answer)} chars, cites {sorted(used) or 'none'}")
     await run.emit(
@@ -2102,13 +2117,13 @@ INDEX_HTML = r'''<!doctype html>
   #status { margin-left: auto; font-size: 12px; color: var(--muted); }
   main { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px;
          padding: 12px; height: calc(100vh - 53px); }
-  @media (max-width: 900px) { main { grid-template-columns: 1fr; height: auto; } }
+  @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); height: auto; } }
   .col { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-         display: flex; flex-direction: column; min-height: 0; }
+         display: flex; flex-direction: column; min-height: 0; min-width: 0; }
   #messages { flex: 1; overflow-y: auto; padding: 14px; min-height: 240px; }
   .msg { margin: 0 0 14px; max-width: 100%; }
   .msg .who { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  .bubble { white-space: pre-wrap; word-wrap: break-word; padding: 8px 12px; border-radius: 10px;
+  .bubble { white-space: pre-wrap; overflow-wrap: anywhere; padding: 8px 12px; border-radius: 10px;
             background: var(--bg); border: 1px solid var(--line); }
   .msg.user .bubble { background: var(--user); }
   .msg.error .bubble { border-color: var(--fb); color: var(--fb); }
@@ -2116,7 +2131,7 @@ INDEX_HTML = r'''<!doctype html>
           border-radius: 4px; background: var(--accent); color: var(--accent-ink); cursor: pointer;
           text-decoration: none; vertical-align: baseline; }
   .routes { margin-top: 6px; display: grid; gap: 4px; }
-  .route { font-size: 12px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 6px;
+  .route { overflow-wrap: anywhere; font-size: 12px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 6px;
            padding: 4px 8px; background: var(--panel); }
   .route .agent { font-weight: 600; }
   .route .why { color: var(--muted); }
@@ -2134,7 +2149,8 @@ INDEX_HTML = r'''<!doctype html>
   .examples { padding: 0 14px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .examples button { background: var(--bg); color: var(--ink); border: 1px solid var(--line);
                      font-size: 12px; padding: 3px 10px; border-radius: 999px; }
-  .tabs { display: flex; border-bottom: 1px solid var(--line); }
+  .tabs { display: flex; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .tabs button { flex: none; }
   .tabs button { background: none; color: var(--muted); border-radius: 0; padding: 10px 14px;
                  border-bottom: 2px solid transparent; }
   .tabs button.on { color: var(--ink); border-bottom-color: var(--accent); }
@@ -2146,7 +2162,7 @@ INDEX_HTML = r'''<!doctype html>
   .tline.warn { color: var(--cap); } .tline.error { color: var(--fb); }
   .turnhead { font-size: 12px; font-weight: 600; margin: 10px 0 4px; color: var(--muted); }
   .cit { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin-bottom: 8px;
-         font-size: 13px; }
+         font-size: 13px; overflow-wrap: anywhere; }
   .cit.flash { outline: 2px solid var(--accent); }
   .cit .lab { font-weight: 700; margin-right: 6px; }
   .cit .src { color: var(--muted); font-size: 12px; }
