@@ -1050,7 +1050,15 @@ def search_args(query: str) -> dict:
 
 async def web_search(agent: str, query: str, tr) -> str:
     args = search_args(query)
-    raw = await hub.call(agent, "search", args, tr)
+    try:
+        raw = await hub.call(agent, "search", args, tr)
+    except RuntimeError as e:  # Tavily's per-minute limit (HTTP 429) clears within seconds: retry once
+        if "429" not in str(e):
+            raise
+        if tr:
+            await tr("warn", "Tavily rate limit (HTTP 429); retrying in 3s")
+        await asyncio.sleep(3)
+        raw = await hub.call(agent, "search", args, tr)
     if "topic" in args and not parse_search_results(raw):  # nothing in the news window: widen it
         raw = await hub.call(agent, "search", {"query": query}, tr)
     return raw
@@ -1515,6 +1523,14 @@ def _match_source(query: str, sources: list[str], titles: dict[str, str] | None 
     return None
 
 
+_NEWS_RE = re.compile(r"\b(news|latest|recent|recently|today|this week|this month)\b", re.I)
+
+
+def _summary_target(query: str) -> str:
+    """The part of the request that asks for a summary, before any comparison clause."""
+    return re.split(r"\b(?:and\s+)?(?:compare|contrast|versus|vs\.?)\b", query, maxsplit=1, flags=re.I)[0]
+
+
 @safe_worker("summary")
 async def summary_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) -> dict:
     query = state["query"]
@@ -1526,7 +1542,10 @@ async def summary_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) 
     urls = URL_RE.findall(query)
     sources = await asyncio.to_thread(rag.list_sources)
     titles = await asyncio.to_thread(rag.list_titles)
-    src = _match_source(query, sources, titles)
+    # "Summarize the latest news ... and compare it with <paper>": the summary is of the news;
+    # the paper named after "compare" is left to the research agent.
+    news_first = bool(state.get("needs_live") and hub.enabled and _NEWS_RE.search(_summary_target(query)))
+    src = None if news_first else _match_source(query, sources, titles)
 
     if urls:
         raw = await hub.call("summary", "extract", {"urls": urls[:1]}, tr)
