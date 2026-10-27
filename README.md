@@ -30,12 +30,20 @@ pip install -r requirements.txt           # every dependency is pinned with ==
 
 cp .env.example .env                      # then fill in keys and CORPUS_DESCRIPTION; never commit .env
 
-bash scripts/fetch_corpus.sh              # downloads the 40 papers into corpus/ (about 130 MB)
+bash scripts/fetch_corpus.sh              # downloads the 40 papers, pinned versions, into corpus/ (about 130 MB, ~3 min)
 python app.py ingest --corpus ./corpus    # chunk (1000/150), embed with titles, write ./chroma_index and ./data/sample.db
 python app.py serve                       # http://127.0.0.1:8080
 ```
 
 Check `http://127.0.0.1:8080/api/config`: it should list your providers, `tavily_enabled: true` and `corpus_chunks` of about 6,114.
+
+### Corpus version and rebuilding it
+
+The corpus is 40 arXiv papers (about 130 MB of PDFs), downloaded on **25 October 2026**. [scripts/corpus_manifest.md](scripts/corpus_manifest.md) lists each arXiv ID with its exact version (e.g. `2210.03629v3`), and `scripts/fetch_corpus.sh` downloads those versions, so a later revision on arXiv does not change the corpus. The PDFs and the Chroma index (about 90 MB) are not in the zip; the deployed service uses the index baked into its image.
+
+Rebuilding from scratch, measured on a laptop: the download takes about 3 minutes (3 s pause between papers), and `ingest` took 106 s and produced the same 40 documents and 6,114 chunks as the deployed index. Embedding costs about $0.02.
+
+The chunked text is included without rebuilding: `data/chunks.jsonl.gz` has all 6,114 chunks (one JSON object per line: `id`, `text`, `source`, `title`, `page`, `chunk_index`), and `data/sample.db` has the per-document metadata table the data agent queries.
 
 `corpus/titles.json` maps each file name to its paper title (used for citations and retrieval); files not listed fall back to the PDF metadata title, then the file name. Retrieval is hybrid (dense + BM25, fused with reciprocal rank fusion).
 
