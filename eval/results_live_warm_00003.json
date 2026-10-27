@@ -1,0 +1,1142 @@
+[
+ {
+  "id": "q01",
+  "question": "What two kinds of memory does the RAG model of Lewis et al. combine?",
+  "reference": "It combines parametric memory (a pre-trained seq2seq transformer) with non-parametric memory (a dense vector index of Wikipedia accessed with a pre-trained neural retriever).",
+  "source": "2005.11401.pdf",
+  "answer": "The RAG model of Lewis et al. combines parametric memory (a pre-trained seq2seq model) and non-parametric memory (a dense vector index of Wikipedia accessed via a neural retriever). [C3][C6]",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p22::c1",
+    "page": 22,
+    "snippet": "is the memory that the computer can directly access and manipulate. [ ISSUP =Fully Supported ] [ Retrieve =Yes]<p>Computer memory–often associated with addressable semiconductor memory, i.e. integrated circuits consisting of silicon-based …",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p2::c5",
+    "page": 2,
+    "snippet": "as test-time model customizations (e.g., balancing the trade-off between citation previsions and completeness). 2 R ELATED WORK Retrieval-Augmented Generation. Retrieval-Augmented Generation (RAG) augments the input space of LMs with retri…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p1::c1",
+    "page": 1,
+    "snippet": "ained models with a differentiable access mechanism to explicit non-parametric memory have so far been only investigated for extractive downstream tasks. We explore a general-purpose ﬁne-tuning recipe for retrieval-augmented generation (RA…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p9::c4",
+    "page": 9,
+    "snippet": "found that people prefer RAG’s generation over purely parametric BART, ﬁnding RAG more factual and speciﬁc. We conducted an thorough investigation of the learned retrieval component, validating its effectiveness, and we illustrated how the…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p3::c1",
+    "page": 3,
+    "snippet": "ther improve generation quality and attributions. Concurrent RAG work. A few concurrent works2 on RAG propose new training or prompting strategies to improve widely-adopted RAG approaches. Lin et al. (2023) fine-tune both the retriever and…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p2::c1",
+    "page": 2,
+    "snippet": "earch (MIPS) to ﬁnd the top-K documentszi. For ﬁnal predictiony, we treatz as a latent variable and marginalize over seq2seq predictions given different documents. but have only explored open-domain extractive question answering. Here, we …",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2309.15217.pdf",
+    "title": "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+    "chunk_id": "2309-15217-pdf::p1::c2",
+    "page": 1,
+    "snippet": "stablished with the introduction of ever larger LMs (Roberts et al., 2020). While the most recent Large Language Models (LLMs) capture enough knowledge to rival human performance across a wide variety of question answering bench- marks (Bu…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2403.14403.pdf",
+    "title": "Adaptive-RAG: Learning to Adapt Retrieval-Augmented LLMs through Question Complexity",
+    "chunk_id": "2403-14403-pdf::p14::c3",
+    "page": 14,
+    "snippet": "retrieval token above a certain threshold, and the answer generation follows. 5) Adaptive-RAG. This is our model that adap- tively selects the retrieval-augmented generation strategy, smoothly oscillating between the non- retrieval, single…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1648,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 2159,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 7669 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What two kinds of memory does the RAG model of Lewis et al. combine?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1384,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks about the specific memory components combined in the RAG model by Lewis et al., which can be answered from the provided corpus of RAG papers."
+   },
+   {
+    "t_ms": 1384,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1386,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1648,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.56)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1648,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 2156,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 174 chars"
+   },
+   {
+    "t_ms": 2157,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 2159,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 7669 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 2851,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 190 chars, cites ['C3', 'C6']"
+   }
+  ],
+  "done": {
+   "t_ms": 2852,
+   "metrics": {
+    "total_ms": 2852,
+    "ttft_ms": 2341,
+    "retrieval_ms": 261,
+    "llm_ms": 2236,
+    "in_tokens": 4694,
+    "out_tokens": 158,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 4694,
+      "out_tokens": 158,
+      "ms": 2236.9525299999964,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 2.97,
+  "first_byte_s": 0.11,
+  "contexts": [
+   "is the memory that the computer can directly access and manipulate.\n[ ISSUP =Fully Supported ] [ Retrieve =Yes]<p>Computer memory–often associated with addressable\nsemiconductor memory, i.e. integrated circuits consisting of silicon-based transistors, used for example as\nprimary storage but also other purposes in computers and other digital electronic devices. There are two main\nkinds of semiconductor memory, volatile and non-volatile. Examples of non-volatile memory are flash memory\n(used as secondary memory) and ROM, PROM, EPROM and EEPROM memory (used for storing firmware\nsuch as BIOS). Examples of volatile memory are primary storage, which is typically dynamic random-access\nmemory (DRAM), and fast CPU cache memory, which is typically static random-access memory (SRAM)\nthat is fast but energy-consuming, offering lower memory<p>[ ISREL =Relevant]Primary memory can be\naccessed quickly, but it is volatile, meaning that the data is lost if the power is turned off.[ ISSUP =Partially\nSup",
+   "as test-time model customizations\n(e.g., balancing the trade-off between citation previsions and completeness).\n2 R ELATED WORK\nRetrieval-Augmented Generation. Retrieval-Augmented Generation (RAG) augments the input\nspace of LMs with retrieved text passages (Guu et al., 2020; Lewis et al., 2020), leading to large\nimprovements in knowledge-intensive tasks after fine-tuning or used with off-the-shelf LMs (Ram\net al., 2023). A more recent work (Luo et al., 2023) instruction-tunes an LM with a fixed number\n2",
+   "ained models with a differentiable access mechanism to explicit non-parametric\nmemory have so far been only investigated for extractive downstream tasks. We\nexplore a general-purpose ﬁne-tuning recipe for retrieval-augmented generation\n(RAG) — models which combine pre-trained parametric and non-parametric mem-\nory for language generation. We introduce RAG models where the parametric\nmemory is a pre-trained seq2seq model and the non-parametric memory is a dense\nvector index of Wikipedia, accessed with a pre-trained neural retriever. We com-\npare two RAG formulations, one which conditions on the same retrieved passages\nacross the whole generated sequence, and another which can use different passages\nper token. We ﬁne-tune and evaluate our models on a wide range of knowledge-\nintensive NLP tasks and set the state of the art on three open domain QA tasks,\noutperforming parametric seq2seq models and task-speciﬁc retrieve-and-extract\narchitectures. For language generation tasks, we ﬁnd that",
+   "found that people prefer RAG’s generation over purely parametric BART, ﬁnding RAG more factual\nand speciﬁc. We conducted an thorough investigation of the learned retrieval component, validating\nits effectiveness, and we illustrated how the retrieval index can be hot-swapped to update the model\nwithout requiring any retraining. In future work, it may be fruitful to investigate if the two components\ncan be jointly pre-trained from scratch, either with a denoising objective similar to BART or some\nanother objective. Our work opens up new research directions on how parametric and non-parametric\nmemories interact and how to most effectively combine them, showing promise in being applied to a\nwide variety of NLP tasks.\n9",
+   "ther improve generation quality and attributions.\nConcurrent RAG work. A few concurrent works2 on RAG propose new training or prompting\nstrategies to improve widely-adopted RAG approaches. Lin et al. (2023) fine-tune both the retriever\nand LM on instruction-tuning datasets in two steps. While we also train our model on diverse\ninstruction-following datasets, SELF -RAG enables retrieval on demand and selection of the best\npossible model output via fine-grained self-reflection, making it widely applicable and more robust\nand controllable. Yoran et al. (2023) use a natural language inference model and Xu et al. (2023) use\na summarization model to filter out or compress retrieved passages before using them to prompt the\nLM to generate the output. SELF -R AG processes passages in parallel and filters out irrelevant ones\nthrough self-reflection, without relying on external models at inference. Moreover, our self-reflection\nmechanism also evaluates other aspects of the model output quality in",
+   "earch (MIPS) to ﬁnd the top-K documentszi. For ﬁnal predictiony, we\ntreatz as a latent variable and marginalize over seq2seq predictions given different documents.\nbut have only explored open-domain extractive question answering. Here, we bring hybrid parametric\nand non-parametric memory to the “workhorse of NLP,” i.e. sequence-to-sequence (seq2seq) models.\nWe endow pre-trained, parametric-memory generation models with a non-parametric memory through\na general-purpose ﬁne-tuning approach which we refer to as retrieval-augmented generation (RAG).\nWe build RAG models where the parametric memory is a pre-trained seq2seq transformer, and the\nnon-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural\nretriever. We combine these components in a probabilistic model trained end-to-end (Fig. 1). The\nretriever (Dense Passage Retriever [26], henceforth DPR) provides latent documents conditioned on\nthe input, and the seq2seq model (BART [32]) then conditions on",
+   "stablished with the introduction of ever\nlarger LMs (Roberts et al., 2020). While the most\nrecent Large Language Models (LLMs) capture\nenough knowledge to rival human performance\nacross a wide variety of question answering bench-\nmarks (Bubeck et al., 2023), the idea of using\nLLMs as knowledge bases still has two fundamen-\ntal limitations. First, LLMs are not able to answer\nquestions about events that have happened after\nthey were trained. Second, even the largest models\nstruggle to memorise knowledge that is only rarely\nmentioned in the training corpus (Kandpal et al.,\n2022; Mallen et al., 2023). The standard solution\nto these issues is to rely on Retrieval Augmented\nGeneration (RAG) (Lee et al., 2019; Lewis et al.,\n2020; Guu et al., 2020). Answering a question\nthen essentially involves retrieving relevant pas-\nsages from a corpus and feeding these passages,\nalong with the original question, to the LM. While\ninitial approaches relied on specialised LMs for\nretrieval-augmented language",
+   "retrieval token above a certain\nthreshold, and the answer generation follows.\n5) Adaptive-RAG. This is our model that adap-\ntively selects the retrieval-augmented generation\nstrategy, smoothly oscillating between the non-\nretrieval, single-step approach, and multi-step ap-\nproaches4 without architectural changes, based on\nthe query complexity assessed by the classifier.\n6) Multi-step Approach. This approach (Trivedi\net al., 2023) is the multi-step retrieval-augmented\nLLM, which iteratively accesses both the retriever\nand LLM with interleaved Chain-of-Thought rea-\nsoning (Wei et al., 2022b) repeatedly until it derives\nthe solution or reaches the maximum step number.\n7) Adaptive-RAG w/ Oracle This is an ideal sce-\nnario of our Adaptive-RAG equipped with an or-\nacle classifier that perfectly categorizes the query\ncomplexity.\nA.3 Implementation Details\nFor computing resources, we use A100 GPUs\nwith 80GB memory. In addition, due to the sig-\nnificant costs associated with evaluating retriev"
+  ]
+ },
+ {
+  "id": "q02",
+  "question": "What is the difference between RAG-Sequence and RAG-Token?",
+  "reference": "RAG-Sequence conditions the whole generated sequence on the same retrieved document, while RAG-Token can draw on a different retrieved document for each generated token.",
+  "source": "2005.11401.pdf",
+  "answer": "The core difference is how retrieved documents are used during token generation:\n\n- **RAG-Sequence** uses the same retrieved document to predict every target token in the sequence. The document is treated as a single latent variable marginalized over the entire output sequence [C1][C3].\n- **RAG-Token** can predict each target token based on a different document, allowing the generator to select content from several documents when producing an answer [C1][C3].\n\nFormally, RAG-Sequence marginalizes over a single document $z$ for the whole sequence: $p(y|x) \\approx \\sum_{z\\in\\text{top-}k} p_\\eta(z|x)\\prod_i p_\\theta(y_i|x,z,y_{1:i-1})$ [C3]. In contrast, RAG-Token marginalizes over a potentially different document $z_i$ for each token $i$: $p_{\\text{RAG-Token}}(y|x) \\approx \\prod_i \\sum_{z\\in\\text{top-}k(p(\\cdot|x))} p_\\eta(z|x) p_\\theta(y_i|x,z,y_{1:i-1})$ [C2][C3].\n\nThis architectural difference enables RAG-Token to combine information from multiple documents during generation, which is reflected in its stronger performance on tasks like Jeopardy question generation, where questions often require two separate pieces of information [C4][C6].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p3::c0",
+    "page": 3,
+    "snippet": "byθ that generates a current token based on a context of the previousi− 1 tokensy1:i−1, the original inputx and a retrieved passagez. To train the retriever and generator end-to-end, we treat the retrieved document as a latent variable. We…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p3::c2",
+    "page": 3,
+    "snippet": "following output token, Formally, we deﬁne: pRAG-Token(y|x) ≈ N∏ i ∑ z∈top-k(p(·|x)) pη(z|x)pθ(yi|x,z,y 1:i−1) Finally, we note that RAG can be used for sequence classiﬁcation tasks by considering the target class as a target sequence of l…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p3::c1",
+    "page": 3,
+    "snippet": "eved document as a single latent variable that is marginalized to get the seq2seq probability p(y|x) via a top-K approximation. Concretely, the top K documents are retrieved using the retriever, and the generator produces the output sequen…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p6::c2",
+    "page": 6,
+    "snippet": "show that RAG generations are more diverse than BART generations (see §4.5). 4.3 Jeopardy Question Generation Table 2 shows that RAG-Token performs better than RAG-Sequence on Jeopardy question generation, with both models outperforming BA…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p4::c0",
+    "page": 4,
+    "snippet": "minimize the negative marginal log-likelihood of each target,∑j− logp(yj|xj) using stochastic gradient descent with Adam [28]. Updating the document encoder BERTd during training is costly as it requires the document index to be periodical…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p6::c1",
+    "page": 6,
+    "snippet": ". Furthermore, RAG can generate correct answers even when the correct answer is not in any retrieved document, achieving 11.8% accuracy in such cases for NQ, where an extractive model would score 0%. 4.2 Abstractive Question Answering As s…",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p7::c3",
+    "page": 7,
+    "snippet": "dditional Results Generation Diversity Section 4.3 shows that RAG models are more factual and speciﬁc than BART for Jeopardy question generation. Following recent work on diversity-promoting decoding [33, 59, 39], we also investigate gener…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p17::c0",
+    "page": 17,
+    "snippet": "Appendices for Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks A Implementation Details For Open-domain QA we report test numbers using 15 retrieved documents for RAG-Token models. For RAG-Sequence models, we report test r…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1679,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 6010,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 9371 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is the difference between RAG-Sequence and RAG-Token?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1393,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user is asking for a conceptual comparison of two RAG variants, which can be answered using the document corpus."
+   },
+   {
+    "t_ms": 1393,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1395,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1679,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.53)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1679,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 6007,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 1108 chars"
+   },
+   {
+    "t_ms": 6008,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 6010,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 9371 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 8615,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1156 chars, cites ['C1', 'C2', 'C3', 'C4', 'C6']"
+   }
+  ],
+  "done": {
+   "t_ms": 8616,
+   "metrics": {
+    "total_ms": 8616,
+    "ttft_ms": 6275,
+    "retrieval_ms": 283,
+    "llm_ms": 8019,
+    "in_tokens": 5305,
+    "out_tokens": 624,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 5305,
+      "out_tokens": 624,
+      "ms": 8019.259118999997,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 8.66,
+  "first_byte_s": 0.05,
+  "contexts": [
+   "byθ that generates a current token based on a context of the previousi− 1 tokensy1:i−1, the original\ninputx and a retrieved passagez.\nTo train the retriever and generator end-to-end, we treat the retrieved document as a latent variable.\nWe propose two models that marginalize over the latent documents in different ways to produce a\ndistribution over generated text. In one approach, RAG-Sequence, the model uses the same document\nto predict each target token. The second approach, RAG-Token, can predict each target token based\non a different document. In the following, we formally introduce both models and then describe the\npη andpθ components, as well as the training and decoding procedure.\n2.1 Models\nRAG-Sequence Model The RAG-Sequence model uses the same retrieved document to generate\nthe complete sequence. Technically, it treats the retrieved document as a single latent variable that\nis marginalized to get the seq2seq probability p(y|x) via a top-K approximation. Concretely, the\ntop K",
+   "following output token, Formally, we deﬁne:\npRAG-Token(y|x) ≈\nN∏\ni\n∑\nz∈top-k(p(·|x))\npη(z|x)pθ(yi|x,z,y 1:i−1)\nFinally, we note that RAG can be used for sequence classiﬁcation tasks by considering the target class\nas a target sequence of length one, in which case RAG-Sequence and RAG-Token are equivalent.\n2.2 Retriever: DPR\nThe retrieval componentpη(z|x) is based on DPR [26]. DPR follows a bi-encoder architecture:\npη(z|x)∝ exp\n(\nd(z)⊤q(x)) d(z) = BERTd(z), q(x) = BERTq(x)\nwhere d(z) is a dense representation of a document produced by a BERTBASE document encoder [8],\nand q(x) a query representation produced by a query encoder, also based on BERTBASE. Calculating\ntop-k(pη(·|x)), the list ofk documentsz with highest prior probabilitypη(z|x), is a Maximum Inner\nProduct Search (MIPS) problem, which can be approximately solved in sub-linear time [23]. We use\na pre-trained bi-encoder from DPR to initialize our retriever and to build the document index. This\nretriever was trained to retrieve d",
+   "eved document as a single latent variable that\nis marginalized to get the seq2seq probability p(y|x) via a top-K approximation. Concretely, the\ntop K documents are retrieved using the retriever, and the generator produces the output sequence\nprobability for each document, which are then marginalized,\npRAG-Sequence(y|x) ≈\n∑\nz∈top-k(p(·|x))\npη(z|x)pθ(y|x,z ) =\n∑\nz∈top-k(p(·|x))\npη(z|x)\nN∏\ni\npθ(yi|x,z,y 1:i−1)\nRAG-Token Model In the RAG-Token model we can draw a different latent document for each\ntarget token and marginalize accordingly. This allows the generator to choose content from several\ndocuments when producing an answer. Concretely, the top K documents are retrieved using the\nretriever, and then the generator produces a distribution for the next output token for each document,\nbefore marginalizing, and repeating the process with the following output token, Formally, we deﬁne:\npRAG-Token(y|x) ≈\nN∏\ni\n∑\nz∈top-k(p(·|x))\npη(z|x)pθ(yi|x,z,y 1:i−1)\nFinally, we note that RAG can be used f",
+   "show that RAG generations are more diverse than\nBART generations (see §4.5).\n4.3 Jeopardy Question Generation\nTable 2 shows that RAG-Token performs better than RAG-Sequence on Jeopardy question generation,\nwith both models outperforming BART on Q-BLEU-1. 4 shows human evaluation results, over 452\npairs of generations from BART and RAG-Token. Evaluators indicated that BART was more factual\nthan RAG in only 7.1% of cases, while RAG was more factual in 42.7% of cases, and both RAG and\nBART were factual in a further 17% of cases, clearly demonstrating the effectiveness of RAG on\nthe task over a state-of-the-art generation model. Evaluators also ﬁnd RAG generations to be more\nspeciﬁc by a large margin. Table 3 shows typical generations from each model.\nJeopardy questions often contain two separate pieces of information, and RAG-Token may perform\nbest because it can generate responses that combine content from several documents. Figure 2 shows\nan example. When generating “Sun”, the posterior",
+   "minimize the negative marginal log-likelihood of each target,∑j− logp(yj|xj) using stochastic\ngradient descent with Adam [28]. Updating the document encoder BERTd during training is costly as\nit requires the document index to be periodically updated as REALM does during pre-training [20].\nWe do not ﬁnd this step necessary for strong performance, and keep the document encoder (and\nindex) ﬁxed, only ﬁne-tuning the query encoder BERTq and the BART generator.\n2.5 Decoding\nAt test time, RAG-Sequence and RAG-Token require different ways to approximatearg maxyp(y|x).\nRAG-Token The RAG-Token model can be seen as a standard, autoregressive seq2seq genera-\ntor with transition probability: p′θ(yi|x,y 1:i−1) = ∑z∈top-k(p(·|x))pη(zi|x)pθ(yi|x,zi,y 1:i−1) To\ndecode, we can plugp′θ(yi|x,y 1:i−1) into a standard beam decoder.\nRAG-Sequence For RAG-Sequence, the likelihoodp(y|x) does not break into a conventional per-\ntoken likelihood, hence we cannot solve it with a single beam search. Instead, we run",
+   ". Furthermore, RAG can generate correct answers\neven when the correct answer is not in any retrieved document, achieving 11.8% accuracy in such\ncases for NQ, where an extractive model would score 0%.\n4.2 Abstractive Question Answering\nAs shown in Table 2, RAG-Sequence outperforms BART on Open MS-MARCO NLG by 2.6 Bleu\npoints and 2.6 Rouge-L points. RAG approaches state-of-the-art model performance, which is\nimpressive given that (i) those models access gold passages with speciﬁc information required to\ngenerate the reference answer , (ii) many questions are unanswerable without the gold passages, and\n(iii) not all questions are answerable from Wikipedia alone. Table 3 shows some generated answers\nfrom our models. Qualitatively, we ﬁnd that RAG models hallucinate less and generate factually\ncorrect text more often than BART. Later, we also show that RAG generations are more diverse than\nBART generations (see §4.5).\n4.3 Jeopardy Question Generation\nTable 2 shows that RAG-Token performs be",
+   "dditional Results\nGeneration Diversity Section 4.3 shows that RAG models are more factual and speciﬁc than\nBART for Jeopardy question generation. Following recent work on diversity-promoting decoding\n[33, 59, 39], we also investigate generation diversity by calculating the ratio of distinct ngrams to\ntotal ngrams generated by different models. Table 5 shows that RAG-Sequence’s generations are\nmore diverse than RAG-Token’s, and both are signiﬁcantly more diverse than BART without needing\nany diversity-promoting decoding.\nRetrieval Ablations A key feature of RAG is learning to retrieve relevant information for the task.\nTo assess the effectiveness of the retrieval mechanism, we run ablations where we freeze the retriever\nduring training. As shown in Table 6, learned retrieval improves results for all tasks.\nWe compare RAG’s dense retriever to a word overlap-based BM25 retriever [53]. Here, we replace\nRAG’s retriever with a ﬁxed BM25 system, and use BM25 retrieval scores as logits when ca",
+   "Appendices for Retrieval-Augmented Generation for\nKnowledge-Intensive NLP Tasks\nA Implementation Details\nFor Open-domain QA we report test numbers using 15 retrieved documents for RAG-Token models.\nFor RAG-Sequence models, we report test results using 50 retrieved documents, and we use the\nThorough Decoding approach since answers are generally short. We use greedy decoding for QA as\nwe did not ﬁnd beam search improved results. For Open-MSMarco and Jeopardy question generation,\nwe report test numbers using ten retrieved documents for both RAG-Token and RAG-Sequence,\nand we also train a BART-large model as a baseline. We use a beam size of four, and use the Fast\nDecoding approach for RAG-Sequence models, as Thorough Decoding did not improve performance.\nB Human Evaluation\nFigure 4: Annotation interface for human evaluation of factuality. A pop-out for detailed instructions\nand a worked example appear when clicking \"view tool guide\".\nFigure 4 shows the user interface for human evaluation."
+  ]
+ },
+ {
+  "id": "q03",
+  "question": "How does Dense Passage Retrieval differ from sparse retrieval such as BM25?",
+  "reference": "DPR learns dense low-dimensional embeddings of questions and passages with a dual-encoder (BERT-based) trained on question-passage pairs and retrieves by inner-product similarity, instead of relying on sparse term matching.",
+  "source": "2004.04906.pdf",
+  "answer": "Dense Passage Retrieval (DPR) differs from sparse retrieval like BM25 in the following ways, based on the evidence:\n\n- **Sensitivity to keywords vs. semantic representation**: BM25 is sensitive to highly selective keywords and phrases but cannot capture lexical variations or semantic relationships well. In contrast, DPR excels at semantic representation [C1][C6].\n- **Qualitative difference in retrieved passages**: The retrieved passages of DPR and BM25 differ qualitatively; BM25 may return irrelevant passages even when keywords appear multiple times, while DPR can return relevant passages without exact token matching [C1][C6].\n- **Performance gap**: DPR outperforms BM25 by a large margin (65.2% vs. 42.9% in Top-5 accuracy) on the Natural Questions dataset [C4].\n- **Impact on end-to-end QA**: Higher retrieval precision from DPR translates to higher end-to-end QA accuracy compared to ORQA (41.5% vs. 33.3%) [C4].\n- **Training approach**: DPR uses dense representations learned from question-passage pairs via a dual-encoder framework, while BM25 relies on term frequency and inverse document frequency [C2][C5].\n- **Complementary use**: BM25 and DPR can be combined (BM25+DPR) using a linear combination of their scores to improve ranking [C5].\n\n[C1] (2004.04906.pdf, p.12)  \n[C4] (2004.04906.pdf, p.2)  \n[C5] (2004.04906.pdf, p.5)  \n[C6] (2004.04906.pdf, p.12)",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p12::c2",
+    "page": 12,
+    "snippet": "ctually differ qualitatively. Methods like BM25 are sensitive to highly selective keywords and phrases, but cannot capture lexical variations or se- mantic relationships well. In contrast, DPR excels at semantic representation, but might l…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Dense Passage Retrieval for Open-Domain Question Answering Vladimir Karpukhin∗, Barlas O˘guz∗, Sewon Min†, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen‡, Wen-tau Yih Facebook AI †University of Washington ‡Princeton University {vladk…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p6::c3",
+    "page": 6,
+    "snippet": "ld 127 \u0013 55.8 73.0 83.1 G.+BM25(1) 31+32 \u0013 65.0 77.3 84.4 G.+BM25(2) 31+64 \u0013 64.5 76.4 84.0 G.+BM25(1) 127+128 \u0013 65.8 78.0 84.9 Table 3: Comparison of different training schemes, measured as top-k retrieval accuracy on Natural Ques- tions …",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p2::c1",
+    "page": 2,
+    "snippet": "urprisingly simple: the embedding is optimized for maximizing inner products of the question and relevant passage vectors, with an objective compar- ing all pairs of questions and passages in a batch. Our Dense Passage Retriever (DPR) is e…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p5::c1",
+    "page": 5,
+    "snippet": "periments is trained using the in-batch negative setting (Sec- tion 3.2) with a batch size of128 and one additional BM25 negative passage per question. We trained the question and passage encoders for up to 40 epochs for large datasets (NQ…",
+    "used": true
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p12::c1",
+    "page": 12,
+    "snippet": "with Euclidean distance (L2) and the triplet loss. We negate L2 similarity scores before ap- plying softmax and change signs of question-to- positive and question-to-negative similarities when applying the triplet loss on dot product score…",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p9::c1",
+    "page": 9,
+    "snippet": "as they can po- tentially give high similarity scores to semantically relevant text pairs, even without exact token match- ing. The dense representation alone, however, is typically inferior to the sparse one. While not the focus of this w…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p3::c4",
+    "page": 3,
+    "snippet": "(2) BM25: top passages returned by BM25 which don’t contain the answer but match most question tokens; (3) Gold: positive passages paired with other questions which appear in the training set. We will discuss the impact of different types …",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1125,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 4155,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 9694 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: How does Dense Passage Retrieval differ from sparse retrieval such as BM25?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 925,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks for a conceptual comparison between DPR and BM25, which can be answered using the RAG corpus of arXiv papers on retrieval and LLM agents."
+   },
+   {
+    "t_ms": 925,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 926,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1125,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.61)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1125,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 4153,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 1432 chars"
+   },
+   {
+    "t_ms": 4154,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 4155,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 9694 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 8607,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1372 chars, cites ['C1', 'C2', 'C4', 'C5', 'C6']"
+   }
+  ],
+  "done": {
+   "t_ms": 8608,
+   "metrics": {
+    "total_ms": 8608,
+    "ttft_ms": 4532,
+    "retrieval_ms": 197,
+    "llm_ms": 8285,
+    "in_tokens": 5398,
+    "out_tokens": 768,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 5398,
+      "out_tokens": 768,
+      "ms": 8285.00532299998,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 8.66,
+  "first_byte_s": 0.05,
+  "contexts": [
+   "ctually differ qualitatively. Methods like BM25\nare sensitive to highly selective keywords and\nphrases, but cannot capture lexical variations or se-\nmantic relationships well. In contrast, DPR excels\nat semantic representation, but might lack sufﬁcient\ncapacity to represent salient phrases which appear\nrarely. Table 7 illustrates this phenomenon with\ntwo examples. In the ﬁrst example, the top scor-\ning passage from BM25 is irrelevant, even though\nkeywords such as England and Ireland appear mul-\ntiple times. In comparison, DPR is able to return\nTop-1 Top-5 Top-20 Top-100\nGold 44.9 66.8 78.1 85.0\nDist. Sup. 43.9 65.3 77.1 84.4\nTable 5: Retrieval accuracy on the development set of\nNatural Questions, trained on passages that match the\ngold context (Gold) or the top BM25 passage that con-\ntains the answer (Dist. Sup.).\nSim Loss Retrieval Accuracy\nTop-1 Top-5 Top-20 Top-100\nDP NLL 44.9 66.8 78.1 85.0Triplet 41.6 65.0 77.2 84.5\nL2 NLL 43.5 64.7 76.1 83.1Triplet 42.2 66.0 78.1 84.9\nTable 6: Re",
+   "Dense Passage Retrieval for Open-Domain Question Answering\nVladimir Karpukhin∗, Barlas O˘guz∗, Sewon Min†, Patrick Lewis,\nLedell Wu, Sergey Edunov, Danqi Chen‡, Wen-tau Yih\nFacebook AI †University of Washington ‡Princeton University\n{vladk, barlaso, plewis, ledell, edunov, scottyih }@fb.com\nsewon@cs.washington.edu\ndanqic@cs.princeton.edu\nAbstract\nOpen-domain question answering relies on ef-\nﬁcient passage retrieval to select candidate\ncontexts, where traditional sparse vector space\nmodels, such as TF-IDF or BM25, are the de\nfacto method. In this work, we show that\nretrieval can be practically implemented us-\ning dense representations alone, where em-\nbeddings are learned from a small number\nof questions and passages by a simple dual-\nencoder framework. When evaluated on a\nwide range of open-domain QA datasets, our\ndense retriever outperforms a strong Lucene-\nBM25 system greatly by 9%-19% absolute in\nterms of top-20 passage retrieval accuracy, and\nhelps our end-to-end QA system establis",
+   "ld 127 \u0013 55.8 73.0 83.1\nG.+BM25(1) 31+32 \u0013 65.0 77.3 84.4\nG.+BM25(2) 31+64 \u0013 64.5 76.4 84.0\nG.+BM25(1) 127+128 \u0013 65.8 78.0 84.9\nTable 3: Comparison of different training schemes,\nmeasured as top-k retrieval accuracy on Natural Ques-\ntions (development set). #N: number of negative\nexamples, IB: in-batch training. G.+BM25 (1) and\nG.+BM25(2) denote in-batch training with 1 or 2 ad-\nditional BM25 negatives, which serve as negative pas-\nsages for all questions in the batch.\nOur experiments on Natural Questions show that\nswitching to distantly-supervised passages (using\nthe highest-ranked BM25 passage that contains the\nanswer), has only a small impact: 1 point lower\ntop-k accuracy for retrieval. Appendix A contains\nmore details.\nSimilarity and loss Besides dot product, cosine\nand Euclidean L2 distance are also commonly used\nas decomposable similarity functions. We test these\nalternatives and ﬁnd that L2 performs compara-\nble to dot product, and both of them are superior\nto cosine. Similarly,",
+   "urprisingly simple: the embedding is optimized\nfor maximizing inner products of the question and\nrelevant passage vectors, with an objective compar-\ning all pairs of questions and passages in a batch.\nOur Dense Passage Retriever (DPR) is exception-\nally strong. It not only outperforms BM25 by a\nlarge margin (65.2% vs. 42.9% in Top-5 accuracy),\nbut also results in a substantial improvement on\nthe end-to-end QA accuracy compared to ORQA\n(41.5% vs. 33.3%) in the open Natural Questions\nsetting (Lee et al., 2019; Kwiatkowski et al., 2019).\nOur contributions are twofold. First, we demon-\nstrate that with the proper training setup, sim-\nply ﬁne-tuning the question and passage encoders\non existing question-passage pairs is sufﬁcient to\ngreatly outperform BM25. Our empirical results\nalso suggest that additional pretraining may not be\nneeded. Second, we verify that, in the context of\nopen-domain question answering, a higher retrieval\nprecision indeed translates to a higher end-to-end\nQA accuracy",
+   "periments\nis trained using the in-batch negative setting (Sec-\ntion 3.2) with a batch size of128 and one additional\nBM25 negative passage per question. We trained\nthe question and passage encoders for up to 40\nepochs for large datasets (NQ, TriviaQA, SQuAD)\nand 100 epochs for small datasets (TREC, WQ),\nwith a learning rate of 10−5 using Adam, linear\nscheduling with warm-up and dropout rate 0.1.\nWhile it is good to have the ﬂexibility to adapt\nthe retriever to each dataset, it would also be de-\nsirable to obtain a single retriever that works well\nacross the board. To this end, we train a multi-\ndataset encoder by combining training data from\nall datasets excluding SQuAD.8 In addition to DPR,\nwe also present the results of BM25, the traditional\nretrieval method9 and BM25+DPR, using a linear\ncombination of their scores as the new ranking\nfunction. Speciﬁcally, we obtain two initial sets\nof top-2000 passages based on BM25 and DPR,\nrespectively, and rerank the union of them using\nBM25(q,p)",
+   "with Euclidean distance (L2) and the triplet\nloss. We negate L2 similarity scores before ap-\nplying softmax and change signs of question-to-\npositive and question-to-negative similarities when\napplying the triplet loss on dot product scores. The\nmargin value of the triplet loss is set to 1. Ta-\nble 6 summarizes the results. All these additional\nexperiments are conducted using the same hyper-\nparameters tuned for the baseline (DP, NLL).\nNote that the retrieval accuracy for our “baseline”\nsettings reported in Table 5 (Gold) and Table 6\n(DP, NLL) is slightly better than those reported in\nTable 3. This is due to a better hyper-parameter\nsetting used in these analysis experiments, which\nis documented in our code release.\nC Qualitative Analysis\nAlthough DPR performs better than BM25 in gen-\neral, the retrieved passages of these two retrievers\nactually differ qualitatively. Methods like BM25\nare sensitive to highly selective keywords and\nphrases, but cannot capture lexical variations or se-\nm",
+   "as they can po-\ntentially give high similarity scores to semantically\nrelevant text pairs, even without exact token match-\ning. The dense representation alone, however, is\ntypically inferior to the sparse one. While not the\nfocus of this work, dense representations from pre-\ntrained models, along with cross-attention mecha-\nnisms, have also been shown effective in passage\nor dialogue re-ranking tasks (Nogueira and Cho,\n2019; Humeau et al., 2020). Finally, a concurrent\nwork (Khattab and Zaharia, 2020) demonstrates\nthe feasibility of full dense retrieval in IR tasks.\nInstead of employing the dual-encoder framework,\nthey introduced a late-interaction operator on top\nof the BERT encoders.\nDense retrieval for open-domain QA has been\nexplored by Das et al. (2019), who propose to re-\ntrieve relevant passages iteratively using reformu-\nlated question vectors. As an alternative approach\nthat skips passage retrieval, Seo et al. (2019) pro-\npose to encode candidate answer phrases as vectors\nand",
+   "(2) BM25: top\npassages returned by BM25 which don’t contain\nthe answer but match most question tokens; (3)\nGold: positive passages paired with other questions\nwhich appear in the training set. We will discuss the\nimpact of different types of negative passages and\ntraining schemes in Section 5.2. Our best model\nuses gold passages from the same mini-batch and\none BM25 negative passage. In particular, re-using\ngold passages from the same batch as negatives\ncan make the computation efﬁcient while achiev-\ning great performance. We discuss this approach\nbelow.\nIn-batch negatives Assume that we have B\nquestions in a mini-batch and each one is asso-\nciated with a relevant passage. Let Q and P be the\n(B×d) matrix of question and passage embeddings\nin a batch of sizeB. S = QPT is a (B×B) ma-\ntrix of similarity scores, where each row of which\ncorresponds to a question, paired withB passages.\nIn this way, we reuse computation and effectively\ntrain onB2 (qi,pj) question/passage pairs in each\nbatch"
+  ]
+ },
+ {
+  "id": "q04",
+  "question": "How does ReAct combine reasoning and acting?",
+  "reference": "ReAct interleaves reasoning traces with task-specific actions: the reasoning helps induce, track and update action plans, and the actions let the model interact with external sources such as a Wikipedia API to gather information.",
+  "source": "2210.03629.pdf",
+  "answer": "ReAct combines reasoning and acting by prompting language models to generate both verbal reasoning traces and actions in an interleaved manner [C1][C5]. This interleaving allows the model to perform dynamic reasoning to create, maintain, and adjust high-level plans for acting (reason to act), while also interacting with external environments to incorporate additional information into reasoning (act to reason) [C1][C5]. The reasoning traces are flexible and sparse, allowing diverse reasoning types to be induced for different tasks, unlike prior approaches that generate actions in isolation [C5][C8]. ReAct outperforms baselines that perform only reasoning or only action generation, demonstrating the value of reasoning to guide acting, especially for synthesizing the final answer [C4][C6].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p2::c6",
+    "page": 2,
+    "snippet": "d if such a combination can bring systematic beneﬁts compared to reasoning or acting alone. In this work, we present ReAct, a general paradigm to combine reasoning and acting with language models for solving diverse language reasoning and …",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p3::c2",
+    "page": 3,
+    "snippet": "task solving; (2) we perform extensive experiments across diverse benchmarks to showcase the advantage of ReAct in a few-shot learning setup over prior approaches that perform either reasoning or action generation in isolation; (3) we pres…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p3::c1",
+    "page": 3,
+    "snippet": "ing methods trained with 103∼ 105 task instances, with an absolute improvement of 34% and 10% in success rates respectively. We also demonstrate the importance of sparse, versatile reasoning in decision making by showing consistent advanta…",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p5::c3",
+    "page": 5,
+    "snippet": "imes (i.e. internal knowledge might not support the task conﬁdently), back off to ReAct. Finetuning Due to the challenge of manually annotating reasoning traces and actions at scale, we consider a bootstraping approach similar to Zelikman …",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p2::c5",
+    "page": 2,
+    "snippet": "ined language models for planning and acting in interactive environments (Ahn et al., 2022; Nakano et al., 2021; Yao et al., 2020; Huang et al., 2022a), with a focus on predicting actions via language priors. These approaches usually conve…",
+    "used": true
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p4::c1",
+    "page": 4,
+    "snippet": "ted to QA, fact veriﬁcation, text game, and web navigation. C) Performant and robust: ReAct shows strong generalization to new task instances while learning solely from one to six in-context examples, consistently outperforming baselines w…",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p1::c2",
+    "page": 1,
+    "snippet": "on making benchmarks (ALFWorld and WebShop), ReAct outperforms imitation and reinforcement learning methods by an absolute success rate of 34% and 10% respectively, while being prompted with only one or two in-context examples. 1 I NTRODUC…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p8::c3",
+    "page": 8,
+    "snippet": "ng an LLM applied to an interactive environment within a closed-loop system. Perhaps the closest prior work is Inner Monologue (IM), from Huang et al. (2022b), in which actions from an embodied agent are motivated by an eponymous “inner mo…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1582,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3167,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 8718 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: How does ReAct combine reasoning and acting?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1247,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks for a conceptual explanation of the ReAct framework, which is a well-documented topic in the provided RAG/agent corpus."
+   },
+   {
+    "t_ms": 1247,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1249,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1582,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.83)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1582,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3164,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 797 chars"
+   },
+   {
+    "t_ms": 3165,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3167,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 8718 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 5192,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 797 chars, cites ['C1', 'C4', 'C5', 'C6', 'C8']"
+   }
+  ],
+  "done": {
+   "t_ms": 5193,
+   "metrics": {
+    "total_ms": 5193,
+    "ttft_ms": 3517,
+    "retrieval_ms": 332,
+    "llm_ms": 4487,
+    "in_tokens": 5046,
+    "out_tokens": 460,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 5046,
+      "out_tokens": 460,
+      "ms": 4487.825403000016,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 5.24,
+  "first_byte_s": 0.05,
+  "contexts": [
+   "d if such a combination can bring systematic beneﬁts compared to reasoning or acting alone.\nIn this work, we present ReAct, a general paradigm to combine reasoning and acting with language\nmodels for solving diverse language reasoning and decision making tasks (Figure 1). ReAct\nprompts LLMs to generate both verbal reasoning traces and actions pertaining to a task in an\ninterleaved manner, which allows the model to perform dynamic reasoning to create, maintain, and\nadjust high-level plans for acting (reason to act), while also interact with the external environments\n(e.g. Wikipedia) to incorporate additional information into reasoning (act to reason).\n2",
+   "task solving; (2) we\nperform extensive experiments across diverse benchmarks to showcase the advantage of ReAct in a\nfew-shot learning setup over prior approaches that perform either reasoning or action generation in\nisolation; (3) we present systematic ablations and analysis to understand the importance of acting in\nreasoning tasks, and reasoning in interactive tasks; (4) we analyze the limitations ofReAct under the\nprompting setup (i.e. limited support of reasoning and acting behaviors), and perform initial ﬁnetuning\nexperiments showing the potential of ReAct to improve with additional training data. Scaling up\nReAct to train and operate on more tasks and combining it with complementary paradigms like\nreinforcement learning could further unlock the potential of large language models.\n2 REAC T: S YNERGIZING REASONING + AC TING\nConsider a general setup of an agent interacting with an environment for task solving. At time\nstept, an agent receives an observationot∈O from the environment",
+   "ing methods trained with 103∼ 105 task instances,\nwith an absolute improvement of 34% and 10% in success rates respectively. We also demonstrate\nthe importance of sparse, versatile reasoning in decision making by showing consistent advantages\nover controlled baselines with actions only. Besides general applicability and performance boost,\nthe combination of reasoning and acting also contributes to model interpretability, trustworthiness,\nand diagnosability across all domains, as humans can readily distinguish information from model’s\ninternal knowledge versus external environments, as well as inspect reasoning traces to understand\nthe decision basis of model actions.\nTo summarize, our key contributions are the following: (1) we introduce ReAct, a novel prompt-\nbased paradigm to synergize reasoning and acting in language models for general task solving; (2) we\nperform extensive experiments across diverse benchmarks to showcase the advantage of ReAct in a\nfew-shot learning setup over pri",
+   "imes (i.e. internal knowledge might not support the task conﬁdently), back off to ReAct.\nFinetuning Due to the challenge of manually annotating reasoning traces and actions at scale,\nwe consider a bootstraping approach similar to Zelikman et al. (2022), using 3,000 trajectories\nwith correct answers generated by ReAct (also for other baselines) to ﬁnetune smaller language\nmodels (PaLM-8/62B) to decode trajectories (all thoughts, actions, observations) conditioned on\ninput questions/claims. More details are in Appendix B.1.\n3.3 R ESULTS AND OBSERVATIONS\nReAct outperforms Act consistently Table 1 shows HotpotQA and Fever results using PaLM-\n540B as the base model with different prompting methods. We note that ReAct is better than Act\non both tasks, demonstrating the value of reasoning to guide acting, especially for synthesizing the\nﬁnal answer, as shown in Figure 1 (1c-d). Fine-tuning results 3 also conﬁrm the beneﬁt of reasoning\ntraces for more informed acting.\n3Of all trajectories with",
+   "ined language models for planning and acting in interactive\nenvironments (Ahn et al., 2022; Nakano et al., 2021; Yao et al., 2020; Huang et al., 2022a), with\na focus on predicting actions via language priors. These approaches usually convert multi-modal\nobservations into text, use a language model to generate domain-speciﬁc actions or plans, and then\nuse a controller to choose or execute them. However, they do not employ language models to reason\nabstractly about high-level goals or maintain a working memory to support acting, barring Huang\net al. (2022b) who perform a limited form of verbal reasoning to reiterate spatial facts about the\ncurrent state. Beyond such simple embodied tasks to interact with a few blocks, there have not been\nstudies on how reasoning and acting can be combined in a synergistic manner for general task solving,\nand if such a combination can bring systematic beneﬁts compared to reasoning or acting alone.\nIn this work, we present ReAct, a general paradigm to comb",
+   "ted to QA, fact veriﬁcation, text game, and web\nnavigation. C) Performant and robust: ReAct shows strong generalization to new task instances\nwhile learning solely from one to six in-context examples, consistently outperforming baselines with\nonly reasoning or acting across different domains. We also show in Section 3 additional beneﬁts\nwhen ﬁnetuning is enabled, and in Section 4 how ReAct performance is robust to prompt selections.\nD) Human aligned and controllable: ReAct promises an interpretable sequential decision making\nand reasoning process where humans can easily inspect reasoning and factual correctness. Moreover,\nhumans can also control or correct the agent behavior on the go by thought editing, as shown in\nFigure 5 in Section 4.\n3 K NOWLEDGE -I NTENSIVE REASONING TASKS\nWe begin with knowledge-intensive reasoning tasks like multi-hop question answering and fact\nveriﬁcation. As shown in Figure 1(1d), by interacting with a Wikipedia API, ReAct is able to\nretrieve information to",
+   "on making benchmarks (ALFWorld and\nWebShop), ReAct outperforms imitation and reinforcement learning methods by\nan absolute success rate of 34% and 10% respectively, while being prompted with\nonly one or two in-context examples.\n1 I NTRODUCTION\nA unique feature of human intelligence is the ability to seamlessly combine task-oriented actions with\nverbal reasoning (or inner speech, Alderson-Day & Fernyhough, 2015), which has been theorized to\nplay an important role in human cognition for enabling self-regulation or strategization (Vygotsky,\n1987; Luria, 1965; Fernyhough, 2010) and maintaining a working memory (Baddeley, 1992). Con-\nsider the example of cooking up a dish in the kitchen. Between any two speciﬁc actions, we may\nreason in language in order to track progress (“now that everything is cut, I should heat up the pot of\nwater”), to handle exceptions or adjust the plan according to the situation (“I don’t have salt, so let\nme use soy sauce and pepper instead”), and to realize when e",
+   "ng an LLM applied to an interactive environment\nwithin a closed-loop system. Perhaps the closest prior work is Inner Monologue (IM), from Huang\net al. (2022b), in which actions from an embodied agent are motivated by an eponymous “inner\nmonologue”. However, IM’s “inner monologue” is limited to observations of the environment\nstate and what needs to be completed by the agent for the goal to be satisﬁed. In contrast, the\nreasoning traces in ReAct for decision making is ﬂexible and sparse, allowing diverse reasoning\ntypes (see Section 2) to be induced for different tasks.\nTo demonstrate the differences between ReAct and IM, and to highlight the importance of internal\nreasoning vs. simple reactions to external feedback, we ran an ablation experiment using a thought\npattern composed of IM-like dense external feedback. As can be seen in Table 3,ReAct substantially\noutperforms IM-style prompting ( ReAct-IM) (71 vs. 53 overall success rate), with consistent\nadvantages on ﬁve out of six tasks."
+  ]
+ },
+ {
+  "id": "q05",
+  "question": "What is chain-of-thought prompting?",
+  "reference": "Chain-of-thought prompting provides exemplars that include intermediate reasoning steps, which elicits step-by-step reasoning and improves performance on arithmetic, commonsense and symbolic tasks in sufficiently large language models.",
+  "source": "2201.11903.pdf",
+  "answer": "Chain-of-thought prompting is a method that improves large language models' reasoning abilities by eliciting intermediate natural language reasoning steps before the final answer [C3][C7]. It involves providing a few chain-of-thought demonstrations as exemplars in few-shot prompting [C7], where each exemplar consists of an input, a chain of thought, and an output [C3]. The chain of thought is a series of intermediate reasoning steps that lead to the final output, effectively decomposing multi-step problems [C6]. This approach allows models to perform better on arithmetic, commonsense, and symbolic reasoning tasks, sometimes achieving state-of-the-art accuracy [C7][C3].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p6::c1",
+    "page": 6,
+    "snippet": "the success of chain- of-thought prompting, and that there appears to be utility from expressing intermediate steps via natural language. Chain of thought after answer. Another potential beneﬁt of chain-of-thought prompting could simply be…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p9::c0",
+    "page": 9,
+    "snippet": "experiments on commonsense reasoning underscored how the linguistic nature of chain-of-thought reasoning makes it generally applicable (Section 4). Finally, we showed that for symbolic reasoning, chain-of-thought prompting facilitates OOD …",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p2::c3",
+    "page": 2,
+    "snippet": "e explore the ability of language models to perform few-shot prompting for reasoning tasks, given a prompt that consists of triples:⟨input, chain of thought, output⟩. A chain of thought is a series of intermediate natural language reasonin…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p3::c4",
+    "page": 3,
+    "snippet": "rmatted as questions and answers. The model gives the answer directly, as shown in Figure 1 (left). Chain-of-thought prompting. Our proposed approach is to augment each exemplar in few-shot prompting with a chain of thought for an associat…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p18::c5",
+    "page": 18,
+    "snippet": "interesting direction for future work. For instance, an idea here could be to use a large language model to automatically generate chains of thought via prompting (and potentially optimize this over a validation set). A.3 Will chain-of-tho…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p3::c0",
+    "page": 3,
+    "snippet": "language models can generate chains of thought if demonstrations of chain-of-thought reasoning are provided in the exemplars for few-shot prompting. Figure 1 shows an example of a model producing a chain of thought to solve a math word pro…",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models Jason Wei Xuezhi Wang Dale Schuurmans Maarten Bosma Brian Ichter Fei Xia Ed H. Chi Quoc V . Le Denny Zhou Google Research, Brain Team {jasonwei,dennyzhou}@google.com Abs…",
+    "used": true
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p18::c3",
+    "page": 18,
+    "snippet": "h up with chain-of-thought prompting). • Different language models. Another interesting question is whether certain prompts that work better for one model work better for other large language models. We ﬁnd that with the same prompts, chai…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1884,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3516,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 8337 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is chain-of-thought prompting?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1643,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | Chain-of-thought prompting is a well-documented LLM technique; the corpus likely contains explanations or references."
+   },
+   {
+    "t_ms": 1643,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1645,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1884,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.69)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1884,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3513,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 677 chars"
+   },
+   {
+    "t_ms": 3514,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3516,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 8337 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 5568,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 677 chars, cites ['C3', 'C6', 'C7']"
+   }
+  ],
+  "done": {
+   "t_ms": 5569,
+   "metrics": {
+    "total_ms": 5569,
+    "ttft_ms": 3704,
+    "retrieval_ms": 239,
+    "llm_ms": 4972,
+    "in_tokens": 4878,
+    "out_tokens": 395,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 4878,
+      "out_tokens": 395,
+      "ms": 4972.926772999983,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 5.63,
+  "first_byte_s": 0.06,
+  "contexts": [
+   "the success of chain-\nof-thought prompting, and that there appears to be utility from\nexpressing intermediate steps via natural language.\nChain of thought after answer. Another potential beneﬁt of\nchain-of-thought prompting could simply be that such prompts\nallow the model to better access relevant knowledge acquired\nduring pretraining. Therefore, we test an alternative conﬁgura-\ntion where the chain of thought prompt is only given after the\nanswer, isolating whether the model actually depends on the\nproduced chain of thought to give the ﬁnal answer. This variant\nperforms about the same as the baseline, which suggests that\nthe sequential reasoning embodied in the chain of thought is\nuseful for reasons beyond just activating knowledge.\n3.4 Robustness of Chain of Thought\nGSM8K\n0\n5\n10\n15\n20Solve rate (%)\nStandard prompting\nChain-of-thought prompting\n· different annotator (B)\n· different annotator (C)\n· intentionally concise style\n· exemplars from GSM8K (α)\n· exemplars from GSM8K (β)\n· ex",
+   "experiments on commonsense reasoning underscored how the linguistic nature of chain-of-thought\nreasoning makes it generally applicable (Section 4). Finally, we showed that for symbolic reasoning,\nchain-of-thought prompting facilitates OOD generalization to longer sequence lengths (Section 5). In\nall experiments, chain-of-thought reasoning is elicited simply by prompting an off-the-shelf language\nmodel. No language models were ﬁnetuned in the process of writing this paper.\nThe emergence of chain-of-thought reasoning as a result of model scale has been a prevailing theme\n(Wei et al., 2022b). For many reasoning tasks where standard prompting has a ﬂat scaling curve, chain-\nof-thought prompting leads to dramatically increasing scaling curves. Chain-of-thought prompting\nappears to expand the set of tasks that large language models can perform successfully—in other\nwords, our work underscores that standard prompting only provides a lower bound on the capabilities\nof large language models. Th",
+   "e explore the ability of language models to perform few-shot prompting for reasoning\ntasks, given a prompt that consists of triples:⟨input, chain of thought, output⟩. A chain of thought is\na series of intermediate natural language reasoning steps that lead to the ﬁnal output, and we refer to\nthis approach as chain-of-thought prompting. An example prompt is shown in Figure 1.\nWe present empirical evaluations on arithmetic, commonsense, and symbolic reasoning benchmarks,\nshowing that chain-of-thought prompting outperforms standard prompting, sometimes to a striking\ndegree. Figure 2 illustrates one such result—on the GSM8K benchmark of math word problems\n(Cobbe et al., 2021), chain-of-thought prompting with PaLM 540B outperforms standard prompting\nby a large margin and achieves new state-of-the-art performance. A prompting only approach is\nimportant because it does not require a large training dataset and because a single model checkpoint\ncan perform many tasks without loss of generality.",
+   "rmatted as questions and\nanswers. The model gives the answer directly, as shown in Figure 1 (left).\nChain-of-thought prompting. Our proposed approach is to augment each exemplar in few-shot\nprompting with a chain of thought for an associated answer, as illustrated in Figure 1 (right). As most\nof the datasets only have an evaluation split, we manually composed a set of eight few-shot exemplars\nwith chains of thought for prompting—Figure 1 (right) shows one chain of thought exemplar, and the\nfull set of exemplars is given in Appendix Table 20. (These particular exemplars did not undergo\nprompt engineering; robustness is studied in Section 3.4 and Appendix A.2.) To investigate whether\nchain-of-thought prompting in this form can successfully elicit successful reasoning across a range of\n3",
+   "interesting direction\nfor future work. For instance, an idea here could be to use a large language model to automatically\ngenerate chains of thought via prompting (and potentially optimize this over a validation set).\nA.3 Will chain-of-thought prompting improve performance for my task of interest?\nWhile chain-of-thought prompting is in principle applicable for any text-to-text task, it is more\nhelpful for some tasks than others. Based on the experiments in this paper, our intuition is that chain\nof thought helps the most when three conditions are met: (1) the task is challenging and requires\n18",
+   "language models can generate chains of thought if demonstrations of chain-of-thought reasoning are\nprovided in the exemplars for few-shot prompting.\nFigure 1 shows an example of a model producing a chain of thought to solve a math word problem\nthat it would have otherwise gotten incorrect. The chain of thought in this case resembles a solution\nand can interpreted as one, but we still opt to call it a chain of thought to better capture the idea that it\nmimics a step-by-step thought process for arriving at the answer (and also, solutions/explanations\ntypically come after the ﬁnal answer (Narang et al., 2020; Wiegreffe et al., 2022; Lampinen et al.,\n2022, inter alia)).\nChain-of-thought prompting has several attractive properties as an approach for facilitating reasoning\nin language models.\n1. First, chain of thought, in principle, allows models to decompose multi-step problems into\nintermediate steps, which means that additional computation can be allocated to problems\nthat require more r",
+   "Chain-of-Thought Prompting Elicits Reasoning\nin Large Language Models\nJason Wei Xuezhi Wang Dale Schuurmans Maarten Bosma\nBrian Ichter Fei Xia Ed H. Chi Quoc V . Le Denny Zhou\nGoogle Research, Brain Team\n{jasonwei,dennyzhou}@google.com\nAbstract\nWe explore how generating a chain of thought—a series of intermediate reasoning\nsteps—signiﬁcantly improves the ability of large language models to perform\ncomplex reasoning. In particular, we show how such reasoning abilities emerge\nnaturally in sufﬁciently large language models via a simple method called chain-of-\nthought prompting, where a few chain of thought demonstrations are provided as\nexemplars in prompting.\nExperiments on three large language models show that chain-of-thought prompting\nimproves performance on a range of arithmetic, commonsense, and symbolic\nreasoning tasks. The empirical gains can be striking. For instance, prompting a\nPaLM 540B with just eight chain-of-thought exemplars achieves state-of-the-art\naccuracy on the GSM8K",
+   "h up with chain-of-thought prompting).\n• Different language models. Another interesting question is whether certain prompts that work\nbetter for one model work better for other large language models. We ﬁnd that with the same\nprompts, chain-of-thought prompting improves performance across all three models (LaMDA,\nGPT-3, and PaLM) for all datasets except CSQA and StrategyQA for GPT-3 (Table 1, Table 4,\nTable 5). The fact that gains from chain of thought did not transfer perfectly among models is\na limitation; further work could investigate why how different pre-training datasets and model\narchitectures affect the performance gain from chain-of-thought prompting.\nPrompt engineering still matters, though. Although the results are relatively robust to the prompt\nfor arithmetic reasoning, we want to be clear that prompt engineering still does matter, and can\nimprove performance signiﬁcantly in many cases. Though most chain of thought annotations\noutperform standard prompting, there is large"
+  ]
+ }
+]

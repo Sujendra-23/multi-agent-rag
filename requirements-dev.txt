@@ -1,0 +1,9 @@
+# Evaluation-only dependencies (RAGAS). Use a separate venv from the app: python3.13 -m venv .venv-eval
+datasets==5.1.0
+httpx==0.28.1
+langchain-community==0.4.2
+langchain-core==1.7.0
+langchain-openai==1.7.2
+pandas==3.1.0
+python-dotenv==1.2.4
+ragas==0.4.3

@@ -1,0 +1,195 @@
+# Evaluation
+
+All numbers were produced by the scripts in `eval/` against the real system and corpus (40 papers, 6,114 chunks) on 25 and 26 October 2026. Raw outputs are committed in `eval/`. Default routing is the configuration in `.env.example`: NVIDIA `nvidia/nemotron-3.5-lightning-30b-a3b` as the cheap tier and OpenAI `gpt-5.6-sol` as the strong tier. Chunking is sentence-aware (1,000 characters, 150 overlap); retrieval is hybrid (dense + BM25 + a paper-focus list) with k = 8.
+
+## 1. RAGAS (retrieval quality and answer quality)
+
+**Setup.** 25 fixed questions in `eval/questions.json`, each with a reference answer and the paper it should come from, all answerable from the corpus. Each question went through the full graph (local server, default routing); the retrieved chunks are the `retrieved_contexts`, the streamed answer with `[C#]` labels stripped is the `response`. Judge: `gpt-5.1` (pinned with `JUDGE_MODEL`, so every row uses the same judge even when the strong tier changes) through RAGAS 0.4.3; embeddings for answer relevancy: `text-embedding-3-small`. All rows below were scored by the **same judge** so they are comparable. Row 5 is the final system, run end to end after the last code change. Row 3 was run twice (0.842 / 0.800 / 0.675 / 0.840 and 0.829 / 0.808 / 0.687 / 0.840; `eval/ragas_scores_previous_run.json`), so the run-to-run noise from re-sampling answers is about one to two points on every metric except recall, which depends only on retrieval. One caveat applies to row 5 and the chunking comparison below: NVIDIA's free tier returned HTTP 429 (rate limit) for some calls during those runs, and the app's failover re-ran those steps on OpenAI (18 steps in 15 of the 25 queries in the final run), so some research notes were written by the stronger model.
+
+| Version | Faithfulness | Answer relevancy | Context precision | Context recall |
+|---|---|---|---|---|
+| 1. Dense retrieval, arXiv IDs as titles, k = 5 | 0.835 | 0.796 | 0.675 | 0.640 |
+| 2. + titles + hybrid retrieval, k = 5 | 0.801 | 0.812 | 0.727 | 0.800 |
+| 3. + k = 8, stricter grounding prompts (all answers on NVIDIA) | 0.829 | 0.808 | 0.687 | 0.840 |
+| 4. + strong tier `gpt-5.6-sol` for grounded answers, + paper focus | 0.876 | 0.792 | 0.709 | 0.840 |
+| **5. Final: + sentence-aware chunking (6,114 chunks)** | **0.939** | **0.791** | **0.688** | **0.840** |
+
+Scores per question: `eval/ragas_scores*.json`. (Versions 1 and 2 were first scored with a Claude judge, files `*_claude_judge.json`: 0.852 / 0.872 / 0.623 / 0.720 and 0.837 / 0.854 / 0.707 / 0.840. That judge later became unavailable, so everything was re-scored with the OpenAI judge; the absolute numbers differ by judge, the trend is the same.)
+
+**Which model answers (same 25 questions, same judge; rows 1 to 6 on the previous chunker).** Moving the answer-writing step to a stronger model is the largest single gain in faithfulness:
+
+| Configuration | Faithfulness | Answer relevancy | Median total | Answers perfect (1.0) | Files |
+|---|---|---|---|---|---|
+| All steps on NVIDIA lightning (row 3) | 0.829 | 0.808 | 6.0 s | 6 of 25 | `ragas_scores_previous_run.json` |
+| NVIDIA `nemotron-3-ultra-550b` as the cheap tier | 0.860 (24 scored) | 0.807 | 13.6 s | 8 of 24 | `*_exp_ultra.json` |
+| Final answer on `gpt-5.5`, workers on NVIDIA | 0.920 | 0.823 | 7.8 s | 15 of 25 | `*_exp_synth55.json` |
+| Every step on `gpt-5.5` (upper bound, one provider, not shippable) | **0.959** | 0.805 | 10.2 s | 18 of 25 | `*_exp_gpt55.json` |
+| Final answer on `gpt-5.6-sol`, workers on NVIDIA, no paper focus | 0.890 | 0.770 | n/a | 13 of 25 | `ragas_scores_sol.json` |
+| `gpt-5.6-sol` + paper focus (previous index, no NVIDIA rate-limit fallbacks) | 0.876 | 0.792 | 5.8 s | 12 of 25 | `ragas_scores_v1_index.json` |
+| **Shipped: `gpt-5.6-sol` + paper focus + new chunker** | **0.939** | 0.791 | 9.1 s (rate-limit retries) | 15 of 25 | `ragas_scores.json` |
+
+Reading it: a bigger NVIDIA model (550B) barely helps and doubles latency; a strong final-answer model lifts faithfulness by 5 to 9 points; putting every step on the strong model adds only about 4 more. The three strong-model rows (0.88 to 0.96) are not separable given the judge's per-question noise of roughly 0.1 (the same correct answer, for example q14 "memory stream, planning, reflection", scores between 0.5 and 1.0 across runs). `gpt-5.6-sol` was chosen over `gpt-5.5` because OpenAI lists it at $4 / $20 per million tokens against about $5 / $30 for `gpt-5.5` (third-party listings), and it is the model the assignment's provider table names as the OpenAI reference.
+
+**What changed and why.** The first evaluation exposed retrieval misses: for the Tree of Thoughts question all five chunks came from the chain-of-thought paper, and for the "Rise and Potential" agent survey two other surveys outranked it. Fixes, in order:
+
+1. **Titles.** Every chunk's stored title was just its arXiv ID. Ingestion now reads human titles (`corpus/titles.json`, else PDF metadata, else file name) and embeds each chunk with its title as a header.
+2. **Hybrid retrieval.** The top 30 dense and top 30 BM25 candidates are merged with reciprocal rank fusion. If the embedding service is unavailable, retrieval falls back to BM25 only.
+3. **Paper focus.** When the question names a corpus paper, that paper's 12 best chunks are fused in as a third ranked list. For q16 ("How does Tree of Thoughts generalize chain-of-thought prompting?") the retrieved set went from 3 chunks of the right paper (none the method) to 7, including the sentence that introduces ToT; q16 faithfulness went from 0.29 / 0.33 / 0.35 / 0.55 in earlier runs to 1.0. On the benchmark below it lifts chunk precision from 0.94 to 0.97 and leaves the held-out set unchanged.
+4. **Sentence-aware chunking.** The original chunker only split on blank lines, but PDF text extraction produces single newlines, so each page was hard-cut every 1,000 characters in the middle of sentences, with junk fragments such as a 34-character chunk `, this metric aims to penalise the` that occupied a retrieval slot. The new chunker (`chunk_document`) removes hyphenated line breaks, rebuilds running text, splits on sentence boundaries over the whole document (a passage that crosses a page break stays together), repeats about 150 characters between chunks, and folds any piece under 200 characters into its neighbour: 6,114 chunks, none under 200 characters, median 929, maximum 1,352; every chunk ends at a sentence boundary (before: 37 of 42 chunks of the Ragas paper ended mid-sentence). The chunk that states the three Ragas metrics is now whole. The A/B result is in the table below.
+5. **Depth and grounding.** k went from 5 to 8, with `COMPLEX_CONTEXT_CHARS` scaled from 9,000 to 14,000 so the larger evidence set does not by itself push every query to the strong provider. The research and synthesis prompts now forbid claims, qualifiers or comparisons that the evidence does not state.
+
+**Old chunker vs new chunker (same questions, same judge, same retrieval code).**
+
+| Index, k | Faithfulness | Relevancy | Precision | Recall | NVIDIA steps redone on OpenAI | Files |
+|---|---|---|---|---|---|---|
+| old chunker, k = 8 | 0.876 | 0.792 | 0.709 | 0.840 | 0 | `*_v1_index.json` |
+| new chunker, k = 8 (shipped; paced) | 0.939 | 0.791 | 0.688 | 0.840 | 18 | `ragas_scores.json` |
+| new chunker, k = 8 (two earlier runs) | 0.921 / 0.898 | 0.787 / 0.765 | 0.684 / 0.663 | 0.800 / 0.840 | 31 / 30 | `*_v2b.json`, `*_v2c_k8.json` |
+| new chunker, k = 10 (two runs, not adopted) | 0.928 / 0.928 | 0.798 / 0.797 | 0.668 / 0.657 | 0.880 / 0.880 | 27 / 15 | `*_v2b_k10.json`, `*_v2d_k10.json` |
+
+Faithfulness is higher in every run on the new index (0.90 to 0.94 against 0.83 to 0.88), but the rate-limit fallbacks mean part of that is OpenAI writing some of the notes. Restricted to the queries that ran with no worker fallback the comparison is mixed (10 queries at k = 8: faithfulness +0.05, recall −0.10; 13 queries at k = 10: faithfulness −0.01, precision −0.10), so **the gain is not proven**; precision is about 0.02 lower and recall equal at the shipped setting. The new chunker was adopted because it removes a real defect (mid-sentence cuts and fragments, which caused the q10 failure) at no measurable cost, and q10 went from 0.57 to 1.0. k = 10 was not adopted: it raises recall to 0.88 but lowers precision further and adds evidence tokens to every answer.
+
+Retrieval-only benchmark (`eval/retrieval_bench.py`, embeddings only, no LLM; "hit" = the expected paper is in the retrieved chunks; "ref-term recall" = share of the reference answer's key terms found in the retrieved text):
+
+| Retrieval | hit | chunk precision | MRR | ref-term recall |
+|---|---|---|---|---|
+| Dense, IDs as titles, k = 5 | 0.92 | 0.77 | 0.84 | n/a |
+| Dense + title header, k = 5 | 0.96 | 0.90 | 0.93 | 0.67 |
+| Hybrid, k = 5 | 1.00 | 0.95 | 0.97 | 0.72 |
+| Hybrid, k = 8 | 1.00 | 0.94 | 0.97 | 0.78 |
+| Hybrid + paper focus, k = 8 (old chunker) | 1.00 | 0.97 | 0.97 | 0.79 |
+| **Hybrid + paper focus + new chunker, k = 8 (final)** | **1.00** | **0.96** | **0.98** | **0.76** |
+| Hybrid, k = 10 (not adopted) | 1.00 | 0.93 | 0.97 | 0.81 |
+
+(The ref-term recall proxy counts shared words, so it drops a little with the new chunker's smaller, cleaner chunks; the LLM-judged context recall above is unchanged at 0.84.) A separate held-out set of 12 new questions (`eval/heldout_questions.json`) scores 1.00 on hit and precision with both dense and hybrid retrieval, so the change did not regress distinctive-term queries; that set is easy and does not discriminate between methods.
+
+**Reading the numbers.**
+
+- The clearest gain is **context recall: 0.64 to 0.84**. The right paper is now found for all 25 questions, and about 20 percentage points more of each reference answer's key content is present in the retrieved chunks.
+- **Context precision did not improve meaningfully** versus version 1 (0.675 to 0.687): retrieving 8 chunks instead of 5 adds chunks that are less relevant. Version 2 (k = 5) had the best precision, 0.727; the trade for recall was deliberate.
+- **Faithfulness and relevancy are flat within noise** (0.80 to 0.84 across all versions and runs). With 25 questions and an LLM judge, differences of a few points are not meaningful, and the stricter prompts did not produce a measurable change.
+- Per-question faithfulness moves a lot between runs because the answers are re-sampled and the judge is noisy. In the final run 15 of 25 answers scored 1.0 and **one** scored below 0.7: **q24 (0.50)**. q10 (the Ragas metrics, the one consistent weakness of the earlier runs, caused by the broken chunk), q14, q16, q18 and q22 all score 1.0 now. Across the earlier runs the questions below 0.7 changed from run to run (q05, q10, q11, q14, q15, q16, q18, q22, q23, q24, q25), and when read by hand those answers were correct and cited, so the per-question scores carry judge noise of roughly 0.1.
+- A cross-encoder re-ranker was tried and **not adopted**. Re-ranking the top 24 fused candidates down to 8 with three small ONNX cross-encoders (`ms-marco-MiniLM-L-6`, `ms-marco-MiniLM-L-12`, `jina-reranker-v1-turbo`) did not beat the current retrieval on the benchmark (chunk precision 0.94 to 0.91 to 0.92, ref-term recall 0.78 to 0.75 to 0.77, held-out precision 1.00 to 0.97 to 0.99) and added about 0.5 s per query, so the shipped system has no re-ranker.
+- Context recall is zero for q08, q13, q16 and q25 (same four in every run) although the right paper was retrieved for all of them: the reference answers, written by the author from knowledge of the papers, contain details that are not in the retrieved chunks.
+- **Spot check after the last code changes** (paper-name matching now understands "Corrective RAG" and the "CRAG" benchmark name). Only q08 and q23 are affected, because they are the only two of the 25 questions whose retrieval changed. Re-run alone with the same judge: q08 faithfulness 0.91, relevancy 0.82, precision 0.93, recall 1.0 (before 1.0 / 0.84 / 0.83 / 1.0); q23 faithfulness 0.92, relevancy 0.83, precision 0.27, recall 0.0 on the first scoring (before 1.0 / 0.92 / 0.64 / 1.0). For q23 the retrieved chunks were 7 of 8 identical to before, so I re-scored both the old and the new result twice: the new result scored recall 1.0 both times and precision 0.17, the old one recall 1.0 and precision 0.14 and 0.23. The single recall of 0.0 was a judge fluke, and per-question context precision on identical input varies between 0.14 and 0.64. The table above was not recomputed for the full set.
+- Caveats: 25 questions is a small sample; the judge is an LLM and is stricter on some answers than a human would be; the references are author-written.
+- Next steps (not done): query rewriting, a larger or domain-tuned re-ranker, and a retry with back-off on NVIDIA 429 responses before failing over to OpenAI.
+
+## 2. Latency
+
+**Local, 25 questions, default routing** (`python eval/summarize.py eval/results_default.json`; retrieval = query embedding + dense search + BM25 ranking; LLM = summed provider time):
+
+| Statistic | Total | Time to first token (TTFT) | Retrieval | LLM calls |
+|---|---|---|---|---|
+| Median | 9.1 s | 7.5 s | 0.29 s | 7.2 s |
+| 90th percentile | 12.3 s | 10.1 s | n/a | n/a |
+
+Most of the time is LLM time (classification and the worker's note-writing happen before the answer starts streaming), which is why TTFT is several seconds even though retrieval takes about 0.3 s. The first query after a server start also builds the in-memory BM25 index (about 2 s extra, visible in q01's retrieval time). Per-query breakdown (milliseconds):
+
+| id | total ms | TTFT ms | retrieval ms | LLM ms | tokens in/out | cost USD | providers |
+|---|---|---|---|---|---|---|---|
+| q01 | 10655 | 9936 | 721 | 6041 | 3998/153 | 0.01905 | nvidia+openai |
+| q02 | 12343 | 10271 | 288 | 8384 | 5072/439 | 0.02907 | nvidia+openai |
+| q03 | 11056 | 7797 | 264 | 10706 | 4812/773 | 0.01702 | nvidia+openai |
+| q04 | 8333 | 6617 | 381 | 5893 | 4272/308 | 0.01295 | nvidia+openai |
+| q05 | 9746 | 7581 | 289 | 7517 | 4337/374 | 0.01373 | nvidia+openai |
+| q06 | 11879 | 10122 | 278 | 11510 | 4816/344 | 0.01192 | nvidia+openai |
+| q07 | 7743 | 6052 | 292 | 7372 | 4613/410 | 0.01088 | nvidia+openai |
+| q08 | 8852 | 7481 | 207 | 6780 | 4309/392 | 0.02185 | nvidia+openai |
+| q09 | 7108 | 6224 | 229 | 5014 | 4148/243 | 0.01183 | nvidia+openai |
+| q10 | 8633 | 6951 | 337 | 6329 | 4617/414 | 0.01464 | nvidia+openai |
+| q11 | 7748 | 6429 | 341 | 5273 | 4285/202 | 0.01199 | nvidia+openai |
+| q12 | 7474 | 4248 | 256 | 7135 | 4551/546 | 0.01333 | nvidia+openai |
+| q13 | 7623 | 4627 | 380 | 7172 | 4065/548 | 0.01186 | nvidia+openai |
+| q14 | 7486 | 6675 | 420 | 5046 | 4482/177 | 0.01213 | nvidia+openai |
+| q15 | 7494 | 5012 | 293 | 7119 | 4664/536 | 0.01168 | nvidia+openai |
+| q16 | 12826 | 9945 | 277 | 10761 | 4735/650 | 0.01657 | nvidia+openai |
+| q17 | 9092 | 6498 | 264 | 8747 | 4682/577 | 0.01312 | nvidia+openai |
+| q18 | 9063 | 6629 | 286 | 6896 | 4531/347 | 0.01436 | nvidia+openai |
+| q19 | 10974 | 8918 | 347 | 10554 | 4386/411 | 0.01132 | nvidia+openai |
+| q20 | 10727 | 8573 | 287 | 8752 | 3894/414 | 0.02074 | nvidia+openai |
+| q21 | 9026 | 7983 | 482 | 8458 | 4527/309 | 0.01006 | nvidia+openai |
+| q22 | 7004 | 6425 | 247 | 4920 | 4483/181 | 0.01820 | nvidia+openai |
+| q23 | 10229 | 8519 | 438 | 9708 | 4693/387 | 0.01143 | nvidia+openai |
+| q24 | 11182 | 9962 | 278 | 7176 | 4122/299 | 0.02247 | nvidia+openai |
+| q25 | 14405 | 10732 | 241 | 12347 | 4617/723 | 0.02022 | nvidia+openai |
+
+24 of the 25 answers were written by OpenAI `gpt-5.6-sol` (any answer built on 8 retrieved chunks crosses the 6,000-character evidence threshold); q19 stayed on NVIDIA entirely. **These latencies are inflated by NVIDIA rate limiting.** During this run NVIDIA's free tier answered some calls with HTTP 429; the failover re-ran 18 steps (12 classifications, 6 research-note steps, in 15 of the 25 queries) on OpenAI, which is slower and costs money. With a healthy NVIDIA the same code path measured a median of 5.8 s, p90 8.1 s and TTFT 4.3 s (previous index, `eval/results_default_v1_index.json`; the first NVIDIA-only run measured 5.2 s and 7.7 s). Expect somewhere between the two depending on NVIDIA's load. The 429s occur even with 9 seconds between queries, so they are an account or service limit, not a burst effect of the evaluation script.
+
+**Cold vs warm on Cloud Run** (min-instances 0, 1 vCPU, 1 GiB; `gpt-5.6-sol`, 6,114-chunk index; measured 26 October 2026 on a first deployment of this image, which was then redeployed unchanged to the final project as revision `multi-agent-rag-00001-j4s`; `eval/results_live_*.json`):
+
+| Situation | First byte / TTFT | Total | Source |
+|---|---|---|---|
+| **Cold start** (service idle 17 minutes, then the first request): page load | first byte 13.3 s | n/a | measured with `curl` on `/` |
+| Cold instance, first question straight after (q01) | TTFT 13.4 s | 14.2 s (retrieval 4.0 s: Chroma and BM25 index load on first use; LLM 4.1 s) | `results_live_cold_query.json` |
+| Same question again, warm | TTFT 3.4 s | 3.9 s (retrieval 0.7 s) | `results_live_after_cold.json` |
+| Warm instance, 5 corpus questions | median TTFT 7.9 s (4.5 to 8.6 s) | median 10.2 s (5.1 to 12.8 s) | `results_live_warm.json` |
+| Warm instance, 10-query routing set | median TTFT 7.2 s | 8 to 15 s typical; the two multi-agent queries 22 s (r02) and 31 s (r07) | `results_routing_live.json` |
+
+A cold start costs about 13 seconds before the page responds and another 10 to 14 seconds on the first question (index load), so the first answer on an idle service arrives after roughly 25 to 30 seconds; the page itself is served immediately by the same process and the first query completes rather than failing. Warm answers take 5 to 13 seconds: each is two sequential LLM calls on the critical path (NVIDIA classification or research notes at 2 to 5 s, then the `gpt-5.6-sol` answer at 1.5 to 8 s), and the strong model's reasoning time varies from query to query. That is the price of the stronger answer model; the earlier NVIDIA-only deployment answered warm questions in a median of 5.6 s (`results_live_warm_00003.json`, previous revision). Warm TTFT is above the reference deployment's 1.5 to 2 s for the same reason.
+
+## 3. Cost per query
+
+Token counts come from provider usage metadata (estimated at 4 characters per token if absent). Prices, USD per million tokens (input / output): NVIDIA NIM free tier **$0**, OpenAI `gpt-5.6-sol` **$4 / $20** (OpenAI's model page; a promotional rate listed through at least 21 November 2026, previously $5 / $30, so confirm it again at submission), Anthropic `claude-sonnet-5-5` **$2 / $10** and `gpt-5.1` **$1.25 / $10** (both only in the early provider comparison below; taken from third-party price aggregators). Embedding cost is separate: ingesting the corpus (6,114 chunks, about 1.4 million tokens) with `text-embedding-3-small` at roughly $0.02 per million cost about $0.02 once, and each query embeds one short string.
+
+| Run | Queries | Mean cost / query | Notes |
+|---|---|---|---|
+| Default routing, 25 corpus questions | 25 | **$0.0153** | 24 final answers on `gpt-5.6-sol` plus 18 NVIDIA steps redone on OpenAI after 429s (43 OpenAI calls, 67,321 in / 5,656 out tokens, $0.382 total). With a healthy NVIDIA the earlier run cost $0.0111 per query |
+| Routing-variety set | 10 | **$0.0150** | 14 OpenAI calls (19,682 in / 3,537 out tokens, $0.150 total) |
+
+### Provider comparison (same 10 questions, final answer forced to each provider)
+
+Workers and classification stay on NVIDIA in all rows; only the final-answer provider changes (`FORCE_SYNTH_PROVIDER`). Collected earlier (k = 5, before the retrieval changes); the comparison between providers is unaffected.
+
+| Final-answer provider | n | Median total | Median TTFT | Mean cost / query | Mean answer length |
+|---|---|---|---|---|---|
+| NVIDIA nemotron-3.5-lightning | 10 | 6.6 s | 4.5 s | $0.00000 | 768 chars |
+| Anthropic claude-sonnet-5-5 | 10 | 7.4 s | 4.4 s | $0.00987 | 1,439 chars |
+| OpenAI gpt-5.1 | 10 | 9.7 s | 6.2 s | $0.00570 | 1,649 chars |
+
+Collected earlier with `gpt-5.1` and `claude-sonnet-5-5` as the strong tiers. The stronger models write longer, more complete answers; NVIDIA is free and as fast but terser. That is the trade-off the router exploits: strong-model tokens are spent only on queries classified as complex, queries that merge several agents' evidence, or queries with very large evidence. Answer quality was not scored per provider. Anthropic was dropped from the final configuration because its account ran out of credit; the app still supports it as an optional provider.
+
+## 4. Routing behaviour (10 varied queries, local, final configuration)
+
+Both providers are used and every decision carries a reason in the UI and trace (`eval/routing_queries.json`, `eval/results_routing_local.json`). Classification, the research agent and the summary agent go to NVIDIA (cost); the data agent's SQL step goes to OpenAI (capability: a wrong column or join gives a wrong number); the final answer goes to OpenAI when it is grounded in a substantial evidence set (more than 6,000 characters), when the classifier calls the query complex, or when two agents contributed, and stays on NVIDIA for short lookups. `fallback` rows are NVIDIA calls that returned 429 and were redone on OpenAI.
+
+| Query | Agents | Provider per step | Reason shown for the final answer |
+|---|---|---|---|
+| What is chain-of-thought prompting? | research | NVIDIA, final **OpenAI** | grounded answer over a substantial evidence set (7,882 chars) |
+| Compare Self-RAG, Corrective RAG and Adaptive-RAG… | research | NVIDIA, final **OpenAI** | classifier marked the query complex; substantial evidence |
+| Latest news about AI agents this week | research (+Tavily) | NVIDIA (notes redone on OpenAI after a 429), final NVIDIA | simple, 1 agent, 1,828 chars of evidence |
+| How many chunks does each document have? Show the top 3. | data (SQL) | SQL **OpenAI**, final NVIDIA | SQL must be exact; then simple, 618 chars |
+| Summarize the paper 2310.08560.pdf | summary | NVIDIA, final **OpenAI** | grounded answer over a substantial evidence set (13,129 chars) |
+| Capital of the moon colony in the corpus? | research | NVIDIA (classification redone on OpenAI), final **OpenAI** | 7,700 chars of (irrelevant) evidence; answer: no evidence found, no citations |
+| Summarize the latest news… and compare with ReAct | research + summary | NVIDIA, final **OpenAI** | complex, 2 agents contributed |
+| whats the difrence btwn dense and sparse retreival?? (typos) | research | NVIDIA, final **OpenAI** | grounded answer over a substantial evidence set (7,983 chars) |
+| Qu'est-ce que la génération augmentée par récupération…? (French) | research | NVIDIA (classification redone on OpenAI), final **OpenAI** | grounded answer (8,370 chars); answered in French with citations |
+| Which paper has the most chunks, and what is it about? | data | SQL **OpenAI**, final NVIDIA | SQL must be exact; then simple, 479 chars |
+
+After the last fixes (planner restricted to the right agents; a SQL result of more than 10 rows sends the final answer to OpenAI; Tavily's JSON output parsed into one citation per result) the same 10 queries were re-run (`eval/results_routing_recheck.json`): every query kept the same plan, and nine kept the same final-answer provider. The exception is the live-news question: the web search now yields five separate results (6,621 characters of evidence instead of one unparsed block), which crosses the 6,000-character rule, so its final answer moves to OpenAI with the reason "grounded answer over a substantial evidence set (6621 chars)". The rule was not changed. Final answers on NVIDIA are now the short lookups: small data results (top 3, one row) and questions with little evidence.
+
+In the table above (first run) seven of ten final answers are on OpenAI; in the re-run eight of ten are. In both runs every query uses NVIDIA for classification and worker notes and OpenAI for at least one step (the two data questions use OpenAI for SQL). Mean cost over the 10 queries was $0.0150.
+
+**Provider rule.** The assignment requires routing across at least two different providers (two models of one provider do not count). The shipped configuration always routes across NVIDIA and OpenAI, and the app enforces it: at startup it refuses to run if fewer than two providers have keys or if `CHEAP_PROVIDER` equals `STRONG_PROVIDER` (`ALLOW_SINGLE_PROVIDER=1` exists only for offline measurements), and `/api/config` reports `two_provider_rule: true`. The "every step on `gpt-5.5`" row in section 1 was such a measurement, run to find out how much of the faithfulness gap is the model; it is not a system configuration and was never deployed.
+
+## 5. Failure handling (injected faults, local)
+
+All five faults below were re-run on the final code (new index, `gpt-5.6-sol`): each ended with a `done` event and an answer, and no key appeared in any stream. While testing, NVIDIA's free tier intermittently returned 429 Too Many Requests; the failover handled it (OpenAI redid the step) and, when both providers were limited or failing, the answer said which data it could not retrieve instead of inventing it.
+
+| Fault | Observed behaviour |
+|---|---|
+| `TAVILY_API_KEY` bad | Trace shows `mcp_call ok=False` and "Tavily 401"; no fake citation; the answer says it could not retrieve live news; `done` event sent. (This test found and fixed a bug: Tavily reports errors as normal tool text, which had been cited as evidence.) |
+| NVIDIA (cheap tier) key bad | The classifier and research worker each fail over to OpenAI (`dimension: fallback` route events) and the strong tier writes the answer: a full cited answer on Tree of Thoughts (874 characters). |
+| OpenAI key bad (data agent and embeddings unavailable) | The data agent's OpenAI step fails over to NVIDIA (two `fallback` route events) and still returns the correct top-3 table with an `[S1]` citation. Retrieval falls back to BM25-only (trace shows `rag.retrieve … top score 0.00`), the agents still answer from the right paper, and a `done` event is sent. (Before the fallback was added, the research agent failed outright.) |
+| SQLite file missing | Data agent reports `FileNotFoundError` in the trace and `errors`; the graph continues; the answer says the data source was unavailable. |
+| Very long multi-part question (found by manual testing: a ~1,700-character query sat on the research agent's NVIDIA step for over 90 s with nothing in the trace) | Causes: the planner added the data and summary agents to a question that needed neither, a worker LLM call was limited only by "25 s without any output" (a slowly streaming model never hit it), and the research notes had no length limit (7,869 characters). Fixes: the planner prompt restricts `data` to statistics about the indexed collection and `summary` to explicit summary requests; each worker LLM call has a 60 s whole-call limit (`LLM_WORKER_TOTAL_SECONDS`) and then fails over; NVIDIA research/summary notes are capped at 1,200 tokens; the trace prints "… still working (10s)" every 10 s during a worker call. A 1,129-character six-part query went from 148 s (research + data + summary, silent gaps of 20 to 34 s) to 65 s (research only; answer tokens from 32 s). Tested with `LLM_WORKER_TOTAL_SECONDS=2`: "nvidia did not finish within 2s", failover to OpenAI, research recorded as failed, answer and `done` still sent. |
+| Conversation after a very long answer (found by manual testing: after a 16,000-character answer every later request in that browser session failed with "Request failed: [object Object]") | Cause: the page resends the last turns as history, the server rejected any history message over 4,000 characters (HTTP 422), and the page printed the validation error object. Fixes: the server shortens long history messages instead of rejecting them, the page stores only the first 3,000 characters of each answer as history, and HTTP errors show their message text. Tested: a request with a 16,000-character previous answer in its history is answered normally. |
+| Out-of-scope question sent to the data agent (found by manual testing: "What is the capital of Australia?" produced `SELECT 'Canberra' AS capital` and cited it as `[S1]`) | Fixes: a query that reads no table is rejected; the SQL prompt forbids constant SELECTs and allows the reply `NO_SQL`; in either case the data agent hands the question to the research agent (corpus + web) through the plan in state instead of inventing a result; the planner sends general-knowledge questions to research. Tested: "capital of Australia" goes to research with five web citations; "How many moons does Jupiter have?" is planned as data, handed over ("not a question about the indexed collection → handing over to research"), and answered from the web with no `[S#]`; "How many documents are in the corpus?" still runs real SQL (`SELECT COUNT(*) … FROM documents`). |
+| Time-sensitive web question (found by manual testing: "latest news about AI agents this week" returned Google Workspace help pages, and an answer called October 2026 "August 2026") | Fixes: these questions use Tavily's news index with a day/week/month `time_range`, falling back to a general search if it is empty; the planner, worker and final-answer prompts now state today's date (UTC). Tested locally: the "this week" question returns this week's agent news with the correct date; "frameworks released this month" reasons about October and says which items have no clear date; "capital of Australia" is now cited ("Canberra [W1]…"). |
+| Whole question runs too long (tested with `RUN_DEADLINE_S=8`) | After the deadline (240 s by default, under Cloud Run's 300 s limit) the stream sends an `error` event ("This question took longer than … s and was stopped") and then `done`, so the page never sits on "streaming…". Retrieval has its own 45 s limit and the query embedding call a 15 s limit (it falls back to keyword-only retrieval). |
+| Data answer incomplete (found by manual testing: "How many chunks does each document have?" answered with 2 of 40 documents) | Causes: the SQL result reached the final writer cut to 1,200 characters (about 12 of 40 rows), and the final answer for a one-agent data question went to the cheap model, which shortened the table. Fixes: SQL evidence is passed up to 8,000 characters, the data and final-answer prompts require every row of a list, and a SQL result of more than 10 rows sends the final answer to OpenAI ("the answer must reproduce a 40-row SQL result in full"). Result: 40 of 40 rows and one `[S1]`, both as a first question and after two unrelated turns. "Top 3" style data questions still finish on NVIDIA. |
+| A provider with no credit or that hangs (real incidents: Gemini free-tier quota, Anthropic credit) | Every LLM call has a 25 s no-output deadline and failover tries each remaining provider in turn. Without the deadline, hung calls had blocked requests for over 60 s. |
+
+## 6. Security checks
+
+A regular-expression scan of every captured SSE stream (`sk-…`, `tvly-…`, `nvapi-…`, `tavilyApiKey=…`) found nothing, including the bad-key runs. On Cloud Run (earlier revision), `gcloud run services logs read` for the same patterns returned nothing, `gcloud run services describe` showed the keys only as `secretKeyRef` entries, and `gcloud meta list-files-for-upload .` confirmed `.env` is not in the build context. The submission zip was scanned for key patterns and contains no `.env`.

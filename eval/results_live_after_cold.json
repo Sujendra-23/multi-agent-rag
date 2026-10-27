@@ -1,0 +1,237 @@
+[
+ {
+  "id": "q01",
+  "question": "What two kinds of memory does the RAG model of Lewis et al. combine?",
+  "reference": "It combines parametric memory (a pre-trained seq2seq transformer) with non-parametric memory (a dense vector index of Wikipedia accessed with a pre-trained neural retriever).",
+  "source": "2005.11401.pdf",
+  "answer": "The RAG model combines:\n\n1. **Parametric memory** — a pre-trained sequence-to-sequence transformer.\n2. **Non-parametric memory** — a dense vector index of Wikipedia accessed through a pre-trained neural retriever. [C2]",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p22::c0",
+    "page": 22,
+    "snippet": "Computer memory operates at a high speed, for example random-access memory (RAM), as a distinction from storage that provides slow-to-access information but offers higher capacities. If needed, contents of the computer memory can be transf…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p2::c1",
+    "page": 2,
+    "snippet": "We build RAG models where the parametric memory is a pre-trained seq2seq transformer, and the non-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural retriever. We combine these components in a probab…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p1::c2",
+    "page": 1,
+    "snippet": "Experiments show that SELF - RAG (7B and 13B parameters) significantly outperforms state-of-the-art LLMs and retrieval-augmented models on a diverse set of tasks. Specifically, SELF -RAG outperforms ChatGPT and retrieval-augmented Llama2-c…",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p22::c1",
+    "page": 22,
+    "snippet": "There are two main kinds of semiconductor memory, volatile and non-volatile. Examples of non-volatile memory are flash memory (used as secondary memory) and ROM, PROM, EPROM and EEPROM memory (used for storing firmware such as BIOS). Examp…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2309.15217.pdf",
+    "title": "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+    "chunk_id": "2309-15217-pdf::p1::c3",
+    "page": 1,
+    "snippet": "First, LLMs are not able to answer questions about events that have happened after they were trained. Second, even the largest models struggle to memorise knowledge that is only rarely mentioned in the training corpus (Kandpal et al., 2022…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p3::c0",
+    "page": 3,
+    "snippet": "We introduce a method to train an arbitrary LM to learn to use retrieval on-demand for diverse instruction-following queries and introduce controlled generation guided by reflections tokens to further improve generation quality and attribu…",
+    "used": false
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2308.11432.pdf",
+    "title": "A Survey on Large Language Model based Autonomous Agents",
+    "chunk_id": "2308-11432-pdf::p8::c5",
+    "page": 8,
+    "snippet": "The purpose of memory Lei Wang et al. A Survey on Large Language Model based Autonomous Agents 9 writing is to store information about the perceived environment in memory. Storing valuable information in memory provides a foundation for re…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2002.08909.pdf",
+    "title": "REALM: Retrieval-Augmented Language Model Pre-Training",
+    "chunk_id": "2002-08909-pdf::p8::c5",
+    "page": 8,
+    "snippet": "By jointly learning the retriever, REALM has the capacity to depend on information beyond lexical overlap. Scalable grounded neural memory The document index can be viewed as a memory where the keys are the document embeddings. From this v…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 2,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1768,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 2351,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "grounded answer over a substantial evidence set (6848 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 2,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What two kinds of memory does the RAG model of Lewis et al. combine?"
+   },
+   {
+    "t_ms": 2,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1021,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | Identify the two memory types combined in Lewis et al.'s RAG model from the corpus."
+   },
+   {
+    "t_ms": 1021,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1024,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1768,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.56)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1768,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 2347,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 209 chars"
+   },
+   {
+    "t_ms": 2349,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 2351,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): grounded answer over a substantial evidence set (6848 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 3942,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 218 chars, cites ['C2']"
+   }
+  ],
+  "done": {
+   "t_ms": 3944,
+   "metrics": {
+    "total_ms": 3944,
+    "ttft_ms": 3378,
+    "retrieval_ms": 743,
+    "llm_ms": 2857,
+    "in_tokens": 4063,
+    "out_tokens": 154,
+    "cost_usd": 0.008008,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 2336,
+      "out_tokens": 99,
+      "ms": 1265.9936720000005,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 1727,
+      "out_tokens": 55,
+      "ms": 1591.1123499999994,
+      "cost_usd": 0.008008
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 4.07,
+  "first_byte_s": 0.11,
+  "contexts": [
+   "Computer memory operates at a high speed, for example random-access memory (RAM), as a distinction from storage that provides slow-to-access information but offers higher capacities. If needed, contents of the computer memory can be transferred to secondary storage; a very common way of doing this is through a memory management technique called “virtual memory”. An archaic synonym for memory is store. The term “memory”, meaning “primary storage” or “main memory”, is<p>[ ISREL =Relevant]Primary memory, also known as main memory, is the memory that the computer can directly access and manipulate. [ ISSUP =Fully Supported ] [ Retrieve =Yes]<p>Computer memory–often associated with addressable semiconductor memory, i.e. integrated circuits consisting of silicon-based transistors, used for example as primary storage but also other purposes in computers and other digital electronic devices. There are two main kinds of semiconductor memory, volatile and non-volatile.",
+   "We build RAG models where the parametric memory is a pre-trained seq2seq transformer, and the non-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural retriever. We combine these components in a probabilistic model trained end-to-end (Fig. 1). The retriever (Dense Passage Retriever [26], henceforth DPR) provides latent documents conditioned on the input, and the seq2seq model (BART [32]) then conditions on these latent documents together with the input to generate the output. We marginalize the latent documents with a top-K approximation, either on a per-output basis (assuming the same document is responsible for all tokens) or a per-token basis (where different documents are responsible for different tokens). Like T5 [51] or BART, RAG can be ﬁne-tuned on any seq2seq task, whereby both the generator and retriever are jointly learned.",
+   "Experiments show that SELF - RAG (7B and 13B parameters) significantly outperforms state-of-the-art LLMs and retrieval-augmented models on a diverse set of tasks. Specifically, SELF -RAG outperforms ChatGPT and retrieval-augmented Llama2-chat on Open-domain QA, reasoning and fact verification tasks, and it shows significant gains in improving factuality and citation accuracy for long-form generations relative to these models.1 1 I NTRODUCTION State-of-the-art LLMs continue to struggle with factual errors (Mallen et al., 2023; Min et al., 2023) despite their increased model and data scale (Ouyang et al., 2022). Retrieval-Augmented Generation (RAG) methods (Figure 1 left; Lewis et al. 2020; Guu et al. 2020) augment the input of LLMs with relevant retrieved passages, reducing factual errors in knowledge-intensive tasks (Ram et al., 2023; Asai et al., 2023a).",
+   "There are two main kinds of semiconductor memory, volatile and non-volatile. Examples of non-volatile memory are flash memory (used as secondary memory) and ROM, PROM, EPROM and EEPROM memory (used for storing firmware such as BIOS). Examples of non-volatile memory are flash memory (used as secondary memory) and ROM, PROM, EPROM and EEPROM memory (used for storing firmware such as BIOS).",
+   "First, LLMs are not able to answer questions about events that have happened after they were trained. Second, even the largest models struggle to memorise knowledge that is only rarely mentioned in the training corpus (Kandpal et al., 2022; Mallen et al., 2023). The standard solution to these issues is to rely on Retrieval Augmented Generation (RAG) (Lee et al., 2019; Lewis et al., 2020; Guu et al., 2020). Answering a question then essentially involves retrieving relevant passages from a corpus and feeding these passages, along with the original question, to the LM.",
+   "We introduce a method to train an arbitrary LM to learn to use retrieval on-demand for diverse instruction-following queries and introduce controlled generation guided by reflections tokens to further improve generation quality and attributions. Concurrent RAG work. A few concurrent works2 on RAG propose new training or prompting strategies to improve widely-adopted RAG approaches. Lin et al. (2023) fine-tune both the retriever and LM on instruction-tuning datasets in two steps. While we also train our model on diverse instruction-following datasets, SELF -RAG enables retrieval on demand and selection of the best possible model output via fine-grained self-reflection, making it widely applicable and more robust and controllable. Yoran et al. (2023) use a natural language inference model and Xu et al. (2023) use a summarization model to filter out or compress retrieved passages before using them to prompt the LM to generate the output.",
+   "The purpose of memory Lei Wang et al. A Survey on Large Language Model based Autonomous Agents 9 writing is to store information about the perceived environment in memory. Storing valuable information in memory provides a foundation for retrieving informative memories in the future, enabling the agent to act more efficiently and rationally. During the memory writing process, there are two potential problems that should be carefully addressed. On one hand, it is crucial to address how to store information that is similar to existing memories (i.e., memory duplicated). On the other hand, it is important to consider how to remove information when the memory reaches its storage limit (i.e., memory overflow). In the following, we discuss these problems more in detail. (1) Memory Duplicated. To incorporate similar information, people have developed various methods for integrating new and previous records.",
+   "By jointly learning the retriever, REALM has the capacity to depend on information beyond lexical overlap. Scalable grounded neural memory The document index can be viewed as a memory where the keys are the document embeddings. From this view, our work share motivations with works such as product key memory ( Lample et al., 2019), which enables sub-linear memory access in a memory network ( Weston et al., 2014; Graves et al., 2014; Sukhbaatar et al., 2015), allowing these scalable memory layers to be integrated into large language models. One main difference is that our memories are grounded—each memory is associated with a document rather than unnamed value vectors. This level of interpretability is crucial for applications like Open-QA, wher e users would require provenance for a predicted answer to be trustworthy."
+  ]
+ }
+]

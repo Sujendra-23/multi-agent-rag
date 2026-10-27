@@ -1,0 +1,2012 @@
+[
+ {
+  "id": "q01",
+  "question": "What two kinds of memory does the RAG model of Lewis et al. combine?",
+  "reference": "It combines parametric memory (a pre-trained seq2seq transformer) with non-parametric memory (a dense vector index of Wikipedia accessed with a pre-trained neural retriever).",
+  "answer": "The RAG model of Lewis et al. combines **parametric memory** and **non-parametric memory**.\n\n- **Parametric memory** is a pre-trained seq2seq model [C4].\n- **Non-parametric memory** is a dense vector index of Wikipedia, accessed with a pre-trained neural retriever [C4].\n\nThe paper's discussion also describes RAG as \"hybrid generation models with access to parametric and non-parametric memory\" [C5].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2308.11432.pdf",
+    "title": "2308.11432",
+    "chunk_id": "2308-11432-pdf::p7::c2",
+    "page": 7,
+    "snippet": "ructure, that is, only based on the long-term memory. However, we find that such type of memory is rarely documented in the literature. Our speculation is that the agents are always situated in continuous and dynamic en- vironments, with c…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2308.11432.pdf",
+    "title": "2308.11432",
+    "chunk_id": "2308-11432-pdf::p6::c3",
+    "page": 6,
+    "snippet": "sequently, numerous researchers turn to hybrid memory systems to mitigate this issue. • Hybrid Memory. This structure explicitly models the human short-term and long-term mem- ories. The short-term memory temporarily buffers recent percept…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2312.10997.pdf",
+    "title": "2312.10997",
+    "chunk_id": "2312-10997-pdf::p4::c3",
+    "page": 4,
+    "snippet": "lar RAG approach is becoming prevalent, supporting both sequential processing and integrated end-to-end training across its components. Despite its distinctiveness, Modular RAG builds upon the foundational principles of Advanced and Naive …",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p1::c1",
+    "page": 1,
+    "snippet": "ained models with a differentiable access mechanism to explicit non-parametric memory have so far been only investigated for extractive downstream tasks. We explore a general-purpose ﬁne-tuning recipe for retrieval-augmented generation (RA…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p9::c3",
+    "page": 9,
+    "snippet": "e approaches, where a similar training input-output pair is retrieved for a given input, and then edited to provide a ﬁnal output. These approaches have proved successful in a number of domains including Machine Translation [ 18, 22] and S…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 7,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1992,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 2758,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 7,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What two kinds of memory does the RAG model of Lewis et al. combine?"
+   },
+   {
+    "t_ms": 7,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1331,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | Identify the two memory types combined in Lewis et al.'s RAG model from the corpus."
+   },
+   {
+    "t_ms": 1331,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1335,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1991,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.58)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1992,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 2756,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 190 chars"
+   },
+   {
+    "t_ms": 2757,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 2758,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 5095,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 401 chars, cites ['C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 5096,
+   "metrics": {
+    "total_ms": 5096,
+    "ttft_ms": 4330,
+    "retrieval_ms": 656,
+    "llm_ms": 3329,
+    "in_tokens": 3880,
+    "out_tokens": 244,
+    "cost_usd": 0.00825,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1880,
+      "out_tokens": 94,
+      "ms": 1568.4335010082577,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2000,
+      "out_tokens": 150,
+      "ms": 1761.5496669968707,
+      "cost_usd": 0.00825
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 5.1,
+  "first_byte_s": 0.01,
+  "contexts": [
+   "ructure, that is,\nonly based on the long-term memory. However, we\nfind that such type of memory is rarely documented\nin the literature. Our speculation is that the agents\nare always situated in continuous and dynamic en-\nvironments, with consecutive actions displaying a\nhigh correlation. Therefore, the capture of short-\nterm memory is very important and usually cannot\nbe disregarded.\nMemory Formats: In addition to the memory\nstructure, another perspective to analyze the mem-\nory module is based on the formats of the mem-\nory storage medium, for example, natural language\nmemory or embedding memory. Different memory\nformats possess distinct strengths and are suitable\nfor various applications. In the following, we intro-\nduce several representative memory formats.\n• Natural Languages. In this format, memory\ninformation such as the agent behaviors and ob-\nservations are directly described using raw natural\nlanguage. This format possesses several strengths.\nFirstly, the memory information c",
+   "sequently, numerous researchers turn to\nhybrid memory systems to mitigate this issue.\n• Hybrid Memory. This structure explicitly\nmodels the human short-term and long-term mem-\nories. The short-term memory temporarily buffers\nrecent perceptions, while long-term memory con-\nsolidates important information over time. For in-\nstance, Generative Agent [20] employs a hybrid\nmemory structure to facilitate agent behaviors. The\nshort-term memory contains the context informa-\ntion about the agent current situations, while the\nlong-term memory stores the agent past behaviors\nand thoughts, which can be retrieved according to\nthe current events. AgentSims [34] also implements\na hybrid memory architecture. The information pro-\nvided in the prompt can be considered as short-term\nmemory. In order to enhance the storage capac-\nity of memory, the authors propose a long-term\nmemory system that utilizes a vector database, fa-\ncilitating e fficient storage and retrieval. Specifi-\ncally, the agent’s daily m",
+   "lar RAG approach is\nbecoming prevalent, supporting both sequential processing and\nintegrated end-to-end training across its components. Despite\nits distinctiveness, Modular RAG builds upon the foundational\nprinciples of Advanced and Naive RAG, illustrating a progres-\nsion and refinement within the RAG family.\n1) New Modules: The Modular RAG framework introduces\nadditional specialized components to enhance retrieval and\nprocessing capabilities. The Search module adapts to spe-\ncific scenarios, enabling direct searches across various data\nsources like search engines, databases, and knowledge graphs,\nusing LLM-generated code and query languages [15]. RAG-\nFusion addresses traditional search limitations by employing\na multi-query strategy that expands user queries into diverse\nperspectives, utilizing parallel vector searches and intelligent\nre-ranking to uncover both explicit and transformative knowl-\nedge [16]. The Memory module leverages the LLM’s memory\nto guide retrieval, creating an u",
+   "ained models with a differentiable access mechanism to explicit non-parametric\nmemory have so far been only investigated for extractive downstream tasks. We\nexplore a general-purpose ﬁne-tuning recipe for retrieval-augmented generation\n(RAG) — models which combine pre-trained parametric and non-parametric mem-\nory for language generation. We introduce RAG models where the parametric\nmemory is a pre-trained seq2seq model and the non-parametric memory is a dense\nvector index of Wikipedia, accessed with a pre-trained neural retriever. We com-\npare two RAG formulations, one which conditions on the same retrieved passages\nacross the whole generated sequence, and another which can use different passages\nper token. We ﬁne-tune and evaluate our models on a wide range of knowledge-\nintensive NLP tasks and set the state of the art on three open domain QA tasks,\noutperforming parametric seq2seq models and task-speciﬁc retrieve-and-extract\narchitectures. For language generation tasks, we ﬁnd that",
+   "e\napproaches, where a similar training input-output pair is retrieved for a given input, and then edited\nto provide a ﬁnal output. These approaches have proved successful in a number of domains including\nMachine Translation [ 18, 22] and Semantic Parsing [21]. Our approach does have several differences,\nincluding less of emphasis on lightly editing a retrieved item, but on aggregating content from several\npieces of retrieved content, as well as learning latent retrieval, and retrieving evidence documents\nrather than related training pairs. This said, RAG techniques may work well in these settings, and\ncould represent promising future work.\n6 Discussion\nIn this work, we presented hybrid generation models with access to parametric and non-parametric\nmemory. We showed that our RAG models obtain state of the art results on open-domain QA. We\nfound that people prefer RAG’s generation over purely parametric BART, ﬁnding RAG more factual\nand speciﬁc. We conducted an thorough investigation of"
+  ]
+ },
+ {
+  "id": "q02",
+  "question": "What is the difference between RAG-Sequence and RAG-Token?",
+  "reference": "RAG-Sequence conditions the whole generated sequence on the same retrieved document, while RAG-Token can draw on a different retrieved document for each generated token.",
+  "answer": "**Core difference:** RAG-Sequence uses one retrieved document for the whole output, while RAG-Token can use a different document for each output token [C3].\n\n- **RAG-Sequence** treats the retrieved document as a single latent variable and marginalizes over it with a top-K approximation. The generator produces the full output sequence probability for each of the top K documents, and these are then combined [C3][C4]:\n  p_RAG-Sequence(y|x) ≈ Σ_{z∈top-k} p_η(z|x) Π_i p_θ(y_i|x,z,y_{1:i-1}) [C4]\n\n- **RAG-Token** draws a different latent document for each target token and marginalizes at every step. This lets the generator choose content from several documents when producing an answer [C4]. For each token, the generator produces a next-token distribution per document, marginalizes over documents, and then repeats for the next token [C4]:\n  p_RAG-Token(y|x) ≈ Π_i Σ_{z∈top-k} p_η(z|x) p_θ(y_i|x,z,y_{1:i-1}) [C4]\n\n  In short, the sum over documents sits outside the product over tokens in RAG-Sequence and inside it in RAG-Token.\n\n- **Special case:** For sequence classification, where the target is a sequence of length one, the two models are equivalent [C2].\n\n**Empirical differences in the paper:**\n- RAG-Token performs better than RAG-Sequence on Jeopardy question generation. The authors suggest this is because Jeopardy questions often contain two separate pieces of information, and RAG-Token can combine content from several documents [C1].\n- RAG-Sequence's generations are more diverse than RAG-Token's, and both are significantly more diverse than BART's [C5].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p6::c2",
+    "page": 6,
+    "snippet": "show that RAG generations are more diverse than BART generations (see §4.5). 4.3 Jeopardy Question Generation Table 2 shows that RAG-Token performs better than RAG-Sequence on Jeopardy question generation, with both models outperforming BA…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p3::c2",
+    "page": 3,
+    "snippet": "following output token, Formally, we deﬁne: pRAG-Token(y|x) ≈ N∏ i ∑ z∈top-k(p(·|x)) pη(z|x)pθ(yi|x,z,y 1:i−1) Finally, we note that RAG can be used for sequence classiﬁcation tasks by considering the target class as a target sequence of l…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p3::c0",
+    "page": 3,
+    "snippet": "byθ that generates a current token based on a context of the previousi− 1 tokensy1:i−1, the original inputx and a retrieved passagez. To train the retriever and generator end-to-end, we treat the retrieved document as a latent variable. We…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p3::c1",
+    "page": 3,
+    "snippet": "eved document as a single latent variable that is marginalized to get the seq2seq probability p(y|x) via a top-K approximation. Concretely, the top K documents are retrieved using the retriever, and the generator produces the output sequen…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "2005.11401",
+    "chunk_id": "2005-11401-pdf::p7::c3",
+    "page": 7,
+    "snippet": "dditional Results Generation Diversity Section 4.3 shows that RAG models are more factual and speciﬁc than BART for Jeopardy question generation. Following recent work on diversity-promoting decoding [33, 59, 39], we also investigate gener…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 0,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1302,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 5265,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is the difference between RAG-Sequence and RAG-Token?"
+   },
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 848,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The definitions of RAG-Sequence and RAG-Token are contained within the RAG evaluation and architecture papers in the corpus."
+   },
+   {
+    "t_ms": 848,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 849,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1302,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.57)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1302,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 5262,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 1003 chars"
+   },
+   {
+    "t_ms": 5263,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 5265,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 9309,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1576 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 9310,
+   "metrics": {
+    "total_ms": 9310,
+    "ttft_ms": 6127,
+    "retrieval_ms": 452,
+    "llm_ms": 8780,
+    "in_tokens": 4533,
+    "out_tokens": 899,
+    "cost_usd": 0.016806,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1876,
+      "out_tokens": 310,
+      "ms": 4735.993166999833,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2657,
+      "out_tokens": 589,
+      "ms": 4044.665708002867,
+      "cost_usd": 0.016806
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 9.31,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "show that RAG generations are more diverse than\nBART generations (see §4.5).\n4.3 Jeopardy Question Generation\nTable 2 shows that RAG-Token performs better than RAG-Sequence on Jeopardy question generation,\nwith both models outperforming BART on Q-BLEU-1. 4 shows human evaluation results, over 452\npairs of generations from BART and RAG-Token. Evaluators indicated that BART was more factual\nthan RAG in only 7.1% of cases, while RAG was more factual in 42.7% of cases, and both RAG and\nBART were factual in a further 17% of cases, clearly demonstrating the effectiveness of RAG on\nthe task over a state-of-the-art generation model. Evaluators also ﬁnd RAG generations to be more\nspeciﬁc by a large margin. Table 3 shows typical generations from each model.\nJeopardy questions often contain two separate pieces of information, and RAG-Token may perform\nbest because it can generate responses that combine content from several documents. Figure 2 shows\nan example. When generating “Sun”, the posterior",
+   "following output token, Formally, we deﬁne:\npRAG-Token(y|x) ≈\nN∏\ni\n∑\nz∈top-k(p(·|x))\npη(z|x)pθ(yi|x,z,y 1:i−1)\nFinally, we note that RAG can be used for sequence classiﬁcation tasks by considering the target class\nas a target sequence of length one, in which case RAG-Sequence and RAG-Token are equivalent.\n2.2 Retriever: DPR\nThe retrieval componentpη(z|x) is based on DPR [26]. DPR follows a bi-encoder architecture:\npη(z|x)∝ exp\n(\nd(z)⊤q(x)) d(z) = BERTd(z), q(x) = BERTq(x)\nwhere d(z) is a dense representation of a document produced by a BERTBASE document encoder [8],\nand q(x) a query representation produced by a query encoder, also based on BERTBASE. Calculating\ntop-k(pη(·|x)), the list ofk documentsz with highest prior probabilitypη(z|x), is a Maximum Inner\nProduct Search (MIPS) problem, which can be approximately solved in sub-linear time [23]. We use\na pre-trained bi-encoder from DPR to initialize our retriever and to build the document index. This\nretriever was trained to retrieve d",
+   "byθ that generates a current token based on a context of the previousi− 1 tokensy1:i−1, the original\ninputx and a retrieved passagez.\nTo train the retriever and generator end-to-end, we treat the retrieved document as a latent variable.\nWe propose two models that marginalize over the latent documents in different ways to produce a\ndistribution over generated text. In one approach, RAG-Sequence, the model uses the same document\nto predict each target token. The second approach, RAG-Token, can predict each target token based\non a different document. In the following, we formally introduce both models and then describe the\npη andpθ components, as well as the training and decoding procedure.\n2.1 Models\nRAG-Sequence Model The RAG-Sequence model uses the same retrieved document to generate\nthe complete sequence. Technically, it treats the retrieved document as a single latent variable that\nis marginalized to get the seq2seq probability p(y|x) via a top-K approximation. Concretely, the\ntop K",
+   "eved document as a single latent variable that\nis marginalized to get the seq2seq probability p(y|x) via a top-K approximation. Concretely, the\ntop K documents are retrieved using the retriever, and the generator produces the output sequence\nprobability for each document, which are then marginalized,\npRAG-Sequence(y|x) ≈\n∑\nz∈top-k(p(·|x))\npη(z|x)pθ(y|x,z ) =\n∑\nz∈top-k(p(·|x))\npη(z|x)\nN∏\ni\npθ(yi|x,z,y 1:i−1)\nRAG-Token Model In the RAG-Token model we can draw a different latent document for each\ntarget token and marginalize accordingly. This allows the generator to choose content from several\ndocuments when producing an answer. Concretely, the top K documents are retrieved using the\nretriever, and then the generator produces a distribution for the next output token for each document,\nbefore marginalizing, and repeating the process with the following output token, Formally, we deﬁne:\npRAG-Token(y|x) ≈\nN∏\ni\n∑\nz∈top-k(p(·|x))\npη(z|x)pθ(yi|x,z,y 1:i−1)\nFinally, we note that RAG can be used f",
+   "dditional Results\nGeneration Diversity Section 4.3 shows that RAG models are more factual and speciﬁc than\nBART for Jeopardy question generation. Following recent work on diversity-promoting decoding\n[33, 59, 39], we also investigate generation diversity by calculating the ratio of distinct ngrams to\ntotal ngrams generated by different models. Table 5 shows that RAG-Sequence’s generations are\nmore diverse than RAG-Token’s, and both are signiﬁcantly more diverse than BART without needing\nany diversity-promoting decoding.\nRetrieval Ablations A key feature of RAG is learning to retrieve relevant information for the task.\nTo assess the effectiveness of the retrieval mechanism, we run ablations where we freeze the retriever\nduring training. As shown in Table 6, learned retrieval improves results for all tasks.\nWe compare RAG’s dense retriever to a word overlap-based BM25 retriever [53]. Here, we replace\nRAG’s retriever with a ﬁxed BM25 system, and use BM25 retrieval scores as logits when ca"
+  ]
+ },
+ {
+  "id": "q03",
+  "question": "How does Dense Passage Retrieval differ from sparse retrieval such as BM25?",
+  "reference": "DPR learns dense low-dimensional embeddings of questions and passages with a dual-encoder (BERT-based) trained on question-passage pairs and retrieves by inner-product similarity, instead of relying on sparse term matching.",
+  "answer": "**Short answer:** BM25 is a sparse method that matches on selective keywords and phrases. DPR instead learns dense vectors for questions and passages, so it can match on meaning even without shared keywords [C1][C3].\n\n**Key differences**\n\n- **Representation:** DPR uses a dense encoder that maps each passage to a d-dimensional real-valued vector. It indexes all passages in a low-dimensional, continuous space [C4]. The embedding is optimized to maximize inner products between question and relevant-passage vectors, using an objective that compares all question–passage pairs in a batch [C2].\n- **Lexical vs. semantic matching:** BM25 is sensitive to highly selective keywords and phrases but cannot capture lexical variations or semantic relationships well. DPR excels at semantic representation [C1]. Dense representations can give high similarity to semantically relevant text even without exact token matching [C3].\n- **Failure modes:** DPR may lack the capacity to represent salient phrases that appear rarely [C1]. BM25 can return irrelevant passages even when keywords like \"England\" and \"Ireland\" appear many times [C1].\n- **Training:** DPR is trained by fine-tuning question and passage encoders on existing question–passage pairs. This alone is enough to greatly outperform BM25 [C2]. The main DPR model uses in-batch negatives plus one additional BM25 negative passage per question [C5].\n- **Accuracy:** On open-domain QA with Natural Questions, DPR beats BM25 by a large margin in Top-5 retrieval accuracy (65.2% vs. 42.9%) [C2]. Higher retrieval precision also translates to better end-to-end QA accuracy [C2].\n\n**Caveats**\n\n- DPR does not win everywhere. In Table 2, BM25 beats single-dataset DPR on SQuAD (Top-20: 68.8 vs. 63.2) [C5].\n- Combining BM25 and DPR helps on some datasets but not others. For example, on TREC Top-20 the single-DPR hybrid scores 85.2 vs. 79.8 for DPR alone, while on NQ it scores 76.6 vs. 78.4 [C5]. The evidence also notes that the two methods \"differ qualitatively\" [C1].\n- The notes said BM25 relies on TF-IDF statistics. The retrieved passages don't state this, so I've left it out.",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "2004.04906",
+    "chunk_id": "2004-04906-pdf::p12::c2",
+    "page": 12,
+    "snippet": "ctually differ qualitatively. Methods like BM25 are sensitive to highly selective keywords and phrases, but cannot capture lexical variations or se- mantic relationships well. In contrast, DPR excels at semantic representation, but might l…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "2004.04906",
+    "chunk_id": "2004-04906-pdf::p2::c1",
+    "page": 2,
+    "snippet": "urprisingly simple: the embedding is optimized for maximizing inner products of the question and relevant passage vectors, with an objective compar- ing all pairs of questions and passages in a batch. Our Dense Passage Retriever (DPR) is e…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "2004.04906",
+    "chunk_id": "2004-04906-pdf::p9::c1",
+    "page": 9,
+    "snippet": "as they can po- tentially give high similarity scores to semantically relevant text pairs, even without exact token match- ing. The dense representation alone, however, is typically inferior to the sparse one. While not the focus of this w…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "2004.04906",
+    "chunk_id": "2004-04906-pdf::p2::c4",
+    "page": 2,
+    "snippet": "corpusC and returns a much smaller ﬁlter set of textsCF⊂C , where|CF| =k≪|C| . For a ﬁxed k, a retriever can be evaluated in isolation on top-k retrieval accuracy, which is the fraction of ques- tions for whichCF contains a span that answe…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "2004.04906",
+    "chunk_id": "2004-04906-pdf::p5::c0",
+    "page": 5,
+    "snippet": "Training Retriever Top-20 Top-100 NQ TriviaQA WQ TREC SQuAD NQ TriviaQA WQ TREC SQuAD None BM25 59.1 66.9 55.0 70.9 68.8 73.7 76.7 71.1 84.1 80.0 Single DPR 78.4 79.4 73.2 79.8 63.2 85.4 85.0 81.4 89.1 77.2BM25 + DPR 76.6 79.8 71.0 85.2 71…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1711,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 6221,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: How does Dense Passage Retrieval differ from sparse retrieval such as BM25?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1001,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The query asks for a conceptual comparison between DPR and BM25, which can be answered using the RAG corpus."
+   },
+   {
+    "t_ms": 1001,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1003,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1711,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.58)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1711,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 6219,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 1663 chars"
+   },
+   {
+    "t_ms": 6220,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 6221,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 14215,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 2130 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 14216,
+   "metrics": {
+    "total_ms": 14216,
+    "ttft_ms": 9546,
+    "retrieval_ms": 707,
+    "llm_ms": 13359,
+    "in_tokens": 4854,
+    "out_tokens": 1611,
+    "cost_usd": 0.02601,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1884,
+      "out_tokens": 471,
+      "ms": 5365.803957996832,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2970,
+      "out_tokens": 1140,
+      "ms": 7993.633208003303,
+      "cost_usd": 0.02601
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 14.22,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "ctually differ qualitatively. Methods like BM25\nare sensitive to highly selective keywords and\nphrases, but cannot capture lexical variations or se-\nmantic relationships well. In contrast, DPR excels\nat semantic representation, but might lack sufﬁcient\ncapacity to represent salient phrases which appear\nrarely. Table 7 illustrates this phenomenon with\ntwo examples. In the ﬁrst example, the top scor-\ning passage from BM25 is irrelevant, even though\nkeywords such as England and Ireland appear mul-\ntiple times. In comparison, DPR is able to return\nTop-1 Top-5 Top-20 Top-100\nGold 44.9 66.8 78.1 85.0\nDist. Sup. 43.9 65.3 77.1 84.4\nTable 5: Retrieval accuracy on the development set of\nNatural Questions, trained on passages that match the\ngold context (Gold) or the top BM25 passage that con-\ntains the answer (Dist. Sup.).\nSim Loss Retrieval Accuracy\nTop-1 Top-5 Top-20 Top-100\nDP NLL 44.9 66.8 78.1 85.0Triplet 41.6 65.0 77.2 84.5\nL2 NLL 43.5 64.7 76.1 83.1Triplet 42.2 66.0 78.1 84.9\nTable 6: Re",
+   "urprisingly simple: the embedding is optimized\nfor maximizing inner products of the question and\nrelevant passage vectors, with an objective compar-\ning all pairs of questions and passages in a batch.\nOur Dense Passage Retriever (DPR) is exception-\nally strong. It not only outperforms BM25 by a\nlarge margin (65.2% vs. 42.9% in Top-5 accuracy),\nbut also results in a substantial improvement on\nthe end-to-end QA accuracy compared to ORQA\n(41.5% vs. 33.3%) in the open Natural Questions\nsetting (Lee et al., 2019; Kwiatkowski et al., 2019).\nOur contributions are twofold. First, we demon-\nstrate that with the proper training setup, sim-\nply ﬁne-tuning the question and passage encoders\non existing question-passage pairs is sufﬁcient to\ngreatly outperform BM25. Our empirical results\nalso suggest that additional pretraining may not be\nneeded. Second, we verify that, in the context of\nopen-domain question answering, a higher retrieval\nprecision indeed translates to a higher end-to-end\nQA accuracy",
+   "as they can po-\ntentially give high similarity scores to semantically\nrelevant text pairs, even without exact token match-\ning. The dense representation alone, however, is\ntypically inferior to the sparse one. While not the\nfocus of this work, dense representations from pre-\ntrained models, along with cross-attention mecha-\nnisms, have also been shown effective in passage\nor dialogue re-ranking tasks (Nogueira and Cho,\n2019; Humeau et al., 2020). Finally, a concurrent\nwork (Khattab and Zaharia, 2020) demonstrates\nthe feasibility of full dense retrieval in IR tasks.\nInstead of employing the dual-encoder framework,\nthey introduced a late-interaction operator on top\nof the BERT encoders.\nDense retrieval for open-domain QA has been\nexplored by Das et al. (2019), who propose to re-\ntrieve relevant passages iteratively using reformu-\nlated question vectors. As an alternative approach\nthat skips passage retrieval, Seo et al. (2019) pro-\npose to encode candidate answer phrases as vectors\nand",
+   "corpusC and returns a much smaller ﬁlter set of\ntextsCF⊂C , where|CF| =k≪|C| . For a ﬁxed\nk, a retriever can be evaluated in isolation on top-k\nretrieval accuracy, which is the fraction of ques-\ntions for whichCF contains a span that answers the\nquestion.\n3 Dense Passage Retriever (DPR)\nWe focus our research in this work on improv-\ning the retrieval component in open-domain QA.\nGiven a collection ofM text passages, the goal of\nour dense passage retriever (DPR) is to index all\nthe passages in a low-dimensional and continuous\nspace, such that it can retrieve efﬁciently the top\nk passages relevant to the input question for the\nreader at run-time. Note thatM can be very large\n(e.g., 21 million passages in our experiments, de-\nscribed in Section 4.1) andk is usually small, such\nas 20–100.\n3.1 Overview\nOur dense passage retriever (DPR) uses a dense\nencoderEP (·) which maps any text passage to ad-\ndimensional real-valued vectors and builds an index\nfor all theM passages that we will use for r",
+   "Training Retriever Top-20 Top-100\nNQ TriviaQA WQ TREC SQuAD NQ TriviaQA WQ TREC SQuAD\nNone BM25 59.1 66.9 55.0 70.9 68.8 73.7 76.7 71.1 84.1 80.0\nSingle DPR 78.4 79.4 73.2 79.8 63.2 85.4 85.0 81.4 89.1 77.2BM25 + DPR 76.6 79.8 71.0 85.2 71.5 83.8 84.5 80.5 92.7 81.3\nMulti DPR 79.4 78.8 75.0 89.1 51.6 86.0 84.7 82.9 93.9 67.6BM25 + DPR 78.0 79.9 74.7 88.5 66.2 83.9 84.4 82.3 94.1 78.6\nTable 2: Top-20 & Top-100 retrieval accuracy on test sets, measured as the percentage of top 20/100 retrieved\npassages that contain the answer. Single and Multi denote that our Dense Passage Retriever (DPR) was trained\nusing individial or combined training datasets (all the datasets excluding SQuAD). See text for more details.\ntraditional retrieval methods, the effects of different\ntraining schemes and the run-time efﬁciency.\nThe DPR model used in our main experiments\nis trained using the in-batch negative setting (Sec-\ntion 3.2) with a batch size of128 and one additional\nBM25 negative passage per question"
+  ]
+ },
+ {
+  "id": "q04",
+  "question": "How does ReAct combine reasoning and acting?",
+  "reference": "ReAct interleaves reasoning traces with task-specific actions: the reasoning helps induce, track and update action plans, and the actions let the model interact with external sources such as a Wikipedia API to gather information.",
+  "answer": "ReAct is a prompting paradigm that has a language model produce verbal reasoning traces and task actions in an interleaved sequence [C1]. The two feed each other in both directions:\n\n- **Reason to act:** The reasoning lets the model create, maintain, and adjust high-level plans for acting [C1].\n- **Act to reason:** The actions let the model interact with external environments, such as Wikipedia, and bring the new information back into its reasoning [C1].\n\nThe setup is framed as an agent interacting with an environment. At each time step the agent receives an observation from the environment [C2]. The paper describes ReAct as, to its knowledge, the first demonstration of combined reasoning and action with an LLM in an interactive environment within a closed-loop system [C3]. It builds on Inner Monologue, which also used environment feedback in a closed loop. The authors argue, however, that Inner Monologue does not truly comprise inner thoughts [C4].\n\nIn practice, the reasoning helps the model bridge noisy observations and actions. In the shopping task, for example, it helps identify instruction-relevant products and options [C3].\n\nCombining the two also improves interpretability, trustworthiness, and diagnosability. Humans can tell the model's internal knowledge apart from information obtained from the environment, and they can inspect the reasoning traces to see why the model took an action [C5].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "2210.03629",
+    "chunk_id": "2210-03629-pdf::p2::c6",
+    "page": 2,
+    "snippet": "d if such a combination can bring systematic beneﬁts compared to reasoning or acting alone. In this work, we present ReAct, a general paradigm to combine reasoning and acting with language models for solving diverse language reasoning and …",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "2210.03629",
+    "chunk_id": "2210-03629-pdf::p3::c2",
+    "page": 3,
+    "snippet": "task solving; (2) we perform extensive experiments across diverse benchmarks to showcase the advantage of ReAct in a few-shot learning setup over prior approaches that perform either reasoning or action generation in isolation; (3) we pres…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "2210.03629",
+    "chunk_id": "2210-03629-pdf::p8::c2",
+    "page": 8,
+    "snippet": "h IL and IL+RL methods. With additional sparse reasoning, ReAct achieves signiﬁcantly better performance, with an absolute 10% improvement over the previous best success rate. By checking examples, we ﬁnd that ReAct is more likely to ident…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "2210.03629",
+    "chunk_id": "2210-03629-pdf::p9::c4",
+    "page": 9,
+    "snippet": "provements by adding the eponymous “inner monologue\", which is implemented as injected feedback from the environment. To our knowledge, Inner Monologue is the ﬁrst work that demonstrates such a closed-loop system, which ReAct builds on. Ho…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "2210.03629",
+    "chunk_id": "2210-03629-pdf::p3::c1",
+    "page": 3,
+    "snippet": "ing methods trained with 103∼ 105 task instances, with an absolute improvement of 34% and 10% in success rates respectively. We also demonstrate the importance of sparse, versatile reasoning in decision making by showing consistent advanta…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1577,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3946,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: How does ReAct combine reasoning and acting?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 975,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks for a conceptual explanation of the ReAct framework, which can be answered using the RAG corpus on LLM agents and tool use."
+   },
+   {
+    "t_ms": 975,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 975,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1577,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.82)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1577,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3943,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 745 chars"
+   },
+   {
+    "t_ms": 3944,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3946,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 7479,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1420 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 7480,
+   "metrics": {
+    "total_ms": 7480,
+    "ttft_ms": 4843,
+    "retrieval_ms": 601,
+    "llm_ms": 6796,
+    "in_tokens": 3873,
+    "out_tokens": 692,
+    "cost_usd": 0.012915,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1783,
+      "out_tokens": 249,
+      "ms": 3263.3882490044925,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2090,
+      "out_tokens": 443,
+      "ms": 3532.8983750005136,
+      "cost_usd": 0.012915
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 7.48,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "d if such a combination can bring systematic beneﬁts compared to reasoning or acting alone.\nIn this work, we present ReAct, a general paradigm to combine reasoning and acting with language\nmodels for solving diverse language reasoning and decision making tasks (Figure 1). ReAct\nprompts LLMs to generate both verbal reasoning traces and actions pertaining to a task in an\ninterleaved manner, which allows the model to perform dynamic reasoning to create, maintain, and\nadjust high-level plans for acting (reason to act), while also interact with the external environments\n(e.g. Wikipedia) to incorporate additional information into reasoning (act to reason).\n2",
+   "task solving; (2) we\nperform extensive experiments across diverse benchmarks to showcase the advantage of ReAct in a\nfew-shot learning setup over prior approaches that perform either reasoning or action generation in\nisolation; (3) we present systematic ablations and analysis to understand the importance of acting in\nreasoning tasks, and reasoning in interactive tasks; (4) we analyze the limitations ofReAct under the\nprompting setup (i.e. limited support of reasoning and acting behaviors), and perform initial ﬁnetuning\nexperiments showing the potential of ReAct to improve with additional training data. Scaling up\nReAct to train and operate on more tasks and combining it with complementary paradigms like\nreinforcement learning could further unlock the potential of large language models.\n2 REAC T: S YNERGIZING REASONING + AC TING\nConsider a general setup of an agent interacting with an environment for task solving. At time\nstept, an agent receives an observationot∈O from the environment",
+   "h IL and IL+RL methods. With\nadditional sparse reasoning, ReAct achieves signiﬁcantly better performance, with an absolute 10%\nimprovement over the previous best success rate. By checking examples, we ﬁnd that ReAct is more\nlikely to identify instruction-relevant products and options by reasoning to bridge the gap between\nnoisy observations and actions (e.g. “For ‘space-saving ottoman bench for living room’, the item\nhas options ‘39x18x18inch’ and ‘blue’ and seems good to buy.”). However, existing methods are\nstill far from the performance of expert humans (Table 4), who perform signiﬁcantly more product\nexplorations and query re-formulations that are still challenging for prompting-based methods.\nOn the value of internal reasoning vs. external feedback To our knowledge, ReAct is the ﬁrst\ndemonstration of combined reasoning and action using an LLM applied to an interactive environment\nwithin a closed-loop system. Perhaps the closest prior work is Inner Monologue (IM), from Huang\net al.",
+   "provements by adding the eponymous “inner monologue\", which is\nimplemented as injected feedback from the environment. To our knowledge, Inner Monologue is the\nﬁrst work that demonstrates such a closed-loop system, which ReAct builds on. However, we argue\nthat Inner Monologue does not truly comprise of inner thoughts — this is elaborated in Section 4. We\nalso note that leveraging language as semantically-rich inputs in the process of interactive decision\nmaking has been shown to be successful under other settings (Abramson et al., 2020; Karamcheti\net al., 2021; Huang et al., 2022a; Li et al., 2022). It is becoming more evident that with the help of\nLLMs, language as a fundamental cognitive mechanism will play a critical role in interaction and\ndecision making. What is more, progress in LLMs has also inspired the development of versatile and\ngeneralist agents like Reed et al. (2022).\n6 C ONCLUSION\nWe have proposed ReAct – a simple yet effective method for synergizing reasoning and acting",
+   "ing methods trained with 103∼ 105 task instances,\nwith an absolute improvement of 34% and 10% in success rates respectively. We also demonstrate\nthe importance of sparse, versatile reasoning in decision making by showing consistent advantages\nover controlled baselines with actions only. Besides general applicability and performance boost,\nthe combination of reasoning and acting also contributes to model interpretability, trustworthiness,\nand diagnosability across all domains, as humans can readily distinguish information from model’s\ninternal knowledge versus external environments, as well as inspect reasoning traces to understand\nthe decision basis of model actions.\nTo summarize, our key contributions are the following: (1) we introduce ReAct, a novel prompt-\nbased paradigm to synergize reasoning and acting in language models for general task solving; (2) we\nperform extensive experiments across diverse benchmarks to showcase the advantage of ReAct in a\nfew-shot learning setup over pri"
+  ]
+ },
+ {
+  "id": "q05",
+  "question": "What is chain-of-thought prompting?",
+  "reference": "Chain-of-thought prompting provides exemplars that include intermediate reasoning steps, which elicits step-by-step reasoning and improves performance on arithmetic, commonsense and symbolic tasks in sufficiently large language models.",
+  "answer": "Chain-of-thought prompting is a method for improving reasoning in large language models. The prompt's few-shot exemplars include a chain of intermediate natural-language reasoning steps that lead to the final answer, and the model then produces such a chain itself [C4].\n\n**Key points**\n- **How it works:** Models generate chains of thought when the few-shot exemplars demonstrate chain-of-thought reasoning [C4]. The chain mimics a step-by-step thought process. It resembles a solution, but it is called a \"chain of thought\" in part because solutions or explanations usually come after the final answer [C4].\n- **Why it helps:** In principle, it lets models break multi-step problems into intermediate steps, so more computation can go to problems that need more reasoning [C4].\n- **How it differs from other prompting work:** Other approaches improve the input side of the prompt, such as learned prompts or instructions. Chain-of-thought prompting instead augments the model's outputs [C1]. It is described as a general approach inspired by prior work on prompting, natural language explanations, program synthesis, and related areas [C5].\n- **Scale:** The authors found it to be an emergent property of model scale. Sufficiently large models can do reasoning tasks that otherwise have flat scaling curves [C1].\n- **Evidence it is not just knowledge activation:** When the chain was placed only after the answer, performance was about the same as the baseline. This suggests the sequential reasoning is useful beyond merely activating pretrained knowledge [C2].\n- **Limitations:** With the same prompts, it improved performance across LaMDA, GPT-3, and PaLM on all datasets except CSQA and StrategyQA for GPT-3, so gains did not transfer perfectly [C3]. Prompt engineering still matters, and it can significantly improve performance in many cases [C3].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "2201.11903",
+    "chunk_id": "2201-11903-pdf::p9::c4",
+    "page": 9,
+    "snippet": "body of recent work on prompting. Since the popularization of few-shot prompting as given by Brown et al. (2020), several general approaches have improved the prompting ability of models, such as automatically learning prompts (Lester et a…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "2201.11903",
+    "chunk_id": "2201-11903-pdf::p6::c1",
+    "page": 6,
+    "snippet": "the success of chain- of-thought prompting, and that there appears to be utility from expressing intermediate steps via natural language. Chain of thought after answer. Another potential beneﬁt of chain-of-thought prompting could simply be…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "2201.11903",
+    "chunk_id": "2201-11903-pdf::p18::c3",
+    "page": 18,
+    "snippet": "h up with chain-of-thought prompting). • Different language models. Another interesting question is whether certain prompts that work better for one model work better for other large language models. We ﬁnd that with the same prompts, chai…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "2201.11903",
+    "chunk_id": "2201-11903-pdf::p3::c0",
+    "page": 3,
+    "snippet": "language models can generate chains of thought if demonstrations of chain-of-thought reasoning are provided in the exemplars for few-shot prompting. Figure 1 shows an example of a model producing a chain of thought to solve a math word pro…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "2201.11903",
+    "chunk_id": "2201-11903-pdf::p24::c0",
+    "page": 24,
+    "snippet": "C Extended Related Work Chain-of-thought prompting is a general approach that is inspired by several prior directions: prompt- ing, natural language explanations, program synthesis/execution, numeric and logical reasoning, and intermediate…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1178,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3017,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is chain-of-thought prompting?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 913,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | Chain-of-thought prompting is a well-documented LLM technique; the corpus likely contains relevant explanations."
+   },
+   {
+    "t_ms": 913,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 915,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1178,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.69)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1178,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3014,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 789 chars"
+   },
+   {
+    "t_ms": 3016,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3017,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 7472,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1855 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 7473,
+   "metrics": {
+    "total_ms": 7473,
+    "ttft_ms": 3886,
+    "retrieval_ms": 262,
+    "llm_ms": 7141,
+    "in_tokens": 4099,
+    "out_tokens": 859,
+    "cost_usd": 0.015795,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1864,
+      "out_tokens": 253,
+      "ms": 2686.9475830026204,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2235,
+      "out_tokens": 606,
+      "ms": 4454.483749999781,
+      "cost_usd": 0.015795
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 7.47,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "body of recent work on prompting. Since the\npopularization of few-shot prompting as given by Brown et al. (2020), several general approaches\nhave improved the prompting ability of models, such as automatically learning prompts (Lester et al.,\n2021) or giving models instructions describing a task (Wei et al., 2022a; Sanh et al., 2022; Ouyang\net al., 2022). Whereas these approaches improve or augment the input part of the prompt (e.g.,\ninstructions that are prepended to inputs), our work takes the orthogonal direction of augmenting the\noutputs of language models with a chain of thought.\n8 Conclusions\nWe have explored chain-of-thought prompting as a simple and broadly applicable method for enhanc-\ning reasoning in language models. Through experiments on arithmetic, symbolic, and commonsense\nreasoning, we ﬁnd that chain-of-thought reasoning is an emergent property of model scale that allows\nsufﬁciently large language models to perform reasoning tasks that otherwise have ﬂat scaling curves",
+   "the success of chain-\nof-thought prompting, and that there appears to be utility from\nexpressing intermediate steps via natural language.\nChain of thought after answer. Another potential beneﬁt of\nchain-of-thought prompting could simply be that such prompts\nallow the model to better access relevant knowledge acquired\nduring pretraining. Therefore, we test an alternative conﬁgura-\ntion where the chain of thought prompt is only given after the\nanswer, isolating whether the model actually depends on the\nproduced chain of thought to give the ﬁnal answer. This variant\nperforms about the same as the baseline, which suggests that\nthe sequential reasoning embodied in the chain of thought is\nuseful for reasons beyond just activating knowledge.\n3.4 Robustness of Chain of Thought\nGSM8K\n0\n5\n10\n15\n20Solve rate (%)\nStandard prompting\nChain-of-thought prompting\n· different annotator (B)\n· different annotator (C)\n· intentionally concise style\n· exemplars from GSM8K (α)\n· exemplars from GSM8K (β)\n· ex",
+   "h up with chain-of-thought prompting).\n• Different language models. Another interesting question is whether certain prompts that work\nbetter for one model work better for other large language models. We ﬁnd that with the same\nprompts, chain-of-thought prompting improves performance across all three models (LaMDA,\nGPT-3, and PaLM) for all datasets except CSQA and StrategyQA for GPT-3 (Table 1, Table 4,\nTable 5). The fact that gains from chain of thought did not transfer perfectly among models is\na limitation; further work could investigate why how different pre-training datasets and model\narchitectures affect the performance gain from chain-of-thought prompting.\nPrompt engineering still matters, though. Although the results are relatively robust to the prompt\nfor arithmetic reasoning, we want to be clear that prompt engineering still does matter, and can\nimprove performance signiﬁcantly in many cases. Though most chain of thought annotations\noutperform standard prompting, there is large",
+   "language models can generate chains of thought if demonstrations of chain-of-thought reasoning are\nprovided in the exemplars for few-shot prompting.\nFigure 1 shows an example of a model producing a chain of thought to solve a math word problem\nthat it would have otherwise gotten incorrect. The chain of thought in this case resembles a solution\nand can interpreted as one, but we still opt to call it a chain of thought to better capture the idea that it\nmimics a step-by-step thought process for arriving at the answer (and also, solutions/explanations\ntypically come after the ﬁnal answer (Narang et al., 2020; Wiegreffe et al., 2022; Lampinen et al.,\n2022, inter alia)).\nChain-of-thought prompting has several attractive properties as an approach for facilitating reasoning\nin language models.\n1. First, chain of thought, in principle, allows models to decompose multi-step problems into\nintermediate steps, which means that additional computation can be allocated to problems\nthat require more r",
+   "C Extended Related Work\nChain-of-thought prompting is a general approach that is inspired by several prior directions: prompt-\ning, natural language explanations, program synthesis/execution, numeric and logical reasoning, and\nintermediate language steps.\nC.1 Prompting\nThe recent success of large-scale language models has led to growing interest in improving their\ncapability to perform tasks via prompting (Brown et al. (2020), and see Liu et al. (2021) for a\nsurvey). This paper falls in the category of general prompting approaches, whereby input prompts are\noptimized to allow a single large language model to better perform a variety of tasks (Li and Liang,\n2021; Lester et al., 2021; Reif et al., 2022, inter alia).\nOne recent line of work aims to improve the ability of language models to perform a task by providing\ninstructions that describe the task (Raffel et al., 2020; Wei et al., 2022a; Ouyang et al., 2022; Sanh\net al., 2022; Wang et al., 2022b). This line of work is related because"
+  ]
+ },
+ {
+  "id": "q06",
+  "question": "How does Toolformer decide which API calls to keep?",
+  "reference": "Toolformer samples candidate API calls, executes them, and keeps only the calls whose results reduce the language-model loss on the following tokens, in a self-supervised way.",
+  "answer": "Toolformer keeps an API call only if it helps the model predict future tokens.\n\n- **Sampling and filtering:** The model first generates a large number of candidate API calls. It then uses a self-supervised loss to decide which of them actually help it predict future tokens [C5]. The conclusion describes this as filtering sampled calls \"based on whether they reduce perplexity on future tokens\" [C1].\n- **Finetuning on the survivors:** The LM is finetuned only on the API calls it considers useful [C5].\n\nThe evidence does not give the exact loss formula or threshold, so I can't say more about how the comparison is computed.\n\nRelated limitations the paper notes:\n- The decision to make a call currently ignores the tool-dependent computational cost of that call [C1].\n- Trained models are often sensitive to the exact wording of the input when deciding whether to call an API [C3].\n- The method is sample-inefficient for some tools. For example, processing more than a million documents yields only a few thousand useful calculator calls [C3].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2302.04761.pdf",
+    "title": "2302.04761",
+    "chunk_id": "2302-04761-pdf::p11::c2",
+    "page": 11,
+    "snippet": "s problem might be to iteratively apply our approach, similar to how this is done in related bootstrapping approaches (Schick and Schütze, 2021a; Izacard and Grave, 2021; Parisi et al., 2022). Finally, when deciding whether or not to make …",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2305.15334.pdf",
+    "title": "2305.15334",
+    "chunk_id": "2305-15334-pdf::p3::c1",
+    "page": 3,
+    "snippet": "best of our knowledge. Tool Usage The discussion of tool usage within LLMs has seen an upsurge, with models like Toolformer taking the lead [33, 19, 21, 26]. Tools often incorporated include web-browsing [ 34], calculators [12, 39], transl…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2302.04761.pdf",
+    "title": "2302.04761",
+    "chunk_id": "2302-04761-pdf::p11::c1",
+    "page": 11,
+    "snippet": "– especially for tools such as search engines, that could potentially return hundreds of different results, enabling a LM to browse through these results or to reﬁne its search query in a simi- lar spirit to Nakano et al. (2021) can be cru…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2302.04761.pdf",
+    "title": "2302.04761",
+    "chunk_id": "2302-04761-pdf::p8::c4",
+    "page": 8,
+    "snippet": "erfor- mance both with and without tools. An exception to this is the Wikipedia search engine used mostly for QA benchmarks; we hypothesize that this is because the API is comparably easy to use. While models become better at solving tasks…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2302.04761.pdf",
+    "title": "2302.04761",
+    "chunk_id": "2302-04761-pdf::p2::c2",
+    "page": 2,
+    "snippet": "al API calls. We then use a self-supervised loss to determine which of these API calls actually help the model in predicting future tokens. Finally, we ﬁnetune the LM itself on the API calls that it con- siders useful. As illustrated in Fi…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1314,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 2974,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: How does Toolformer decide which API calls to keep?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1032,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks about the internal decision mechanism of the Toolformer model, which is a factual/conceptual question about a specific AI model's design."
+   },
+   {
+    "t_ms": 1032,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1034,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1314,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.55)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1314,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 2972,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 552 chars"
+   },
+   {
+    "t_ms": 2973,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 2974,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 6196,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1046 chars, cites ['C1', 'C3', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 6197,
+   "metrics": {
+    "total_ms": 6197,
+    "ttft_ms": 4049,
+    "retrieval_ms": 279,
+    "llm_ms": 5835,
+    "in_tokens": 4033,
+    "out_tokens": 534,
+    "cost_usd": 0.011487,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1849,
+      "out_tokens": 205,
+      "ms": 2614.194750000024,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2184,
+      "out_tokens": 329,
+      "ms": 3221.0871249990305,
+      "cost_usd": 0.011487
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 6.2,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "s\nproblem might be to iteratively apply our approach,\nsimilar to how this is done in related bootstrapping\napproaches (Schick and Schütze, 2021a; Izacard\nand Grave, 2021; Parisi et al., 2022). Finally, when\ndeciding whether or not to make an API call, Tool-\nformer currently does not take into account the\ntool-dependent, computational cost incurred from\nmaking an API call.\n8 Conclusion\nWe have introduced Toolformer, a language model\nthat learns in a self-supervised way how to use\ndifferent tools such as search engines, calculators,\nand translation systems via simple API calls. This\nis done by ﬁnetuning on a large number of sampled\nAPI calls that are ﬁltered based on whether they\nreduce perplexity on future tokens. Toolformer\nconsiderably improves zero-shot performance of a\n6.7B parameter GPT-J model, enabling it to even\noutperform a much larger GPT-3 model on a range\nof different downstream tasks.\nReferences\nArmen Aghajanyan, Dmytro Okhonko, Mike Lewis,\nMandar Joshi, Hu Xu, Gargi Ghosh,",
+   "best of our knowledge.\nTool Usage The discussion of tool usage within LLMs has seen an upsurge, with models like\nToolformer taking the lead [33, 19, 21, 26]. Tools often incorporated include web-browsing [ 34],\ncalculators [12, 39], translation systems [39], and Python interpreters [14]. While these efforts can be\nseen as preliminary explorations of marrying LLMs with tool usage, they generally focus on specific\ntools. Our paper, in contrast, aims to explore a vast array of tools (i.e., API calls) in an open-ended\nfashion, potentially covering a wide range of applications.\nWith the recent launch of Toolformer [33] and GPT-4 [29], the importance of API calls has been\nhighlighted, encouraging many works in employing API calls as tooling [ 35, 24]. Moreover, the\napplication of API calls in robotics has been explored to some extent [41, 1]. However, these works\nprimarily aim at showcasing the potential of “prompting” LLMs rather than establishing a systematic\nmethod for evaluation and trai",
+   "– especially for tools such as search\nengines, that could potentially return hundreds of\ndifferent results, enabling a LM to browse through\nthese results or to reﬁne its search query in a simi-\nlar spirit to Nakano et al. (2021) can be crucial for\ncertain applications. Beyond this, we found models\ntrained with Toolformer to often be sensitive to the\nexact wording of their input when deciding whether\nor not to call an API; this is perhaps unsurprising\ngiven that LMs are known to be very sensitive to\nthe prompt they are provided with in both zero-\nand few-shot settings (Jiang et al., 2020; Schick\nand Schütze, 2021a). Depending on the tool, our\nmethod is also very sample-inefﬁcient; for example,\nprocessing more than a million documents results\nin only a few thousand examples of useful calls\nto the calculator API. A potential solution to this\nproblem might be to iteratively apply our approach,\nsimilar to how this is done in related bootstrapping\napproaches (Schick and Schütze, 2021a; Izac",
+   "erfor-\nmance both with and without tools. An exception\nto this is the Wikipedia search engine used mostly\nfor QA benchmarks; we hypothesize that this is\nbecause the API is comparably easy to use. While\nmodels become better at solving tasks without API\ncalls as they grow in size, their ability to make good\nuse of the provided API improves at the same time.\nAs a consequence, there remains a large gap be-\ntween predictions with and without API calls even\nfor our biggest model.\n5 Analysis\nDecoding Strategy We investigate the effect of\nour modiﬁed decoding strategy introduced in Sec-\ntion 4.2, where instead of always generating the\n8We do not evaluate the perplexity of Toolformer with\nAPI calls enabled as computing the probability pM (xt |\nx1,...,x t−1) of tokenxt givenx1,...,x t−1 would require\nmarginalizing over all potential API calls that the model could\nmake at positiont, which is intractable.",
+   "al\nAPI calls. We then use a self-supervised loss to\ndetermine which of these API calls actually help\nthe model in predicting future tokens. Finally, we\nﬁnetune the LM itself on the API calls that it con-\nsiders useful. As illustrated in Figure 1, through\nthis simple approach, LMs can learn to control a va-\nriety of tools, and to choose for themselves which\ntool to use when and how.\nAs our approach is agnostic of the dataset be-\ning used, we can apply it to the exact same dataset\nthat was used to pretrain a model in the ﬁrst place.\nThis ensures that the model does not lose any\nof its generality and language modeling abilities.\nWe conduct experiments on a variety of differ-\nent downstream tasks, demonstrating that after\nlearning to use tools, Toolformer, which is based\non a pretrained GPT-J model (Wang and Komat-\nsuzaki, 2021) with 6.7B parameters, achieves much\nstronger zero-shot results, clearly outperforming a\nmuch larger GPT-3 model (Brown et al., 2020) and\nseveral other baselines on"
+  ]
+ },
+ {
+  "id": "q07",
+  "question": "What are reflection tokens in Self-RAG?",
+  "reference": "Reflection tokens are special tokens that Self-RAG generates to decide whether to retrieve and to critique its own output, for example judging whether a passage is relevant, whether the generation is supported by it, and how useful the response is.",
+  "answer": "Reflection tokens in Self-RAG are special tokens added to the language model's original vocabulary. They let the model retrieve, generate, and critique text, including its own output, by predicting the next token [C4][C5]. Self-RAG trains an arbitrary LM to generate text with these tokens by treating them as next-token predictions from the expanded vocabulary (original vocabulary plus reflection tokens) [C3][C5].\n\n**Types of tokens.** The paper's definitions include:\n- **Retrieve:** decides whether the continuation needs factual grounding. The values are No, Yes, or \"continue to use evidence,\" meaning the model keeps using previously retrieved evidence [C1].\n- **ISREL (Relevant):** judges whether the retrieved knowledge is relevant to the input [C1][C3].\n- **ISSUP:** judges whether the generated segment is supported by the passage [C3][C4].\n- **Overall utility:** a final critique token that evaluates the response as a whole [C3].\n\nThe first three aspects are given at each segment level, and the final aspect is given at the output level [C1].\n\n**How they are created.** The tokens are inspired by reward models in reinforcement learning. A trained critic model inserts them offline into the training corpus, so no critic needs to be hosted at inference time [C5].\n\n**How they are used.** At inference, the model uses its own reflection tokens to enforce soft constraints or hard control over its output [C3]. Segment-level beam search scores each segment with a weighted linear sum of reflection-token probabilities. This lets users adjust retrieval frequency and customize model behavior to their preferences, for example trading citation precision against completeness [C2]. Human annotators found that ISREL and ISSUP predictions mostly aligned with their own assessments [C4].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "2310.11511",
+    "chunk_id": "2310-11511-pdf::p17::c0",
+    "page": 17,
+    "snippet": "Preprint. A S ELF -R AG DETAILS A.1 R EFLECTION TOKENS . Definitions of reflection tokens. Below, we provide a detailed definition of reflection type and output tokens. The first three aspects will be provided at each segment level, while …",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "2310.11511",
+    "chunk_id": "2310-11511-pdf::p2::c4",
+    "page": 2,
+    "snippet": "o (1) flexibly adjust retrieval frequency for different downstream applications and (2) customize models’ behaviors to user preferences by leveraging reflection tokens through segment-level beam search using the weighted linear sum of the …",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "2310.11511",
+    "chunk_id": "2310-11511-pdf::p4::c2",
+    "page": 4,
+    "snippet": "he model generates: a critique token to evaluate the retrieved passage’s relevance, the next response segment, and a critique token to evaluate if the information in the response segment is supported by the passage. Finally, a new critique…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "2310.11511",
+    "chunk_id": "2310-11511-pdf::p10::c4",
+    "page": 10,
+    "snippet": "higher S&P scores on short-form PopQA, which is consistent with Menick et al. (2022). Human annotators also find ISREL and ISSUP reflection token predictions are mostly aligned with their assessments. Appendix Table 6 shows several annotat…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "2310.11511",
+    "chunk_id": "2310-11511-pdf::p2::c2",
+    "page": 2,
+    "snippet": "ique, and generate text passages to enhance overall generation quality, factuality, and verifiability. consistently retrieves a fixed number of documents for generation regardless of the retrieval necessity (e.g., the bottom figure example…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1164,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3002,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What are reflection tokens in Self-RAG?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 939,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks for a definition/explanation of a concept ('reflection tokens') from the Self-RAG framework, which is covered by the RAG corpus."
+   },
+   {
+    "t_ms": 939,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 941,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1164,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.75)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1164,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3000,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 1029 chars"
+   },
+   {
+    "t_ms": 3001,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3002,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 7278,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1795 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 7279,
+   "metrics": {
+    "total_ms": 7279,
+    "ttft_ms": 3774,
+    "retrieval_ms": 222,
+    "llm_ms": 6988,
+    "in_tokens": 4192,
+    "out_tokens": 907,
+    "cost_usd": 0.015783,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1861,
+      "out_tokens": 321,
+      "ms": 2712.8981669957284,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2331,
+      "out_tokens": 586,
+      "ms": 4275.500874995487,
+      "cost_usd": 0.015783
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 7.28,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "Preprint.\nA S ELF -R AG DETAILS\nA.1 R EFLECTION TOKENS .\nDefinitions of reflection tokens. Below, we provide a detailed definition of reflection type and\noutput tokens. The first three aspects will be provided at each segment level, while the final aspect is\nonly given at each output level.\n• Retrieval-on-demand ( Retrieve ): Given an input and previous-step generation (if applicable),\nan LM determines whether the continuation requires factual grounding. No indicates retrieval\nis unnecessary as the sequence does not require factual grounding or may not be enhanced by\nknowledge retrieval, Yes indicates retrieval is necessary. We additionally have continue\nto use evidence , which indicates that a model can continue to use the evidence retrieved\npreviously. For instance, a passage may contain rich factual information, and thus SELF -RAG\ngenerates multiple segments based on the passage.\n• Relevant ( ISREL ): Retrieved knowledge may not be always relevant to the input. This aspect\nindicates",
+   "o (1) flexibly adjust retrieval frequency for different downstream applications and (2) customize\nmodels’ behaviors to user preferences by leveraging reflection tokens through segment-level beam\nsearch using the weighted linear sum of the reflection token probabilities as segment score.\nEmpirical results on six tasks, including reasoning and long-form generation, demonstrate that SELF -\nRAG significantly outperforms pre-trained and instruction-tuned LLMs that have more parameters and\nwidely adopted RAG approaches with higher citation accuracy. In particular, SELF -RAG outperforms\nretrieval-augmented ChatGPT on four tasks, Llama2-chat (Touvron et al., 2023) and Alpaca (Dubois\net al., 2023) on all tasks. Our analysis demonstrates the effectiveness of training and inference with\nreflection tokens for overall performance improvements as well as test-time model customizations\n(e.g., balancing the trade-off between citation previsions and completeness).\n2 R ELATED WORK\nRetrieval-Augmented Ge",
+   "he model generates: a critique token to evaluate the retrieved\npassage’s relevance, the next response segment, and a critique token to evaluate if the information in\nthe response segment is supported by the passage. Finally, a new critique token evaluates the overall\nutility of the response.4 To generate each segment, SELF -R AG processes multiple passages in parallel\nand uses its own generated reflection tokens to enforce soft constraints (Section 3.3) or hard control\n(Algorithm 1) over the generated task output. For instance, in Figure 1 (right), the retrieved passages\nd1 is selected at the first time step since d2 does not provide direct evidence ( ISREL is Irrelevant)\nand d3 output is only partially supported while d1 are fully supported.\nTraining overview. SELF -RAG enables an arbitrary LM to generate text with reflection tokens\nby unifying them as next token predictions from the expanded model vocabulary (i.e., the original\nvocabulary plus reflection tokens). Specifically, we tra",
+   "higher S&P scores on short-form PopQA, which is\nconsistent with Menick et al. (2022). Human annotators also find ISREL and ISSUP reflection token\npredictions are mostly aligned with their assessments. Appendix Table 6 shows several annotated\nexamples and explanations on assessments.\n6 C ONCLUSION\nThis work introduces SELF -RAG, a new framework to enhance the quality and factuality of LLMs\nthrough retrieval on demand and self-reflection. SELF -R AG trains an LM to learn to retrieve, generate,\nand critique text passages and its own generation by predicting the next tokens from its original\nvocabulary as well as newly added special tokens, called reflection tokens.SELF -R AG further enables\nthe tailoring of LM behaviors at test time by leveraging reflection tokens. Our holistic evaluations on\nsix tasks using multiple metrics demonstrate that SELF -RAG significantly outperforms LLMs with\nmore parameters or with conventional retrieval-augmented generation approaches.\n10",
+   "ique, and generate text passages\nto enhance overall generation quality, factuality, and verifiability.\nconsistently retrieves a fixed number of documents for generation regardless of the retrieval necessity\n(e.g., the bottom figure example does not require factual knowledge) and never second visits the\ngeneration quality. Moreover, SELF -RAG provides citations for each segment with its self-assessment\nof whether the output is supported by the passage, leading to easier fact verification.\nSELF -RAG trains an arbitrary LM to generate text with reflection tokens by unifying them as the\nnext token prediction from the expanded model vocabulary. We train our generator LM on a diverse\ncollection of text interleaved with reflection tokens and retrieved passages. Reflection tokens, inspired\nby reward models used in reinforcement learning (Ziegler et al., 2019; Ouyang et al., 2022), are\ninserted offline into the original corpus by a trained critic model. This eliminates the need to host a\ncritic"
+  ]
+ },
+ {
+  "id": "q08",
+  "question": "What does the retrieval evaluator in Corrective RAG do?",
+  "reference": "The lightweight retrieval evaluator assesses the quality of the retrieved documents and returns a confidence that triggers one of three actions (correct, incorrect, ambiguous), including falling back to web search when retrieval is poor, followed by filtering of the retrieved content.",
+  "answer": "The retrieval evaluator in Corrective RAG (CRAG) is a lightweight component that assesses the overall quality of the documents retrieved for a query [C3]. It reviews their relevance and reliability, which helps the generation step be informative [C3].\n\n- **Confidence and actions:** The evaluator quantifies a confidence degree. That degree decides which of three knowledge retrieval actions is triggered: Correct, Incorrect, or Ambiguous [C3][C4].\n- **Web search fallback:** For the Incorrect and Ambiguous actions, CRAG adds large-scale web search. Retrieval from static, limited corpora can return sub-optimal documents in scope and diversity, and web search broadens the retrieved information [C3].\n- **Overall effect:** Together with web search and optimized knowledge utilization, the evaluator improves CRAG's self-correction and its use of retrieved documents [C4].\n- **Limitation:** The evaluator is an external component that has to be fine-tuned. The authors list removing this need, by giving LLMs better built-in retrieval evaluation, as future work [C4].\n\nThe evidence does not describe the evaluator's architecture, training details, or how the confidence thresholds are set.",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2312.10997.pdf",
+    "title": "2312.10997",
+    "chunk_id": "2312-10997-pdf::p12::c2",
+    "page": 12,
+    "snippet": "table for RAG. In addition to QA, RAG is continuously being expanded into multiple downstream tasks, such as Infor- mation Extraction (IE), dialogue generation, code search, etc. The main downstream tasks of RAG and their corresponding dat…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2312.10997.pdf",
+    "title": "2312.10997",
+    "chunk_id": "2312-10997-pdf::p12::c3",
+    "page": 12,
+    "snippet": "heir assessments on these task- specific metrics [160]. Despite this, there is a notable paucity of research dedicated to evaluating the distinct characteristics of RAG models.The main evaluation objectives include: Retrieval Quality. Eval…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "2401.15884",
+    "chunk_id": "2401-15884-pdf::p2::c1",
+    "page": 2,
+    "snippet": "nted Generation ( CRAG ) is proposed to self-correct the results of retriever and improve the utilization of documents for augmenting generation. A lightweight retrieval evaluator is designed to assess the overall quality of retrieved docu…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "2401.15884",
+    "chunk_id": "2401-15884-pdf::p10::c3",
+    "page": 10,
+    "snippet": "neration is proposed to improve the robustness of generation. Essentially, a lightweight retrieval evaluator is to estimate and trigger three knowledge retrieval actions discriminately. With the further leverage of web search and optimized…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2312.10997.pdf",
+    "title": "2312.10997",
+    "chunk_id": "2312-10997-pdf::p12::c4",
+    "page": 12,
+    "snippet": "content’s objectives: unlabeled and labeled content. For unlabeled content, the evaluation encompasses the faithfulness, relevance, and non-harmfulness of the generated answers. In contrast, for labeled content, the focus is on the accurac…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1419,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3815,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What does the retrieval evaluator in Corrective RAG do?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1178,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks about the retrieval evaluator in Corrective RAG, which is a factual concept explainable from the RAG-focused corpus."
+   },
+   {
+    "t_ms": 1178,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1179,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1419,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.64)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1419,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3812,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 392 chars"
+   },
+   {
+    "t_ms": 3813,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3815,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 6659,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1190 chars, cites ['C3', 'C4']"
+   }
+  ],
+  "done": {
+   "t_ms": 6660,
+   "metrics": {
+    "total_ms": 6660,
+    "ttft_ms": 4427,
+    "retrieval_ms": 239,
+    "llm_ms": 6331,
+    "in_tokens": 4029,
+    "out_tokens": 563,
+    "cost_usd": 0.012522,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1875,
+      "out_tokens": 159,
+      "ms": 3487.527876000968,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2154,
+      "out_tokens": 404,
+      "ms": 2843.666332999419,
+      "cost_usd": 0.012522
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 6.66,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "table for RAG. In addition to QA, RAG is continuously\nbeing expanded into multiple downstream tasks, such as Infor-\nmation Extraction (IE), dialogue generation, code search, etc.\nThe main downstream tasks of RAG and their corresponding\ndatasets are summarized in Table II.\nB. Evaluation Target\nHistorically, RAG models assessments have centered on\ntheir execution in specific downstream tasks. These evaluations\nemploy established metrics suitable to the tasks at hand. For\ninstance, question answering evaluations might rely on EM\nand F1 scores [7], [45], [59], [72], whereas fact-checking\ntasks often hinge on Accuracy as the primary metric [4],\n[14], [42]. BLEU and ROUGE metrics are also commonly\nused to evaluate answer quality [26], [32], [52], [78]. Tools\nlike RALLE, designed for the automatic evaluation of RAG\napplications, similarly base their assessments on these task-\nspecific metrics [160]. Despite this, there is a notable paucity\nof research dedicated to evaluating the distinct char",
+   "heir assessments on these task-\nspecific metrics [160]. Despite this, there is a notable paucity\nof research dedicated to evaluating the distinct characteristics\nof RAG models.The main evaluation objectives include:\nRetrieval Quality. Evaluating the retrieval quality is crucial\nfor determining the effectiveness of the context sourced by\nthe retriever component. Standard metrics from the domains\nof search engines, recommendation systems, and information\nretrieval systems are employed to measure the performance of\nthe RAG retrieval module. Metrics such as Hit Rate, MRR, and\nNDCG are commonly utilized for this purpose [161], [162].\nGeneration Quality . The assessment of generation quality\ncenters on the generator’s capacity to synthesize coherent and\nrelevant answers from the retrieved context. This evaluation\ncan be categorized based on the content’s objectives: unlabeled\nand labeled content. For unlabeled content, the evaluation\nencompasses the faithfulness, relevance, and non-harmfulne",
+   "nted\nGeneration ( CRAG ) is proposed to self-correct\nthe results of retriever and improve the utilization\nof documents for augmenting generation. A\nlightweight retrieval evaluator is designed to\nassess the overall quality of retrieved documents\nfor a query. This serves as a crucial component\nin RAG, contributing to informative generation\nby reviewing and evaluating the relevance\nand reliability of the retrieved documents. A\nconfidence degree is quantified based on which\ndifferent knowledge retrieval actions of {Correct,\nIncorrect, Ambiguous} can be triggered. For the\nlatter two actions, large-scale web searches (Piktus\net al., 2021; Komeili et al., 2022) are integrated as\na strategic extension, since retrieval from static\nand limited corpora can only return sub-optimal\ndocuments in terms of scope and diversity. This\naugmentation is implemented to broaden the\nspectrum of retrieved information, harnessing\nthe expansive and dynamic nature of the web\nto complement and enrich the initially",
+   "neration is proposed to improve the\nrobustness of generation. Essentially, a lightweight\nretrieval evaluator is to estimate and trigger three\nknowledge retrieval actions discriminately. With\nthe further leverage of web search and optimized\nknowledge utilization, CRAG has significantly\nimproved the ability of automatic self-correction\nand efficient utilization of retrieved documents.\nExperiments extensively demonstrate its adaptabil-\nity to RAG-based approaches as well as general-\nizability across short- and long-form generation\ntasks. While we primarily proposed to improve the\nRAG framework from a corrective perspective and\nCRAG can be seamlessly coupled with various\nRAG-based approaches, fine-tuning an external\nretrieval evaluator is inevitable. How to eliminate\nthis external evaluator and equip LLMs with better\nretrieval evaluation capabilities will be our future\nwork.\nReferences\nRohan Anil, Andrew M. Dai, Orhan Firat, Melvin John-\nson, Dmitry Lepikhin, Alexandre Passos, Siamak\nShake",
+   "content’s objectives: unlabeled\nand labeled content. For unlabeled content, the evaluation\nencompasses the faithfulness, relevance, and non-harmfulness\nof the generated answers. In contrast, for labeled content,\nthe focus is on the accuracy of the information produced by\nthe model [161]. Additionally, both retrieval and generation\nquality assessments can be conducted through manual or\nautomatic evaluation methods [29], [161], [163].\nC. Evaluation Aspects\nContemporary evaluation practices of RAG models empha-\nsize three primary quality scores and four essential abilities,\nwhich collectively inform the evaluation of the two principal\ntargets of the RAG model: retrieval and generation.\n1) Quality Scores: Quality scores include context rele-\nvance, answer faithfulness, and answer relevance. These qual-\nity scores evaluate the efficiency of the RAG model from\ndifferent perspectives in the process of information retrieval\nand generation [164]–[166].\nContext Relevance evaluates the precision"
+  ]
+ },
+ {
+  "id": "q09",
+  "question": "What does 'Lost in the Middle' find about where relevant information sits in a long context?",
+  "reference": "Model performance is highest when the relevant information is at the beginning or end of the input context and degrades significantly when it is in the middle, giving a U-shaped curve.",
+  "answer": "\"Lost in the Middle\" (Liu et al., 2023) finds that where relevant information sits in a long context strongly affects model performance.\n\n- **Position matters.** Performance can degrade significantly when the position of the relevant information changes. The authors conclude that current language models do not robustly use information in long input contexts [C1][C2]. They tested this on multi-document question answering and key-value retrieval [C1].\n- **U-shaped curve.** Performance is highest when relevant information is at the very beginning (primacy bias) or the end (recency bias) of the input. It drops significantly when the model must use information in the middle [C2].\n- **Worse than no context.** When the relevant information is in the middle, GPT-3.5-Turbo's multi-document QA performance is lower than in the closed-book setting, where it gets no documents (56.1%) [C2].\n- **Psychological parallel.** The authors link the U-shape to the serial-position effect. In free recall of a list, humans tend to remember the first and last items best [C3].\n\nLater work cites this finding. One paper notes that LLMs are often less effective at exploiting information placed in the middle of long context passages [C5]. Another cites it as motivation for testing different context window sizes [C4].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2307.03172.pdf",
+    "title": "2307.03172",
+    "chunk_id": "2307-03172-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Lost in the Middle: How Language Models Use Long Contexts Nelson F . Liu1∗ Kevin Lin2 John Hewitt1 Ashwin Paranjape3 Michele Bevilacqua3 Fabio Petroni3 Percy Liang1 1Stanford University 2University of California, Berkeley 3Samaya AI nfliu@…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2307.03172.pdf",
+    "title": "2307.03172",
+    "chunk_id": "2307-03172-pdf::p2::c2",
+    "page": 2,
+    "snippet": "g, middle or end of the context. We find that changing the position of relevant information in the input context can substantially affect model performance, indicating that current language models do not robustly access and use information…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2307.03172.pdf",
+    "title": "2307.03172",
+    "chunk_id": "2307-03172-pdf::p10::c4",
+    "page": 10,
+    "snippet": "ent with the theory of Sharan et al. (2018), who showed that sequence distributions with bounded mutual infor- mation necessarily lead to marginal average predic- tion benefits from increasingly long context. Qin et al. (2023) analyze how …",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2404.16130.pdf",
+    "title": "2404.16130",
+    "chunk_id": "2404-16130-pdf::p19::c1",
+    "page": 19,
+    "snippet": "ation to be “lost in the middle” of longer contexts (Kuratov et al., 2024; Liu et al., 2023), we wanted to ex- plore the effects of varying the context window size for our combinations of datasets, questions, and metrics. In particular, ou…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2309.15217.pdf",
+    "title": "2309.15217",
+    "chunk_id": "2309-15217-pdf::p3::c1",
+    "page": 3,
+    "snippet": "ext Relevance refers to the idea that the retrieved context should be focused, containing as little irrelevant informa- tion as possible. This is important given the cost associated with feeding long context passages to LLMs. Moreover, whe…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1238,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 2866,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What does 'Lost in the Middle' find about where relevant information sits in a long context?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 991,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user is asking about a specific concept ('Lost in the Middle') related to information placement in long contexts, which is a well-documented finding in the RAG and LLM literature covered by the corpus."
+   },
+   {
+    "t_ms": 991,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 993,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1238,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.54)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1238,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 2863,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 544 chars"
+   },
+   {
+    "t_ms": 2865,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 2866,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 6108,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1306 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 6109,
+   "metrics": {
+    "total_ms": 6109,
+    "ttft_ms": 3837,
+    "retrieval_ms": 244,
+    "llm_ms": 5802,
+    "in_tokens": 3863,
+    "out_tokens": 616,
+    "cost_usd": 0.012105,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1828,
+      "out_tokens": 216,
+      "ms": 2560.151042001962,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2035,
+      "out_tokens": 400,
+      "ms": 3242.106417004834,
+      "cost_usd": 0.012105
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 6.11,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "Lost in the Middle: How Language Models Use Long Contexts\nNelson F . Liu1∗ Kevin Lin2 John Hewitt1 Ashwin Paranjape3\nMichele Bevilacqua3 Fabio Petroni3 Percy Liang1\n1Stanford University 2University of California, Berkeley 3Samaya AI\nnfliu@cs.stanford.edu\nAbstract\nWhile recent language models have the abil-\nity to take long contexts as input, relatively\nlittle is known about how well they use\nlonger context. We analyze the performance\nof language models on two tasks that require\nidentifying relevant information in their in-\nput contexts: multi-document question an-\nswering and key-value retrieval. We find that\nperformance can degrade significantly when\nchanging the position of relevant informa-\ntion, indicating that current language models\ndo not robustly make use of information in\nlong input contexts. In particular, we observe\nthat performance is often highest when rele-\nvant information occurs at the beginning or\nend of the input context, and significantly\ndegrades when models must ac",
+   "g, middle or end of the context.\nWe find that changing the position of relevant\ninformation in the input context can substantially\naffect model performance, indicating that current\nlanguage models do not robustly access and use\ninformation in long input contexts. Furthermore,\nwe observe a distinctive U-shaped performance\ncurve (Figure 1); language model performance is\nhighest when relevant information occurs at the\nvery beginning (primacy bias) or end of its in-\nput context (recency bias), and performance sig-\nnificantly degrades when models must access and\nuse information in the middle of their input con-\ntext (§2.3). For example, when relevant infor-\nmation is placed in the middle of its input con-\ntext, GPT-3.5-Turbo’s performance on the multi-\ndocument question task is lower than its perfor-\nmance when predictingwithout any documents (i.e.,\nthe closed-book setting; 56.1%). Furthermore, we\nfind that models often have identical performance\nto their extended-context counterparts, indi",
+   "ent with the\ntheory of Sharan et al. (2018), who showed that\nsequence distributions with bounded mutual infor-\nmation necessarily lead to marginal average predic-\ntion benefits from increasingly long context. Qin\net al. (2023) analyze how efficient Transformers\nperform on a variety of long-context downstream\nNLP tasks, finding that long-context transformers\nare recency-biased and do not effectively use long-\nrange context.\n6.3 The Serial-Position Effect\nThe U-shaped curve we observe in this work has\na connection in psychology known as the serial-\nposition effect (Ebbinghaus, 1913; Murdock Jr,\n1962), that states that in free-association recall\nof elements from a list, humans tend to best re-\nmember the first and last elements of the list. The\nserial-position effect plays a role in understanding\nhow humans develop short- and long-term mem-",
+   "ation to\nbe “lost in the middle” of longer contexts (Kuratov et al., 2024; Liu et al., 2023), we wanted to ex-\nplore the effects of varying the context window size for our combinations of datasets, questions, and\nmetrics. In particular, our goal was to determine the optimum context size for our baseline condition\n(SS) and then use this uniformly for all query-time LLM use. To that end, we tested four context\nwindow sizes: 8k, 16k, 32k and 64k. Surprisingly, the smallest context window size tested (8k)\nwas universally better for all comparisons on comprehensiveness (average win rate of 58.1%), while\nperforming comparably with larger context sizes on diversity (average win rate = 52.4%), and em-\npowerment (average win rate = 51.3%). Given our preference for more comprehensive and diverse\nanswers, we therefore used a fixed context window size of 8k tokens for the final evaluation.\n19",
+   "ext Relevance\nrefers to the idea that the retrieved context should\nbe focused, containing as little irrelevant informa-\ntion as possible. This is important given the cost\nassociated with feeding long context passages to\nLLMs. Moreover, when context passages are too\nlong, LLMs are often less effective in exploiting\nthat context, especially for information that is pro-\nvided in the middle of the context passage (Liu\net al., 2023).\nWe now explain how these three quality aspects\ncan be measured in a fully automated way, by\nprompting an LLM. In our implementation and\nexperiments, all prompts are evaluated using the\ngpt-3.5-turbo-16k model, which is available\nthrough the OpenAI API2.\nFaithfulness We say that the answer as(q) is\nfaithful to the context c(q) if the claims that are\nmade in the answer can be inferred from the con-\ntext. To estimate faithfulness, we first use an LLM\nto extract a set of statements, S(as(q)). The aim\nof this step is to decompose longer sentences into\nshorter and mo"
+  ]
+ },
+ {
+  "id": "q10",
+  "question": "Which metrics does the Ragas framework propose for evaluating retrieval-augmented generation?",
+  "reference": "Ragas proposes reference-free metrics for faithfulness, answer relevance and context relevance.",
+  "answer": "The evidence does not say which specific metrics Ragas proposes, and the research agent's notes misattribute metrics to it.\n\n- **What the Ragas source does say.** The only Ragas passage retrieved (the paper's abstract, [C2]) describes Ragas as a framework for reference-free evaluation of RAG pipelines. It says evaluation is hard because several dimensions matter: the retrieval system's ability to identify relevant and focused context passages, and the LLM's ability to exploit those passages [C2]. The excerpt cuts off before naming any metrics.\n\n- **The agent's mistake.** The notes list Hit Rate, MRR, NDCG, Faithfulness, Relevance and Non-harmfulness as Ragas metrics. Those come from [C1], a different paper (2312.10997, a RAG survey). That paper describes them as commonly used evaluation measures for retrieval quality (Hit Rate, MRR, NDCG) and generation quality (faithfulness, relevance, non-harmfulness) [C1]. The excerpt does not attribute them to Ragas, and [C2] does not mention them.\n\n- **Irrelevant evidence.** [C3], [C4] and [C5] concern CRAG, a corrective retrieval method with a retrieval evaluator. They are unrelated to Ragas.\n\n**Conclusion:** From this evidence I can only say that Ragas evaluates along retrieval-side dimensions (relevant and focused context) and generation-side dimensions (the LLM's use of the passages) without needing reference answers [C2]. The specific metric names are not in the retrieved text. I'd need the body of the Ragas paper (2309.15217) to list them. From general knowledge, and not supported by the evidence here, the paper's metrics are commonly cited as faithfulness, answer relevance, and context relevance.",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2312.10997.pdf",
+    "title": "2312.10997",
+    "chunk_id": "2312-10997-pdf::p12::c3",
+    "page": 12,
+    "snippet": "heir assessments on these task- specific metrics [160]. Despite this, there is a notable paucity of research dedicated to evaluating the distinct characteristics of RAG models.The main evaluation objectives include: Retrieval Quality. Eval…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2309.15217.pdf",
+    "title": "2309.15217",
+    "chunk_id": "2309-15217-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Ragas: Automated Evaluation of Retrieval Augmented Generation Shahul Es†, Jithin James †, Luis Espinosa-Anke ∗♢, Steven Schockaert ∗ †Exploding Gradients ∗CardiffNLP, Cardiff University, United Kingdom ♢AMPLYFI, United Kingdom shahules786@…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "2401.15884",
+    "chunk_id": "2401-15884-pdf::p1::c1",
+    "page": 1,
+    "snippet": "val Augmented Generation (CRAG ) to improve the robustness of generation. Specifically, a lightweight retrieval evaluator is designed to assess the overall quality of retrieved documents for a query, returning a confidence degree based on …",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "2401.15884",
+    "chunk_id": "2401-15884-pdf::p2::c1",
+    "page": 2,
+    "snippet": "nted Generation ( CRAG ) is proposed to self-correct the results of retriever and improve the utilization of documents for augmenting generation. A lightweight retrieval evaluator is designed to assess the overall quality of retrieved docu…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "2401.15884",
+    "chunk_id": "2401-15884-pdf::p10::c3",
+    "page": 10,
+    "snippet": "neration is proposed to improve the robustness of generation. Essentially, a lightweight retrieval evaluator is to estimate and trigger three knowledge retrieval actions discriminately. With the further leverage of web search and optimized…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1365,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 4108,
+    "stage": "synthesize",
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "dimension": "forced",
+    "reason": "FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: Which metrics does the Ragas framework propose for evaluating retrieval-augmented generation?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1108,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks for metrics proposed by the Ragas framework for RAG evaluation, which is a factual question answerable from the provided corpus of RAG papers."
+   },
+   {
+    "t_ms": 1108,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1109,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1365,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=5 -> 5 chunks (top score 0.78)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1365,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 4105,
+    "node": "research",
+    "event": "done",
+    "detail": "5 citations, notes 897 chars"
+   },
+   {
+    "t_ms": 4106,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 4108,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> anthropic (forced): FORCE_SYNTH_PROVIDER is set (evaluation mode): routing bypassed"
+   },
+   {
+    "t_ms": 9711,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1669 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5']"
+   }
+  ],
+  "done": {
+   "t_ms": 9712,
+   "metrics": {
+    "total_ms": 9712,
+    "ttft_ms": 5629,
+    "retrieval_ms": 255,
+    "llm_ms": 9368,
+    "in_tokens": 4303,
+    "out_tokens": 900,
+    "cost_usd": 0.016347,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 1894,
+      "out_tokens": 292,
+      "ms": 3765.4670830015675,
+      "cost_usd": 0.0
+     },
+     "anthropic": {
+      "calls": 1,
+      "in_tokens": 2409,
+      "out_tokens": 608,
+      "ms": 5603.32699999708,
+      "cost_usd": 0.016347
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 9.71,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "heir assessments on these task-\nspecific metrics [160]. Despite this, there is a notable paucity\nof research dedicated to evaluating the distinct characteristics\nof RAG models.The main evaluation objectives include:\nRetrieval Quality. Evaluating the retrieval quality is crucial\nfor determining the effectiveness of the context sourced by\nthe retriever component. Standard metrics from the domains\nof search engines, recommendation systems, and information\nretrieval systems are employed to measure the performance of\nthe RAG retrieval module. Metrics such as Hit Rate, MRR, and\nNDCG are commonly utilized for this purpose [161], [162].\nGeneration Quality . The assessment of generation quality\ncenters on the generator’s capacity to synthesize coherent and\nrelevant answers from the retrieved context. This evaluation\ncan be categorized based on the content’s objectives: unlabeled\nand labeled content. For unlabeled content, the evaluation\nencompasses the faithfulness, relevance, and non-harmfulne",
+   "Ragas: Automated Evaluation of Retrieval Augmented Generation\nShahul Es†, Jithin James †, Luis Espinosa-Anke ∗♢, Steven Schockaert ∗\n†Exploding Gradients\n∗CardiffNLP, Cardiff University, United Kingdom\n♢AMPLYFI, United Kingdom\nshahules786@gmail.com,jamesjithin97@gmail.com\n{espinosa-ankel,schockaerts1}@cardiff.ac.uk\nAbstract\nWe introduce Ragas (Retrieval Augmented\nGeneration Assessment), a framework for\nreference-free evaluation of Retrieval Aug-\nmented Generation (RAG) pipelines. RAG\nsystems are composed of a retrieval and an\nLLM based generation module, and provide\nLLMs with knowledge from a reference textual\ndatabase, which enables them to act as a natu-\nral language layer between a user and textual\ndatabases, reducing the risk of hallucinations.\nEvaluating RAG architectures is, however, chal-\nlenging because there are several dimensions to\nconsider: the ability of the retrieval system to\nidentify relevant and focused context passages,\nthe ability of the LLM to exploit such passages",
+   "val Augmented\nGeneration (CRAG ) to improve the robustness\nof generation. Specifically, a lightweight\nretrieval evaluator is designed to assess the\noverall quality of retrieved documents for a\nquery, returning a confidence degree based\non which different knowledge retrieval ac-\ntions can be triggered. Since retrieval from\nstatic and limited corpora can only return sub-\noptimal documents, large-scale web searches\nare utilized as an extension for augmenting the\nretrieval results. Besides, a decompose-then-\nrecompose algorithm is designed for retrieved\ndocuments to selectively focus on key infor-\nmation and filter out irrelevant information in\nthem. CRAG is plug-and-play and can be\nseamlessly coupled with various RAG-based\napproaches. Experiments on four datasets\ncovering short- and long-form generation tasks\nshow that CRAG can significantly improve the\nperformance of RAG-based approaches. 1\n1 Introduction\nLarge language models (LLMs) have attracted\nincreasing attention and exhibited impr",
+   "nted\nGeneration ( CRAG ) is proposed to self-correct\nthe results of retriever and improve the utilization\nof documents for augmenting generation. A\nlightweight retrieval evaluator is designed to\nassess the overall quality of retrieved documents\nfor a query. This serves as a crucial component\nin RAG, contributing to informative generation\nby reviewing and evaluating the relevance\nand reliability of the retrieved documents. A\nconfidence degree is quantified based on which\ndifferent knowledge retrieval actions of {Correct,\nIncorrect, Ambiguous} can be triggered. For the\nlatter two actions, large-scale web searches (Piktus\net al., 2021; Komeili et al., 2022) are integrated as\na strategic extension, since retrieval from static\nand limited corpora can only return sub-optimal\ndocuments in terms of scope and diversity. This\naugmentation is implemented to broaden the\nspectrum of retrieved information, harnessing\nthe expansive and dynamic nature of the web\nto complement and enrich the initially",
+   "neration is proposed to improve the\nrobustness of generation. Essentially, a lightweight\nretrieval evaluator is to estimate and trigger three\nknowledge retrieval actions discriminately. With\nthe further leverage of web search and optimized\nknowledge utilization, CRAG has significantly\nimproved the ability of automatic self-correction\nand efficient utilization of retrieved documents.\nExperiments extensively demonstrate its adaptabil-\nity to RAG-based approaches as well as general-\nizability across short- and long-form generation\ntasks. While we primarily proposed to improve the\nRAG framework from a corrective perspective and\nCRAG can be seamlessly coupled with various\nRAG-based approaches, fine-tuning an external\nretrieval evaluator is inevitable. How to eliminate\nthis external evaluator and equip LLMs with better\nretrieval evaluation capabilities will be our future\nwork.\nReferences\nRohan Anil, Andrew M. Dai, Orhan Firat, Melvin John-\nson, Dmitry Lepikhin, Alexandre Passos, Siamak\nShake"
+  ]
+ }
+]

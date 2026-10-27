@@ -1,0 +1,62 @@
+[
+ {
+  "id": "h01",
+  "question": "How does Voyager build and reuse its skill library?",
+  "source": "2305.16291.pdf"
+ },
+ {
+  "id": "h02",
+  "question": "What safety fine-tuning approach was used for the Llama 2 chat models?",
+  "source": "2307.09288.pdf"
+ },
+ {
+  "id": "h03",
+  "question": "How does REALM pre-train its knowledge retriever?",
+  "source": "2002.08909.pdf"
+ },
+ {
+  "id": "h04",
+  "question": "How does RETRO condition generation on retrieved neighbors from its database?",
+  "source": "2112.04426.pdf"
+ },
+ {
+  "id": "h05",
+  "question": "How does DSPy optimize prompts with teleprompters?",
+  "source": "2310.03714.pdf"
+ },
+ {
+  "id": "h06",
+  "question": "What does multi-granularity mean for M3-Embedding?",
+  "source": "2402.03216.pdf"
+ },
+ {
+  "id": "h07",
+  "question": "How does REPLUG train its retriever using feedback from the language model?",
+  "source": "2301.12652.pdf"
+ },
+ {
+  "id": "h08",
+  "question": "How does AgentVerse decide the composition of its expert agent group?",
+  "source": "2308.10848.pdf"
+ },
+ {
+  "id": "h09",
+  "question": "How does HuggingGPT use ChatGPT as a controller for other models?",
+  "source": "2303.17580.pdf"
+ },
+ {
+  "id": "h10",
+  "question": "What is the rewrite-retrieve-read framework?",
+  "source": "2305.14283.pdf"
+ },
+ {
+  "id": "h11",
+  "question": "How does the GPT-3 paper evaluate few-shot, one-shot and zero-shot learning?",
+  "source": "2005.14165.pdf"
+ },
+ {
+  "id": "h12",
+  "question": "What components does the CoALA cognitive architecture define for language agents?",
+  "source": "2309.02427.pdf"
+ }
+]

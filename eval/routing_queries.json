@@ -1,0 +1,42 @@
+[
+ {
+  "id": "r01",
+  "question": "What is chain-of-thought prompting?"
+ },
+ {
+  "id": "r02",
+  "question": "Compare Self-RAG, Corrective RAG and Adaptive-RAG: how does each decide when to retrieve, and what are the trade-offs?"
+ },
+ {
+  "id": "r03",
+  "question": "What is the latest news about AI agents this week?"
+ },
+ {
+  "id": "r04",
+  "question": "How many chunks does each document have? Show the top 3."
+ },
+ {
+  "id": "r05",
+  "question": "Summarize the paper 2310.08560.pdf"
+ },
+ {
+  "id": "r06",
+  "question": "What is the capital of the moon colony described in the corpus?"
+ },
+ {
+  "id": "r07",
+  "question": "Summarize the latest news about AI agents and compare it with what the corpus says about ReAct."
+ },
+ {
+  "id": "r08",
+  "question": "whats the difrence btwn dense and sparse retreival for QA??"
+ },
+ {
+  "id": "r09",
+  "question": "Qu'est-ce que la génération augmentée par récupération (RAG) et pourquoi est-elle utile ?"
+ },
+ {
+  "id": "r10",
+  "question": "Which paper in the corpus has the most chunks, and what is it about?"
+ }
+]

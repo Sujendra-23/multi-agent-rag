@@ -1,0 +1,152 @@
+[
+ {
+  "id": "q01",
+  "question": "What two kinds of memory does the RAG model of Lewis et al. combine?",
+  "reference": "It combines parametric memory (a pre-trained seq2seq transformer) with non-parametric memory (a dense vector index of Wikipedia accessed with a pre-trained neural retriever).",
+  "source": "2005.11401.pdf"
+ },
+ {
+  "id": "q02",
+  "question": "What is the difference between RAG-Sequence and RAG-Token?",
+  "reference": "RAG-Sequence conditions the whole generated sequence on the same retrieved document, while RAG-Token can draw on a different retrieved document for each generated token.",
+  "source": "2005.11401.pdf"
+ },
+ {
+  "id": "q03",
+  "question": "How does Dense Passage Retrieval differ from sparse retrieval such as BM25?",
+  "reference": "DPR learns dense low-dimensional embeddings of questions and passages with a dual-encoder (BERT-based) trained on question-passage pairs and retrieves by inner-product similarity, instead of relying on sparse term matching.",
+  "source": "2004.04906.pdf"
+ },
+ {
+  "id": "q04",
+  "question": "How does ReAct combine reasoning and acting?",
+  "reference": "ReAct interleaves reasoning traces with task-specific actions: the reasoning helps induce, track and update action plans, and the actions let the model interact with external sources such as a Wikipedia API to gather information.",
+  "source": "2210.03629.pdf"
+ },
+ {
+  "id": "q05",
+  "question": "What is chain-of-thought prompting?",
+  "reference": "Chain-of-thought prompting provides exemplars that include intermediate reasoning steps, which elicits step-by-step reasoning and improves performance on arithmetic, commonsense and symbolic tasks in sufficiently large language models.",
+  "source": "2201.11903.pdf"
+ },
+ {
+  "id": "q06",
+  "question": "How does Toolformer decide which API calls to keep?",
+  "reference": "Toolformer samples candidate API calls, executes them, and keeps only the calls whose results reduce the language-model loss on the following tokens, in a self-supervised way.",
+  "source": "2302.04761.pdf"
+ },
+ {
+  "id": "q07",
+  "question": "What are reflection tokens in Self-RAG?",
+  "reference": "Reflection tokens are special tokens that Self-RAG generates to decide whether to retrieve and to critique its own output, for example judging whether a passage is relevant, whether the generation is supported by it, and how useful the response is.",
+  "source": "2310.11511.pdf"
+ },
+ {
+  "id": "q08",
+  "question": "What does the retrieval evaluator in Corrective RAG do?",
+  "reference": "The lightweight retrieval evaluator assesses the quality of the retrieved documents and returns a confidence that triggers one of three actions (correct, incorrect, ambiguous), including falling back to web search when retrieval is poor, followed by filtering of the retrieved content.",
+  "source": "2401.15884.pdf"
+ },
+ {
+  "id": "q09",
+  "question": "What does 'Lost in the Middle' find about where relevant information sits in a long context?",
+  "reference": "Model performance is highest when the relevant information is at the beginning or end of the input context and degrades significantly when it is in the middle, giving a U-shaped curve.",
+  "source": "2307.03172.pdf"
+ },
+ {
+  "id": "q10",
+  "question": "Which metrics does the Ragas framework propose for evaluating retrieval-augmented generation?",
+  "reference": "Ragas proposes reference-free metrics for faithfulness, answer relevance and context relevance.",
+  "source": "2309.15217.pdf"
+ },
+ {
+  "id": "q11",
+  "question": "What is the core idea of AutoGen?",
+  "reference": "AutoGen builds LLM applications from multiple customizable conversable agents that talk to each other to solve tasks, combining LLMs, humans and tools, with workflows defined through conversation programming.",
+  "source": "2308.08155.pdf"
+ },
+ {
+  "id": "q12",
+  "question": "How does MetaGPT organize its agents?",
+  "reference": "MetaGPT encodes standardized operating procedures into prompts and assigns assembly-line roles such as product manager, architect, project manager and engineer, with structured outputs passed between roles.",
+  "source": "2308.00352.pdf"
+ },
+ {
+  "id": "q13",
+  "question": "How does ChatDev structure software development with LLM agents?",
+  "reference": "ChatDev simulates a virtual software company where agents with roles such as CEO, CTO, programmer and tester communicate through a chat chain across phases such as design, coding and testing, using communicative dehallucination to reduce errors.",
+  "source": "2307.07924.pdf"
+ },
+ {
+  "id": "q14",
+  "question": "What three components make up the architecture of generative agents?",
+  "reference": "The generative agent architecture consists of a memory stream, reflection, and planning.",
+  "source": "2304.03442.pdf"
+ },
+ {
+  "id": "q15",
+  "question": "How does Reflexion improve an agent without updating model weights?",
+  "reference": "Reflexion uses verbal reinforcement: the agent reflects in natural language on task feedback and stores these reflections in an episodic memory buffer so that it makes better decisions in later trials.",
+  "source": "2303.11366.pdf"
+ },
+ {
+  "id": "q16",
+  "question": "How does Tree of Thoughts generalize chain-of-thought prompting?",
+  "reference": "Tree of Thoughts lets the model explore multiple reasoning paths over intermediate thoughts, evaluate its own choices, and use search such as breadth-first or depth-first search with lookahead and backtracking.",
+  "source": "2305.10601.pdf"
+ },
+ {
+  "id": "q17",
+  "question": "What is HyDE for dense retrieval?",
+  "reference": "HyDE has an instruction-following language model write a hypothetical document for the query, encodes it with an unsupervised contrastive encoder, and uses that embedding to retrieve real similar documents, enabling zero-shot dense retrieval without relevance labels.",
+  "source": "2212.10496.pdf"
+ },
+ {
+  "id": "q18",
+  "question": "How does RAPTOR build its retrieval index?",
+  "reference": "RAPTOR recursively embeds, clusters and summarizes text chunks to build a tree from the bottom up, so retrieval can draw on different levels of abstraction.",
+  "source": "2401.18059.pdf"
+ },
+ {
+  "id": "q19",
+  "question": "What does GraphRAG do for query-focused summarization?",
+  "reference": "GraphRAG uses an LLM to build an entity knowledge graph from the source documents, pre-generates summaries for communities of related entities, and answers global questions by combining partial answers from those community summaries.",
+  "source": "2404.16130.pdf"
+ },
+ {
+  "id": "q20",
+  "question": "What problem does MemGPT address and how?",
+  "reference": "MemGPT addresses limited LLM context windows by virtual context management inspired by operating-system memory hierarchies, moving data between a main context and external storage.",
+  "source": "2310.08560.pdf"
+ },
+ {
+  "id": "q21",
+  "question": "What is the compositionality gap and which method narrows it?",
+  "reference": "The compositionality gap is the difference between a model's ability to answer sub-questions correctly and its ability to compose them to answer a multi-hop question; self-ask prompting, which has the model ask and answer follow-up questions, helps narrow it.",
+  "source": "2210.03350.pdf"
+ },
+ {
+  "id": "q22",
+  "question": "What does Adaptive-RAG choose between?",
+  "reference": "Adaptive-RAG uses a classifier of query complexity to choose between answering without retrieval, single-step retrieval, and multi-step iterative retrieval.",
+  "source": "2403.14403.pdf"
+ },
+ {
+  "id": "q23",
+  "question": "What does the CRAG benchmark contain?",
+  "reference": "CRAG is a factual question-answering benchmark of several thousand question-answer pairs across multiple domains and question categories, with mock APIs that simulate web and knowledge-graph search.",
+  "source": "2406.04744.pdf"
+ },
+ {
+  "id": "q24",
+  "question": "What are the main components of an LLM-based agent in the survey 'The Rise and Potential of Large Language Model Based Agents'?",
+  "reference": "The survey frames an LLM-based agent as having three components: a brain, perception, and action.",
+  "source": "2309.07864.pdf"
+ },
+ {
+  "id": "q25",
+  "question": "What is Gorilla and how does it reduce hallucinated API calls?",
+  "reference": "Gorilla is a fine-tuned LLaMA-based model that writes API calls; with retriever-aware training and the APIBench dataset it adapts to documentation changes and hallucinates API usage less.",
+  "source": "2305.15334.pdf"
+ }
+]

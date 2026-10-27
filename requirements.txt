@@ -1,0 +1,18 @@
+# Exact pins (==) for every direct dependency, verified together on Python 3.13 (see README).
+# requirements.lock.txt is a full `pip freeze` of the same environment, including transitive
+# packages, if you want a byte-for-byte reproducible install.
+fastapi==0.161.1
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+python-dotenv==1.2.4
+httpx==0.28.1
+
+langgraph==1.2.16
+langchain-core==1.7.0
+langchain-openai==1.7.2
+langchain-anthropic==1.7.6
+langchain-mcp-adapters==0.3.2
+mcp==1.30.0
+
+chromadb==1.5.9
+pypdf==6.21.2

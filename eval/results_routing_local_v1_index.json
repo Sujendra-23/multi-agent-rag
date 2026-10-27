@@ -1,0 +1,2595 @@
+[
+ {
+  "id": "r01",
+  "question": "What is chain-of-thought prompting?",
+  "answer": "**Chain-of-thought prompting** is a technique for eliciting reasoning from a large language model by including a few examples that pair an input with intermediate, natural-language reasoning steps and a final answer [C3][C7].\n\nThese examples encourage the model to break multi-step problems into intermediate steps before producing its answer [C6]. It can improve performance on arithmetic, commonsense, and symbolic reasoning tasks [C7]. The technique operates through prompting an off-the-shelf model and does not require fine-tuning [C2].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p6::c1",
+    "page": 6,
+    "snippet": "the success of chain- of-thought prompting, and that there appears to be utility from expressing intermediate steps via natural language. Chain of thought after answer. Another potential beneﬁt of chain-of-thought prompting could simply be…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p9::c0",
+    "page": 9,
+    "snippet": "experiments on commonsense reasoning underscored how the linguistic nature of chain-of-thought reasoning makes it generally applicable (Section 4). Finally, we showed that for symbolic reasoning, chain-of-thought prompting facilitates OOD …",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p2::c3",
+    "page": 2,
+    "snippet": "e explore the ability of language models to perform few-shot prompting for reasoning tasks, given a prompt that consists of triples:⟨input, chain of thought, output⟩. A chain of thought is a series of intermediate natural language reasonin…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p3::c4",
+    "page": 3,
+    "snippet": "rmatted as questions and answers. The model gives the answer directly, as shown in Figure 1 (left). Chain-of-thought prompting. Our proposed approach is to augment each exemplar in few-shot prompting with a chain of thought for an associat…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p18::c5",
+    "page": 18,
+    "snippet": "interesting direction for future work. For instance, an idea here could be to use a large language model to automatically generate chains of thought via prompting (and potentially optimize this over a validation set). A.3 Will chain-of-tho…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p3::c0",
+    "page": 3,
+    "snippet": "language models can generate chains of thought if demonstrations of chain-of-thought reasoning are provided in the exemplars for few-shot prompting. Figure 1 shows an example of a model producing a chain of thought to solve a math word pro…",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models Jason Wei Xuezhi Wang Dale Schuurmans Maarten Bosma Brian Ichter Fei Xia Ed H. Chi Quoc V . Le Denny Zhou Google Research, Brain Team {jasonwei,dennyzhou}@google.com Abs…",
+    "used": true
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2201.11903.pdf",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "chunk_id": "2201-11903-pdf::p18::c3",
+    "page": 18,
+    "snippet": "h up with chain-of-thought prompting). • Different language models. Another interesting question is whether certain prompts that work better for one model work better for other large language models. We ﬁnd that with the same prompts, chai…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 0,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1525,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3005,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "grounded answer over a substantial evidence set (8358 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is chain-of-thought prompting?"
+   },
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1134,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | Definition of chain-of-thought prompting can be answered from the RAG corpus of LLM and prompting literature."
+   },
+   {
+    "t_ms": 1134,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1136,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1525,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.69)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1525,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3002,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 698 chars"
+   },
+   {
+    "t_ms": 3004,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3005,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): grounded answer over a substantial evidence set (8358 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 5176,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 541 chars, cites ['C2', 'C3', 'C6', 'C7']"
+   }
+  ],
+  "done": {
+   "t_ms": 5177,
+   "metrics": {
+    "total_ms": 5177,
+    "ttft_ms": 3763,
+    "retrieval_ms": 389,
+    "llm_ms": 4743,
+    "in_tokens": 4547,
+    "out_tokens": 340,
+    "cost_usd": 0.010108,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 2575,
+      "out_tokens": 229,
+      "ms": 2572.5915410002926,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 1972,
+      "out_tokens": 111,
+      "ms": 2170.6368750019465,
+      "cost_usd": 0.010108
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 5.18,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "the success of chain-\nof-thought prompting, and that there appears to be utility from\nexpressing intermediate steps via natural language.\nChain of thought after answer. Another potential beneﬁt of\nchain-of-thought prompting could simply be that such prompts\nallow the model to better access relevant knowledge acquired\nduring pretraining. Therefore, we test an alternative conﬁgura-\ntion where the chain of thought prompt is only given after the\nanswer, isolating whether the model actually depends on the\nproduced chain of thought to give the ﬁnal answer. This variant\nperforms about the same as the baseline, which suggests that\nthe sequential reasoning embodied in the chain of thought is\nuseful for reasons beyond just activating knowledge.\n3.4 Robustness of Chain of Thought\nGSM8K\n0\n5\n10\n15\n20Solve rate (%)\nStandard prompting\nChain-of-thought prompting\n· different annotator (B)\n· different annotator (C)\n· intentionally concise style\n· exemplars from GSM8K (α)\n· exemplars from GSM8K (β)\n· ex",
+   "experiments on commonsense reasoning underscored how the linguistic nature of chain-of-thought\nreasoning makes it generally applicable (Section 4). Finally, we showed that for symbolic reasoning,\nchain-of-thought prompting facilitates OOD generalization to longer sequence lengths (Section 5). In\nall experiments, chain-of-thought reasoning is elicited simply by prompting an off-the-shelf language\nmodel. No language models were ﬁnetuned in the process of writing this paper.\nThe emergence of chain-of-thought reasoning as a result of model scale has been a prevailing theme\n(Wei et al., 2022b). For many reasoning tasks where standard prompting has a ﬂat scaling curve, chain-\nof-thought prompting leads to dramatically increasing scaling curves. Chain-of-thought prompting\nappears to expand the set of tasks that large language models can perform successfully—in other\nwords, our work underscores that standard prompting only provides a lower bound on the capabilities\nof large language models. Th",
+   "e explore the ability of language models to perform few-shot prompting for reasoning\ntasks, given a prompt that consists of triples:⟨input, chain of thought, output⟩. A chain of thought is\na series of intermediate natural language reasoning steps that lead to the ﬁnal output, and we refer to\nthis approach as chain-of-thought prompting. An example prompt is shown in Figure 1.\nWe present empirical evaluations on arithmetic, commonsense, and symbolic reasoning benchmarks,\nshowing that chain-of-thought prompting outperforms standard prompting, sometimes to a striking\ndegree. Figure 2 illustrates one such result—on the GSM8K benchmark of math word problems\n(Cobbe et al., 2021), chain-of-thought prompting with PaLM 540B outperforms standard prompting\nby a large margin and achieves new state-of-the-art performance. A prompting only approach is\nimportant because it does not require a large training dataset and because a single model checkpoint\ncan perform many tasks without loss of generality.",
+   "rmatted as questions and\nanswers. The model gives the answer directly, as shown in Figure 1 (left).\nChain-of-thought prompting. Our proposed approach is to augment each exemplar in few-shot\nprompting with a chain of thought for an associated answer, as illustrated in Figure 1 (right). As most\nof the datasets only have an evaluation split, we manually composed a set of eight few-shot exemplars\nwith chains of thought for prompting—Figure 1 (right) shows one chain of thought exemplar, and the\nfull set of exemplars is given in Appendix Table 20. (These particular exemplars did not undergo\nprompt engineering; robustness is studied in Section 3.4 and Appendix A.2.) To investigate whether\nchain-of-thought prompting in this form can successfully elicit successful reasoning across a range of\n3",
+   "interesting direction\nfor future work. For instance, an idea here could be to use a large language model to automatically\ngenerate chains of thought via prompting (and potentially optimize this over a validation set).\nA.3 Will chain-of-thought prompting improve performance for my task of interest?\nWhile chain-of-thought prompting is in principle applicable for any text-to-text task, it is more\nhelpful for some tasks than others. Based on the experiments in this paper, our intuition is that chain\nof thought helps the most when three conditions are met: (1) the task is challenging and requires\n18",
+   "language models can generate chains of thought if demonstrations of chain-of-thought reasoning are\nprovided in the exemplars for few-shot prompting.\nFigure 1 shows an example of a model producing a chain of thought to solve a math word problem\nthat it would have otherwise gotten incorrect. The chain of thought in this case resembles a solution\nand can interpreted as one, but we still opt to call it a chain of thought to better capture the idea that it\nmimics a step-by-step thought process for arriving at the answer (and also, solutions/explanations\ntypically come after the ﬁnal answer (Narang et al., 2020; Wiegreffe et al., 2022; Lampinen et al.,\n2022, inter alia)).\nChain-of-thought prompting has several attractive properties as an approach for facilitating reasoning\nin language models.\n1. First, chain of thought, in principle, allows models to decompose multi-step problems into\nintermediate steps, which means that additional computation can be allocated to problems\nthat require more r",
+   "Chain-of-Thought Prompting Elicits Reasoning\nin Large Language Models\nJason Wei Xuezhi Wang Dale Schuurmans Maarten Bosma\nBrian Ichter Fei Xia Ed H. Chi Quoc V . Le Denny Zhou\nGoogle Research, Brain Team\n{jasonwei,dennyzhou}@google.com\nAbstract\nWe explore how generating a chain of thought—a series of intermediate reasoning\nsteps—signiﬁcantly improves the ability of large language models to perform\ncomplex reasoning. In particular, we show how such reasoning abilities emerge\nnaturally in sufﬁciently large language models via a simple method called chain-of-\nthought prompting, where a few chain of thought demonstrations are provided as\nexemplars in prompting.\nExperiments on three large language models show that chain-of-thought prompting\nimproves performance on a range of arithmetic, commonsense, and symbolic\nreasoning tasks. The empirical gains can be striking. For instance, prompting a\nPaLM 540B with just eight chain-of-thought exemplars achieves state-of-the-art\naccuracy on the GSM8K",
+   "h up with chain-of-thought prompting).\n• Different language models. Another interesting question is whether certain prompts that work\nbetter for one model work better for other large language models. We ﬁnd that with the same\nprompts, chain-of-thought prompting improves performance across all three models (LaMDA,\nGPT-3, and PaLM) for all datasets except CSQA and StrategyQA for GPT-3 (Table 1, Table 4,\nTable 5). The fact that gains from chain of thought did not transfer perfectly among models is\na limitation; further work could investigate why how different pre-training datasets and model\narchitectures affect the performance gain from chain-of-thought prompting.\nPrompt engineering still matters, though. Although the results are relatively robust to the prompt\nfor arithmetic reasoning, we want to be clear that prompt engineering still does matter, and can\nimprove performance signiﬁcantly in many cases. Though most chain of thought annotations\noutperform standard prompting, there is large"
+  ]
+ },
+ {
+  "id": "r02",
+  "question": "Compare Self-RAG, Corrective RAG and Adaptive-RAG: how does each decide when to retrieve, and what are the trade-offs?",
+  "answer": "| Method | How it decides when to retrieve | Trade-offs supported by the evidence |\n|---|---|---|\n| **Self-RAG** | The model predicts a `Retrieve = Yes` token. Retrieval occurs when that token’s normalized probability exceeds a configurable threshold [C1][C8]. Raising the threshold reduces retrieval frequency [C2]. | The threshold controls the retrieval-frequency versus accuracy trade-off: retrieving less caused different levels of performance deterioration across PubHealth and PopQA [C2]. During segment-level beam search, reflection tokens such as relevance, support, and usefulness scores can steer generation and balance citation precision against completeness without additional training [C7][C3]. |\n| **Corrective RAG** | The supplied evidence does not describe its retrieval-decision mechanism. | No supported trade-off comparison can be made from the supplied evidence. |\n| **Adaptive-RAG** | The supplied evidence does not describe its retrieval-decision mechanism. | No supported trade-off comparison can be made from the supplied evidence. |\n\nThus, the evidence supports a detailed account only for **Self-RAG**. Note that Self-RAG’s own mechanism is called “adaptive retrieval” in the cited paper [C1], but the supplied material does not establish how that mechanism compares with the separate method named **Adaptive-RAG**.",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p6::c1",
+    "page": 6,
+    "snippet": "uracy (Min et al., 2023), we aim for the model to retrieve passages more frequently to ensure that the output aligns closely with the available evidence. Conversely, in more open-ended tasks, like composing a personal experience essay, the…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p10::c1",
+    "page": 10,
+    "snippet": "by adjusting such parameters without requiring additional training. Efficiency and accuracy trade-off. Using our framework, practitioners can adjust how often retrieval occurs using the token probability of reward tokens. We evaluate how t…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p9::c3",
+    "page": 9,
+    "snippet": "SQA. On ASQA, we evaluate models on sampled 150 instances and exclude ablations involving adaptive or no retrieval processes. We show in Table 3a the ablation results. The top part of the table shows results for training ablations, and the…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p10::c5",
+    "page": 10,
+    "snippet": "SELF -RAG significantly outperforms LLMs with more parameters or with conventional retrieval-augmented generation approaches. 10",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p6::c4",
+    "page": 6,
+    "snippet": "rt ) . Balancing the trade-off between multiple preferences has been studied in RLHF (Touvron et al., 2023; Wu et al., 2023), which often requires training to change models’ behaviors. S ELF -RAG tailors an LM with no additional training. …",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p9::c2",
+    "page": 9,
+    "snippet": "use our instruction-output data instead of using the Alpaca dataset (Dubois et al., 2023), as in SAIL. We also conduct ablation on our inference-time algorithm, including No retrieval disables retrieval during inference; Hard constraints i…",
+    "used": false
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p2::c4",
+    "page": 2,
+    "snippet": "o (1) flexibly adjust retrieval frequency for different downstream applications and (2) customize models’ behaviors to user preferences by leveraging reflection tokens through segment-level beam search using the weighted linear sum of the …",
+    "used": true
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p19::c1",
+    "page": 19,
+    "snippet": "examples. Table 4 show several training examples used forM training. A.3 S ELF -R AG INFERENCE Details of beam-search score calculations. We first compute scores for each critique type by taking the normalized probabilities of desirable to…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1311,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 3057,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "classifier marked the query complex; grounded answer over a substantial evidence set (8209 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: Compare Self-RAG, Corrective RAG and Adaptive-RAG: how does each decide when to retrieve, and what are the trade-offs?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1106,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=complex | Requires synthesizing concepts across multiple RAG papers to compare decision mechanisms and trade-offs."
+   },
+   {
+    "t_ms": 1106,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1108,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1311,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.70)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1311,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 3054,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 836 chars"
+   },
+   {
+    "t_ms": 3055,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 3057,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): classifier marked the query complex; grounded answer over a substantial evidence set (8209 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 8665,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1341 chars, cites ['C1', 'C2', 'C3', 'C7', 'C8']"
+   }
+  ],
+  "done": {
+   "t_ms": 8666,
+   "metrics": {
+    "total_ms": 8666,
+    "ttft_ms": 5570,
+    "retrieval_ms": 203,
+    "llm_ms": 8375,
+    "in_tokens": 4619,
+    "out_tokens": 621,
+    "cost_usd": 0.015436,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 2545,
+      "out_tokens": 264,
+      "ms": 2767.9327920050127,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 2074,
+      "out_tokens": 357,
+      "ms": 5607.240165998519,
+      "cost_usd": 0.015436
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 8.67,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "uracy (Min et al., 2023), we aim for the model to retrieve passages more frequently to\nensure that the output aligns closely with the available evidence. Conversely, in more open-ended\ntasks, like composing a personal experience essay, the emphasis shifts towards retrieving less and\nprioritizing the overall creativity or utility score. In this section, we describe approaches to enforce\ncontrol to meet these distinct objectives during the inference process.\nAdaptive retrieval with threshold.SELF -RAG dynamically decides when to retrieve text passages by\npredicting Retrieve . Alternatively, our framework allows a threshold to be set. Specifically, if the prob-\nability of generating the Retrieve =Yes token normalized over all output tokens in Retrieve surpasses a\ndesignated threshold, we trigger retrieval (details in Appendix Section A.3).\nTree-decoding with critique tokens. At each segment step t, when retrieval is required, based either\non hard or soft conditions, R retrieves K passages",
+   "by adjusting such parameters without requiring additional training.\nEfficiency and accuracy trade-off. Using our framework, practitioners can adjust how often retrieval\noccurs using the token probability of reward tokens. We evaluate how this adaptive threshold affects\noverall accuracy and frequency of retrieval, and we evaluate the performance with varying numbers\nof threshold δ (larger δ results in less retrieval) on PubHealth and PopQA. Figure 3c shows that\nthe model’s retrieval frequencies dramatically change on both datasets. as δ varies. On one hand,\nperformance deterioration by retrieving less is smaller on PubHealth but larger in PopQA.\nEffects of training data size. We conduct an analysis of how the data scale affects the model’s\nperformance. In particular, we randomly sample 5k, 10k, 20k, and 50k instances from our original\n150k training instances, and fine-tune four SELF -RAG 7B variants on those subsets. Then, we compare\nthe model performance on PopQA, PubHealth, and ASQA",
+   "SQA. On ASQA, we evaluate models\non sampled 150 instances and exclude ablations involving adaptive or no retrieval processes.\nWe show in Table 3a the ablation results. The top part of the table shows results for training ablations,\nand the bottom part is for inference ablations. We see that all components play important roles. We\nalso observe a large performance gap between SELF -R AG and No Retriever or Critic baselines across\ntasks, indicating that training an LM with those models largely contributes to the performance gain of\nSELF -RAG. Using the top passages regardless of their relevance (Retrieve top 1) as in conventional\nRAG approaches causes a large drop in PopQA and ASQA, and removing ISSUP during the beam\nsearch results hurts performance on ASQA. This demonstrates the effectiveness of SELF -RAG’s\ncapabilities of carefully selecting generations based fine-grained multiple criterion, instead of naively\nusing all of the top passages from the retrieval model or solely depending on",
+   "SELF -RAG significantly outperforms LLMs with\nmore parameters or with conventional retrieval-augmented generation approaches.\n10",
+   "rt ) . Balancing the trade-off between multiple preferences has been studied\nin RLHF (Touvron et al., 2023; Wu et al., 2023), which often requires training to change models’\nbehaviors. S ELF -RAG tailors an LM with no additional training.\n4 E XPERIMENTS\n4.1 T ASKS AND DATASETS\nWe conduct evaluations of our SELF -RAG and diverse baselines on a range of downstream tasks,\nholistically evaluating outputs with metrics designed to assess overall correctness, factuality, and\nfluency. Throughout these experiments, we conduct zero-shot evaluations, where we provide instruc-\ntions describing tasks without few-shot demonstrations (Wei et al., 2022; Sanh et al., 2022). Details of\nour experiments’ settings, including test-time instructions, are available in the Appendix Section B.1.\nClosed-set tasks include two datasets, i.e., a factverification dataset about public health (PubHealth;\nZhang et al. 2023) and a multiple-choice reasoning dataset created from scientific exams ( ARC-\n6",
+   "use our instruction-output data instead of using the Alpaca dataset (Dubois et al., 2023), as in\nSAIL. We also conduct ablation on our inference-time algorithm, including No retrieval disables\nretrieval during inference; Hard constraints indicates the model performance that retrieves when\nRetrieve =Yes instead of using the adaptive threshold; Retrieve top 1 always retrieves and uses the\ntop one document only, similar to standard RAG approaches;Remove ISSUP indicates the model\nperformance that removes ISSUP score only during critique-guided beam search in Eq. 4. In this\nablation experiment, we use a training instance size of 50k for a more efficient exploration of training\nvariations. Later in this section, we conduct an analysis of the effect of training data size. We conduct\nthe ablation studies on three datasets, PopQA, PubHealth, and ASQA. On ASQA, we evaluate models\non sampled 150 instances and exclude ablations involving adaptive or no retrieval processes.\nWe show in Table 3a the",
+   "o (1) flexibly adjust retrieval frequency for different downstream applications and (2) customize\nmodels’ behaviors to user preferences by leveraging reflection tokens through segment-level beam\nsearch using the weighted linear sum of the reflection token probabilities as segment score.\nEmpirical results on six tasks, including reasoning and long-form generation, demonstrate that SELF -\nRAG significantly outperforms pre-trained and instruction-tuned LLMs that have more parameters and\nwidely adopted RAG approaches with higher citation accuracy. In particular, SELF -RAG outperforms\nretrieval-augmented ChatGPT on four tasks, Llama2-chat (Touvron et al., 2023) and Alpaca (Dubois\net al., 2023) on all tasks. Our analysis demonstrates the effectiveness of training and inference with\nreflection tokens for overall performance improvements as well as test-time model customizations\n(e.g., balancing the trade-off between citation previsions and completeness).\n2 R ELATED WORK\nRetrieval-Augmented Ge",
+   "examples. Table 4 show several training examples used forM training.\nA.3 S ELF -R AG INFERENCE\nDetails of beam-search score calculations. We first compute scores for each critique type by\ntaking the normalized probabilities of desirable tokens. For ISREL , we compute the score as follows:\ns( ISREL ) = p( ISREL = RELEVANT )p( ISREL = RELEVANT ) +p( ISREL = IRRELEVANT ) .\nFor ISSUP , we compute the score as follows:\ns( ISREL ) = p( ISSUP = FULLY)S + 0.5 × p( ISSUP = PARTIALLY )S ,\nwhere S = Pt∈{FULLY,PARTIALLY ,NO} p( ISSUP = t). For ISUSE where we have a five-scale score, we\ncompute the weighted sum of the scores. We assigns weighted scores of w = {−1, −0.5, 0, 0.5, 1}\nto the tokens ISUSE ={1, 2, 3, 4, 5}, and compute the final scores as follows:\ns( ISUSE ) =\n5X\ni\nwi\np( ISUSE = i)\nS ,\nwhere S = Pt∈{1,2,3,4,5} p( ISUSE = t).\nDetails of adaptive retrieval. For retrieval based on soft constraints, we trigger retrieval if the\nfollowing condition is satisfied:\np( Retrieve = YES)\np( Retrieve"
+  ]
+ },
+ {
+  "id": "r03",
+  "question": "What is the latest news about AI agents this week?",
+  "answer": "Based on the evidence this week:\n\n- Anthropic released a new AI agent called **Claude Duet** [W1].\n- Major **AI cybersecurity threats** are currently being discussed [W1].\n- OpenAI has released **latest updates** related to AI agents [W1].\n- Perplexity has introduced **new AI models and a computer interface** [W1].\n- **Websites are actively blocking AI agents** [W1].\n- Yelp has an AI agent integrated with **Mistral's Voxtral 3** [W1].",
+  "citations": [
+   {
+    "id": "W1",
+    "kind": "web",
+    "source": "web",
+    "url": "",
+    "title": "Web search result",
+    "snippet": "{\"query\":\"What is the latest news about AI agents this week?\",\"follow_up_questions\":null,\"answer\":null,\"images\":[],\"results\":[{\"url\":\"https://www.youtube.com/watch?v=TVRCcMlvR10\",\"title\":\"AI News: 24 Things You Need To Know This Week\",\"con…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 3890,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 5453,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 1737 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is the latest news about AI agents this week?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1317,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=False live=True complexity=simple | The user is asking for the latest news about AI agents this week, which requires current web information beyond the static corpus."
+   },
+   {
+    "t_ms": 1317,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1319,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 3889,
+    "node": "research",
+    "event": "mcp_call",
+    "detail": "agent=research tool=tavily_search ok=True 1557ms",
+    "tool": "tavily_search"
+   },
+   {
+    "t_ms": 3890,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 5450,
+    "node": "research",
+    "event": "done",
+    "detail": "1 citations, notes 478 chars"
+   },
+   {
+    "t_ms": 5452,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 5453,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 1737 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 6719,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 438 chars, cites ['W1']"
+   }
+  ],
+  "done": {
+   "t_ms": 6721,
+   "metrics": {
+    "total_ms": 6720,
+    "ttft_ms": 5713,
+    "retrieval_ms": 0,
+    "llm_ms": 4087,
+    "in_tokens": 1640,
+    "out_tokens": 289,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 1640,
+      "out_tokens": 289,
+      "ms": 4087.9345829962404,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 6.72,
+  "first_byte_s": 0.0,
+  "contexts": []
+ },
+ {
+  "id": "r04",
+  "question": "How many chunks does each document have? Show the top 3.",
+  "answer": "Top 3 documents by chunk count:\n\n1. The Rise and Potential of Large Language Model Based Agents: A Survey — 450 chunks [S1]\n2. GPT-4 Technical Report — 389 chunks [S1]\n3. Llama 2: Open Foundation and Fine-Tuned Chat Models — 344 chunks [S1]",
+  "citations": [
+   {
+    "id": "S1",
+    "kind": "sql",
+    "source": "sqlite:sample.db",
+    "title": "SQL query",
+    "snippet": "SELECT title, chunks FROM documents ORDER BY chunks DESC LIMIT 3",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 2570,
+    "stage": "worker:data",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "text-to-SQL must be exact (a wrong column or join gives a wrong number) -> high-capability provider",
+    "agent": "data"
+   },
+   {
+    "t_ms": 5303,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 550 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: How many chunks does each document have? Show the top 3."
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 2564,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['data'] corpus=True live=False complexity=simple | The user is asking for quantitative information about chunk counts across documents, which requires querying the SQLite database."
+   },
+   {
+    "t_ms": 2564,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=data"
+   },
+   {
+    "t_ms": 2566,
+    "node": "data",
+    "event": "start",
+    "detail": "data agent: text-to-SQL over read-only SQLite"
+   },
+   {
+    "t_ms": 2570,
+    "node": "data",
+    "event": "tool",
+    "detail": "sqlite.describe_schema (1 tables)",
+    "tool": "sqlite.schema"
+   },
+   {
+    "t_ms": 2570,
+    "node": "data",
+    "event": "route",
+    "detail": "openai (capability): text-to-SQL must be exact (a wrong column or join gives a wrong number) -> high-capability provider"
+   },
+   {
+    "t_ms": 4014,
+    "node": "data",
+    "event": "tool",
+    "detail": "sqlite.run_select attempt 1: SELECT title, chunks\nFROM documents\nORDER BY chunks DESC\nLIMIT 3 -> 3 rows",
+    "tool": "sqlite.select"
+   },
+   {
+    "t_ms": 5301,
+    "node": "data",
+    "event": "done",
+    "detail": "3 rows -> answer 254 chars"
+   },
+   {
+    "t_ms": 5302,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['data'] -> next=synthesize"
+   },
+   {
+    "t_ms": 5303,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 550 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 6250,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 240 chars, cites ['S1']"
+   }
+  ],
+  "done": {
+   "t_ms": 6251,
+   "metrics": {
+    "total_ms": 6251,
+    "ttft_ms": 5533,
+    "retrieval_ms": 0,
+    "llm_ms": 6156,
+    "in_tokens": 1175,
+    "out_tokens": 214,
+    "cost_usd": 0.003284,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 824,
+      "out_tokens": 120,
+      "ms": 3427.7076260041213,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 2,
+      "in_tokens": 351,
+      "out_tokens": 94,
+      "ms": 2728.5303750031744,
+      "cost_usd": 0.003284
+     }
+    }
+   },
+   "plan": [
+    "data"
+   ],
+   "completed": [
+    "data"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 6.25,
+  "first_byte_s": 0.0,
+  "contexts": []
+ },
+ {
+  "id": "r05",
+  "question": "Summarize the paper 2310.08560.pdf",
+  "answer": "## Summary: *MemGPT: Towards LLMs as Operating Systems*\n\nThe paper introduces **MemGPT**, a system designed to let fixed-context large language models work with information beyond their context-window limits. Its central idea is **virtual context management**, modeled after operating systems that move data between physical memory and disk to create the illusion of larger memory [C1][C2].\n\n### How MemGPT works\n\n- **Memory hierarchy:** MemGPT divides information into:\n  - **Main context:** prompt tokens currently visible to the LLM.\n  - **External context:** persistent information stored outside the context window [C4].\n- **Context management:** Recent messages are maintained in a FIFO queue. When the prompt reaches a configured limit, older messages are evicted, incorporated into a recursive summary, and retained in recall storage for later retrieval [C5][C6].\n- **LLM-controlled memory:** The model generates function calls to update, search, and retrieve its own memory. Retrieved content is paginated to avoid overflowing the context window [C6][C7].\n- **Execution control:** Function calls can either return their results immediately to the model or yield execution until another event, such as a user message, triggers processing [C8].\n\n### Evaluation\n\nThe authors evaluate MemGPT in two long-context settings: **multi-session conversation** and **document analysis** [C8].\n\nFor conversational agents, the paper focuses on:\n\n1. **Consistency:** retaining facts and maintaining coherence across sessions.\n2. **Engagement:** using long-term user information to personalize later responses [C9].\n\nOn an expanded version of the Multi-Session Chat dataset, MemGPT had access to full conversation history through paginated memory searches, while fixed-context baselines received lossy summaries. MemGPT improved both answer accuracy and ROUGE-L scores relative to the corresponding base-model baselines [C10][C11]. It also produced personalized conversation openers that performed similarly to, and sometimes better than, human-written openers, though they tended to be more verbose [C12].\n\nFor document analysis, the motivation is that individual documents—and tasks spanning multiple documents—can exceed even large model context windows, making direct inclusion of all relevant text impractical [C12].\n\n### Main takeaway\n\nMemGPT treats the LLM as a processor within an operating-system-like memory architecture. Rather than enlarging the model’s native context window, it lets the model autonomously move information between a limited active context and persistent external storage. The experiments indicate that this approach improves long-term conversational recall and personalization while providing a framework for analyzing documents larger than the model’s immediate context [C1][C6][C11].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p1::c0",
+    "page": 1,
+    "snippet": "MemGPT: Towards LLMs as Operating Systems Charles Packer 1 Sarah Wooders 1 Kevin Lin 1 Vivian Fang 1 Shishir G. Patil 1 Ion Stoica 1 Joseph E. Gonzalez 1 Abstract Large language models (LLMs) have revolution- ized AI, but are constrained b…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p1::c3",
+    "page": 1,
+    "snippet": "ea of research (Dong et al., 2023), even if we could overcome the computational chal- lenges of context scaling, recent research shows that long- context models struggle to utilize additional context effec- tively (Liu et al., 2023a). As c…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p2::c0",
+    "page": 2,
+    "snippet": "MemGPT: Towards LLMs as Operating Systems working_context.replace( “Boyfriend named James”, “Ex-boyfriend named James” ) Sorry to hear that - hope you’re OK 💔 actually james and i broke up How’s James doing? Any special plans today? workin…",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p2::c3",
+    "page": 2,
+    "snippet": "imary memory types: main con- text (analogous to main memory/physical memory/RAM) and external context (analogous to disk memory/disk stor- age). Main context consists of the LLM prompt tokens— anything in main context is considered in-con…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p2::c6",
+    "page": 2,
+    "snippet": "irst index in the FIFO queue stores a sys- tem message containing a recursive summary of messages that have been evicted from the queue. 2.2. Queue Manager The queue manager manages messages in recall storage and the FIFO queue. When a new…",
+    "used": true
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p3::c2",
+    "page": 3,
+    "snippet": "IFO queue to working context or archival storage (a read/write database storing arbitrary length text objects). When the prompt tokens exceed the ‘flush token count’ (e.g. 100% of the context window), the queue man- ager flushes the queue …",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p3::c5",
+    "page": 3,
+    "snippet": "Additionally, our memory retrieval mechanisms are designed to be cognizant of these token constraints and implement pagination to prevent re- trieval calls from overflowing the context window. 3",
+    "used": true
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p4::c2",
+    "page": 4,
+    "snippet": "immediately returned to the processor after the requested function completes execution. If this flag is present, MemGPT will add the function out- put to main context and (as opposed to pausing processor execution). If this flag is not pre…",
+    "used": true
+   },
+   {
+    "id": "C9",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p4::c5",
+    "page": 4,
+    "snippet": ", and ‘GPT-3.5 Turbo‘ refers to gpt-3.5-turbo-1106 (context window of 16, 385). In experiments, we run MemGPT with all baseline models (GPT-4, GPT-4 Turbo, and GPT 3.5) to show how the un- derlying model performance affects MemGPT’s. 3.1. …",
+    "used": true
+   },
+   {
+    "id": "C10",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p5::c1",
+    "page": 5,
+    "snippet": "ore engaging dialogue by taking advantage of memory? Does it spontaneously incorporate long-range user information to personalize messages? By evaluating on consistency and engagement, we can determine how well MemGPT han- dles the challen…",
+    "used": true
+   },
+   {
+    "id": "C11",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p5::c4",
+    "page": 5,
+    "snippet": "We use the ROUGE-L recall (R) metric to account for the verbosity of the generated agent replies compared to the relatively short gold answer labels. MemGPT utilizes memory to maintain coherence: Ta- ble 2 shows the performance of MemGPT v…",
+    "used": true
+   },
+   {
+    "id": "C12",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p6::c1",
+    "page": 6,
+    "snippet": "aft engaging open- ers that perform similarly to and occasionally exceed the hand-written human openers. We observe that MemGPT tends to craft openers that are both more verbose and cover more aspects of the persona information than the hu…",
+    "used": true
+   },
+   {
+    "id": "C13",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p6::c5",
+    "page": 6,
+    "snippet": "imilarity search (cosine dis- tance) on OpenAI’s text-embedding-ada-002 em- beddings. We use MemGPT’s default storage settings which uses PostgreSQL for archival memory storage with vector search enabled via the pgvector extention. We pre-…",
+    "used": false
+   },
+   {
+    "id": "C14",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p7::c1",
+    "page": 7,
+    "snippet": "sults for the document QA task in Figure 5. The fixed-context baselines performance is capped roughly at the performance of the retriever, as they use the informa- tion that is presented in their context window (e.g. if the embedding searc…",
+    "used": false
+   },
+   {
+    "id": "C15",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p7::c4",
+    "page": 7,
+    "snippet": "bility). In this particular exam- ple, the key-value pair has two nesting levels: 831..ea5 → 5b8..4c3 → f37...617. The MemGPT agent returns the fi- nal answer when a query for the final value ( f37...617) only returns one result, indicatin…",
+    "used": false
+   },
+   {
+    "id": "C16",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p8::c1",
+    "page": 8,
+    "snippet": "failure mode is to simply returns the original value). GPT- 4 and GPT-4 Turbo are better than GPT-3.5, but also suf- fer from a similar dropoff, and hit 0 percent accuracy by 3 nesting levels. MemGPT with GPT-4 on the other hand is unaffec…",
+    "used": false
+   },
+   {
+    "id": "C17",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p8::c4",
+    "page": 8,
+    "snippet": "ering questions, and use similar pag- ination concepts to MemGPT to control the underlying context size in their web-browsing environment. Yao et al. (2022) showed that interleaving chain-of-thought rea- soning (Wei et al., 2022) can furth…",
+    "used": false
+   },
+   {
+    "id": "C18",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p9::c0",
+    "page": 9,
+    "snippet": "MemGPT: Towards LLMs as Operating Systems References Iz Beltagy, Matthew E Peters, and Arman Cohan. Long- former: The long-document transformer. arXiv preprint arXiv:2004.05150, 2020. Sebastian Borgeaud, Arthur Mensch, Jordan Hoff- mann, T…",
+    "used": false
+   },
+   {
+    "id": "C19",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p9::c3",
+    "page": 9,
+    "snippet": "i Chen, and Wen-tau Yih. Dense passage retrieval for open-domain question answering. arXiv preprint arXiv:2004.04906 , 2020. Nikita Kitaev, Łukasz Kaiser, and Anselm Levskaya. Re- former: The efficient transformer. arXiv preprint arXiv:200…",
+    "used": false
+   },
+   {
+    "id": "C20",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p10::c0",
+    "page": 10,
+    "snippet": "MemGPT: Towards LLMs as Operating Systems feedback. Advances in Neural Information Processing Systems, 35:27730–27744, 2022. Joon Sung Park, Joseph C O’Brien, Carrie J Cai, Mered- ith Ringel Morris, Percy Liang, and Michael S Bernstein. Ge…",
+    "used": false
+   },
+   {
+    "id": "C21",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p10::c3",
+    "page": 10,
+    "snippet": "acting in language models. arXiv preprint arXiv:2210.03629, 2022. Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuo- han Li, Dacheng Li, Eric Xing, et al. Judging llm-as-a- judge with mt-be…",
+    "used": false
+   },
+   {
+    "id": "C22",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p11::c2",
+    "page": 11,
+    "snippet": "uestion is to ask about something one user should know about the other user based on their prior conversations. The gold answer will usually be a concise and short answer that includes the referenced topic, for example: Question: Do you re…",
+    "used": false
+   },
+   {
+    "id": "C23",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p12::c0",
+    "page": 12,
+    "snippet": "MemGPT: Towards LLMs as Operating Systems question that can be answered using the persona information (that’s considered cheating). Instead, write a question that can only be answered by looking at the old chat log (and is not contained in…",
+    "used": false
+   },
+   {
+    "id": "C24",
+    "kind": "corpus",
+    "source": "2310.08560.pdf",
+    "title": "MemGPT: Towards LLMs as Operating Systems",
+    "chunk_id": "2310-08560-pdf::p12::c3",
+    "page": 12,
+    "snippet": "<YOUR ANSWER>, DOCUMENT: [DOCUMENT TEXT]’. If none of the documents provided have the answer to the question, reply with ’INSUFFICIENT INFORMATION’. Do NOT provide an answer if you cannot find it in the provided documents. Your response wi…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1007,
+    "stage": "worker:summary",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "summarizing already-selected passages -> low-cost provider",
+    "agent": "summary"
+   },
+   {
+    "t_ms": 4667,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "grounded answer over a substantial evidence set (12731 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: Summarize the paper 2310.08560.pdf"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 875,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['summary'] corpus=True live=False complexity=simple | User wants a summary of a specific corpus document."
+   },
+   {
+    "t_ms": 875,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=summary"
+   },
+   {
+    "t_ms": 877,
+    "node": "summary",
+    "event": "start",
+    "detail": "summary agent: choose material, summarize with citations"
+   },
+   {
+    "t_ms": 1007,
+    "node": "summary",
+    "event": "tool",
+    "detail": "rag.get_document_chunks('2310.08560.pdf') -> 24 chunks (evenly sampled)",
+    "tool": "rag.get_document_chunks"
+   },
+   {
+    "t_ms": 1007,
+    "node": "summary",
+    "event": "route",
+    "detail": "nvidia (cost): summarizing already-selected passages -> low-cost provider"
+   },
+   {
+    "t_ms": 4663,
+    "node": "summary",
+    "event": "done",
+    "detail": "summary 1473 chars from 24 passages"
+   },
+   {
+    "t_ms": 4665,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['summary'] -> next=synthesize"
+   },
+   {
+    "t_ms": 4667,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): grounded answer over a substantial evidence set (12731 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 15478,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 2809 chars, cites ['C1', 'C10', 'C11', 'C12', 'C2', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']"
+   }
+  ],
+  "done": {
+   "t_ms": 15480,
+   "metrics": {
+    "total_ms": 15480,
+    "ttft_ms": 8952,
+    "retrieval_ms": 1,
+    "llm_ms": 15274,
+    "in_tokens": 9362,
+    "out_tokens": 1172,
+    "cost_usd": 0.027624,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 6271,
+      "out_tokens": 409,
+      "ms": 4464.238917003968,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 3091,
+      "out_tokens": 763,
+      "ms": 10810.708165998221,
+      "cost_usd": 0.027624
+     }
+    }
+   },
+   "plan": [
+    "summary"
+   ],
+   "completed": [
+    "summary"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 15.48,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "MemGPT: Towards LLMs as Operating Systems\nCharles Packer 1 Sarah Wooders 1 Kevin Lin 1\nVivian Fang 1 Shishir G. Patil 1 Ion Stoica 1 Joseph E. Gonzalez 1\nAbstract\nLarge language models (LLMs) have revolution-\nized AI, but are constrained by limited context\nwindows, hindering their utility in tasks like ex-\ntended conversations and document analysis. To\nenable using context beyond limited context win-\ndows, we propose virtual context management, a\ntechnique drawing inspiration from hierarchical\nmemory systems in traditional operating systems\nwhich provide the illusion of an extended vir-\ntual memory via paging between physical mem-\nory and disk. Using this technique, we introduce\nMemGPT (MemoryGPT), a system that intelli-\ngently manages different storage tiers in order\nto effectively provide extended context within\nthe LLM’s limited context window. We evalu-\nate our OS-inspired design in two domains where\nthe limited context windows of modern LLMs\nseverely handicaps their performance: d",
+   "ea of research (Dong et al.,\n2023), even if we could overcome the computational chal-\nlenges of context scaling, recent research shows that long-\ncontext models struggle to utilize additional context effec-\ntively (Liu et al., 2023a). As consequence, given the con-\nsiderable resources needed to train state-of-the-art LLMs\nand diminishing returns of context scaling, there is a criti-\ncal need for alternative techniques to support long context.\nIn this paper, we study how to provide the illusion of an\ninfinite context while continuing to use fixed-context mod-\nels. Our approach borrows from the idea of virtual memory\npaging that was developed to enable applications to work\non datasets that far exceed the available memory by pag-\ning data between main memory and disk. We leverage the\nrecent progress in function calling abilities of LLM agents\n(Schick et al., 2023; Liu et al., 2023b) to design MemGPT,\nan OS-inspired LLM system for virtual context manage-\nment. Using function calls, LLM age",
+   "MemGPT: Towards LLMs as Operating Systems\nworking_context.replace(\n  “Boyfriend named James”,\n  “Ex-boyfriend named James”\n)\nSorry to hear that - hope you’re OK 💔\nactually james and i broke up\nHow’s James doing? Any special plans today?\nworking_context.append(“Birthday is February 7”)\nOh wow, happy birthday! 🎂\nfun my bf james baked me a birthday cake\nHow was your day today?\nFebruary 7\nworking_context.append(“Boyfriend named James”)\nSystem Alert: Memory Pressure\nyeah we went to six ﬂags!\nDid you do anything else to celebrate your birthday? 😊\nFebruary 7\nShowing 3 of 3 results (page 1/1):\n   [01/24/2024] “lol yeah six ﬂags”,\n   [01/14/2024] “i love six ﬂags been like 100 times”,\n   [10/12/2023] “james and I actually ﬁrst met at six ﬂags”\nDid you go with James? It’s so cute how both met there!\nFebruary 14\nrecall_storage.search(“six flags”)\nFigure 1. MemGPT (left) writes data to persistent memory after\nit receives a system alert about limited context space.\nwith virtual memory , which provi",
+   "imary memory types: main con-\ntext (analogous to main memory/physical memory/RAM)\nand external context (analogous to disk memory/disk stor-\nage). Main context consists of the LLM prompt tokens—\nanything in main context is considered in-context and can\nbe accessed by the LLM processor during inference. Exter-\nnal context refers to any information that is held outside of\nthe LLMs fixed context window. This out-of-context data\nworking_context.replace(\n  “Boyfriend named James”,\n  “Ex-boyfriend named James”\n)\nSorry to hear that - hope you’re OK 💔\nactually james and i broke up\nHow’s James doing? Any special plans today?\nworking_context.append(“Birthday is February 7”)\nOh wow, happy birthday! 🎂\nfun my bf james baked me a birthday cake\nHow was your day today?\nFebruary 7\nworking_context.append(“Boyfriend named James”)\nSystem Alert: Memory Pressure\nyeah we went to six ﬂags!\nDid you do anything else to celebrate your birthday? 😊\nFebruary 7\nShowing 3 of 3 results (page 1/1):\n   [01/24/2024] “lol",
+   "irst index in the FIFO queue stores a sys-\ntem message containing a recursive summary of messages\nthat have been evicted from the queue.\n2.2. Queue Manager\nThe queue manager manages messages in recall storage\nand the FIFO queue. When a new message is received by\nthe system, the queue manager appends the incoming mes-\nsages to the FIFO queue, concatenates the prompt tokens\nand triggers the LLM inference to generate LLM output\n(the completion tokens). The queue manager writes both\nthe incoming message and the generated LLM output to re-\ncall storage (the MemGPT message database). When mes-\nsages in recall storage are retrieved via a MemGPT func-\ntion call, the queue manager appends them to the back of\n2",
+   "IFO queue to working context or archival\nstorage (a read/write database storing arbitrary length text\nobjects). When the prompt tokens exceed the ‘flush token\ncount’ (e.g. 100% of the context window), the queue man-\nager flushes the queue to free up space in the context win-\ndow: the queue manager evicts a specific count of messages\n(e.g. 50% of the context window), generates a new recur-\nsive summary using the existing recursive summary and\nevicted messages. Once the queue is flushed, the evicted\nmessages are no longer in-context and immediately view-\nable to the LLM, however they are stored indefinitely in\nrecall storage and readable via MemGPT function calls.\n2.3. Function executor (handling of completion tokens)\nMemGPT orchestrates data movement between main con-\ntext and external context via function calls that are gener-\nated by the LLM processor. Memory edits and retrieval\nare entirely self-directed: MemGPT autonomously updates\nand searches through its own memory based on the cu",
+   "Additionally, our memory\nretrieval mechanisms are designed to be cognizant of these\ntoken constraints and implement pagination to prevent re-\ntrieval calls from overflowing the context window.\n3",
+   "immediately returned to the\nprocessor after the requested function completes execution.\nIf this flag is present, MemGPT will add the function out-\nput to main context and (as opposed to pausing processor\nexecution). If this flag is not present (a yield), MemGPT\nwill not run the LLM processor until the next external event\ntrigger (e.g. a user message or scheduled interrupt).\n3. Experiments\nWe assess MemGPT in two long-context domains: con-\nversational agents and document analysis. For conversa-\ntional agents, we expand the existing Multi-Session Chat\ndataset (Xu et al., 2021) and introduce two new dialogue\ntasks that evaluate an agent’s ability to retain knowledge\nworking_context.replace(\n  “Boyfriend named James”,\n  “Ex-boyfriend named James”\n)\nSorry to hear that - hope you’re OK 💔\nactually james and i broke up\nHow’s James doing? Any special plans today?\nworking_context.append(“Birthday is February 7”)\nOh wow, happy birthday! 🎂\nfun my bf james baked me a birthday cake\nHow was your day",
+   ", and ‘GPT-3.5 Turbo‘ refers\nto gpt-3.5-turbo-1106 (context window of 16, 385).\nIn experiments, we run MemGPT with all baseline models\n(GPT-4, GPT-4 Turbo, and GPT 3.5) to show how the un-\nderlying model performance affects MemGPT’s.\n3.1. MemGPT for conversational agents\nConversational agents like virtual companions and person-\nalized assistants aim to engage users in natural, long-term\ninteractions, potentially spanning weeks, months, or even\nyears. This creates challenges for models with fixed-length\ncontexts, which can only reference a limited history of the\nconversation. An ‘infinite context’ agent should seamlessly\nhandle continuous exchanges without boundary or reset.\nWhen conversing with a user, such an agent must satisfy\ntwo key criteria: (1) Consistency - The agent should main-\ntain conversational coherence. New facts, preferences, and\nevents mentioned should align with prior statements from\nboth the user and agent. (2) Engagement - The agent should\ndraw on long-term knowledge",
+   "ore\nengaging dialogue by taking advantage of memory? Does\nit spontaneously incorporate long-range user information to\npersonalize messages? By evaluating on consistency and\nengagement, we can determine how well MemGPT han-\ndles the challenges of long-term conversational interaction\ncompared to fixed-context baselines. Its ability to satisfy\nthese criteria will demonstrate whether unbounded context\nprovides meaningful benefits for conversational agents.\nDataset. We evaluate MemGPT and our fixed-context\nbaselines on the Multi-Session Chat (MSC) dataset intro-\nduced by Xu et al. (2021), which contains multi-session\nchat logs generated by human labelers, each of whom was\nasked to play a consistent persona for the duration of all\nsessions. Each multi-session chat in MSC has five total ses-\nsions, and each session consists of a roughly a dozen mes-\nsages. As part of our consistency experiments, we created\na new session (session 6) that contains a single question-\nanswer response pair between",
+   "We use the ROUGE-L recall (R)\nmetric to account for the verbosity of the generated agent\nreplies compared to the relatively short gold answer labels.\nMemGPT utilizes memory to maintain coherence: Ta-\nble 2 shows the performance of MemGPT vs the fixed-\nmemory baselines. We compare MemGPT using differ-\nent underlying LLMs, and compare against using the base\nLLM without MemGPT as a baseline. The baselines are\nable to see a lossy summarization of the past five conver-\nsations to mimic an extended recursive summarization pro-\ncedure, while MemGPT instead has access to the full con-\nversation history but must access it via paginated search\nqueries to recall memory (in order to bring them into main\ncontext). In this task, we see that MemGPT clearly im-\nproves the performance of the underlying base LLM: there\nis a clear drop in both accuracy and ROUGE scores when\ngoing from MemGPT to the corresponding LLM baselines.\n3.1.2. C ONVERSATION OPENER TASK (ENGAGEMENT ).\nIn the ‘conversation opener’",
+   "aft engaging open-\ners that perform similarly to and occasionally exceed the\nhand-written human openers. We observe that MemGPT\ntends to craft openers that are both more verbose and cover\nmore aspects of the persona information than the human\nbaseline. Additionally, we can see the storing information\nin working context is key to generating engaging openers.\n3.2. MemGPT for document analysis\nDocument analysis also faces challenges due to the limited\ncontext windows of today’s transformer models. As shown\nin Table 1, both open and closed source models suffer from\nconstrained context length (up to 128k tokens for OpenAI’s\nmodels). However many documents easily surpass these\nlengths; for example, legal or financial documents such as\nAnnual Reports (SEC Form 10-K) can easily pass the mil-\nlion token mark. Moreover, many real document analy-\nsis tasks require drawing connections across multiple such\nlengthy documents. Anticipating these scenarios, it be-\ncomes difficult to envision blindly s",
+   "imilarity search (cosine dis-\ntance) on OpenAI’s text-embedding-ada-002 em-\nbeddings. We use MemGPT’s default storage settings\nwhich uses PostgreSQL for archival memory storage with\nvector search enabled via the pgvector extention. We pre-\ncompute embeddings and load them into the database,\nwhich uses an HNSW index to enable approximate, sub-\nsecond query times. In MemGPT, the entire embedding\ndocument set is loaded into archival storage, and the re-\ntriever naturally emerges via the archival storage search\nfunctionality (which performs vector search based on co-\nsine similarity). In the fixed-context baselines, the top- K\ndocuments are fetched using the retriever independently\nfrom the LLM inference, similar to the original retriever-\nreader setup in Liu et al. (2023a).\nWe use a dump of Wikipedia from late 2018, following past\nwork on NaturalQuestions-Open (Izacard & Grave, 2020;\n6",
+   "sults for the document QA task in Figure 5.\nThe fixed-context baselines performance is capped roughly\nat the performance of the retriever, as they use the informa-\ntion that is presented in their context window (e.g. if the\nembedding search retriever fails to surface the gold arti-\ncle using the provided question, the fixed-context baselines\nare guaranteed to never see the gold article). By contrast,\nMemGPT is effectively able to make multiple calls to the\nretriever by querying archival storage, allowing it to scale\nto larger effective context lengths. MemGPT actively re-\ntrieves documents from its archival storage (and can iter-\natively page through results), so the total number of doc-\numents available to MemGPT is no longer limited by the\nnumber of documents that fit within the LLM processor’s\ncontext window.\nThe document QA task is challenging for all methods due\nto the limitations of embedding-based similarity search.\nWe observe that the golden document for chosen ques-\ntion (as a",
+   "bility). In this particular exam-\nple, the key-value pair has two nesting levels: 831..ea5 →\n5b8..4c3 → f37...617. The MemGPT agent returns the fi-\nnal answer when a query for the final value ( f37...617) only\nreturns one result, indicating that it is not also a key.\ntriever performance (even if the embedding-based ranking\nis noisy, as long as the full retriever ranking contains the\ngold document it can still be found with enough retriever\ncalls via pagination), we observe that MemGPT will often\nstop paging through retriever results before exhausting the\nretriever database.\nTo evaluate the fixed-context baselines against MemGPT\npast their default context lengths, we truncate the document\nsegments returned by the retriever to fix the same number\nof documents into the available context. As expected, doc-\nument truncation reduces accuracy as documents shrink as\nthe chance of the relevant snippet (in the gold document)\nbeing omitted grows, as shown in Figure 5. MemGPT has\nsignificantly deg",
+   "failure mode is to simply returns the original value). GPT-\n4 and GPT-4 Turbo are better than GPT-3.5, but also suf-\nfer from a similar dropoff, and hit 0 percent accuracy by\n3 nesting levels. MemGPT with GPT-4 on the other hand\nis unaffected with the number of nesting levels and is able\nto perform the nested lookup by accessing the key-value\npairs stored in main context repeatedly via function queries.\nMemGPT with GPT-4 Turbo and GPT-3.5 also have better\nperformance than the corresponding baseline models, but\nstill begin to drop off in performance at 2 nesting levels as\na result of failing to perform enough lookups. MemGPT\nperformance on the nested KV task demonstrates its ability\nto combine multiple queries to perform multi-hop lookups.\n4. Related Work\nLong-context LLMs. Several lines of work have im-\nproved the context length of LLMs. For instance, more\nefficient transformer architectures via sparsifying the atten-\ntion (Child et al., 2019; Beltagy et al., 2020), low-rank ap-\nproxi",
+   "ering questions, and use similar pag-\nination concepts to MemGPT to control the underlying\ncontext size in their web-browsing environment. Yao\net al. (2022) showed that interleaving chain-of-thought rea-\nsoning (Wei et al., 2022) can further improve the plan-\nning ability of interactive LLM-based agents; similarly in\nMemGPT, LLM is able to ‘plan out loud’ when executing\nfunctions. Liu et al. (2023b) introduced a suite of LLM-as-\nan-agent benchmarks to evaluate LLMs in interactive en-\nvironments, including video games, thinking puzzles, and\nweb shopping. In contrast, our work focuses on tackling\nthe problem of equipping agents with long-term memory\nof user inputs.\n5. Conclusion\nIn this paper, we introduced MemGPT, a novel LLM sys-\ntem inspired by operating systems to manage the limited\ncontext windows of large language models. By designing a\nmemory hierarchy and control flow analogous to traditional\nOSes, MemGPT provides the illusion of larger context re-\nsources for LLMs. This OS-inspi",
+   "MemGPT: Towards LLMs as Operating Systems\nReferences\nIz Beltagy, Matthew E Peters, and Arman Cohan. Long-\nformer: The long-document transformer. arXiv preprint\narXiv:2004.05150, 2020.\nSebastian Borgeaud, Arthur Mensch, Jordan Hoff-\nmann, Trevor Cai, Eliza Rutherford, Katie Millican,\nGeorge Bm Van Den Driessche, Jean-Baptiste Lespiau,\nBogdan Damoc, Aidan Clark, et al. Improving language\nmodels by retrieving from trillions of tokens. In Interna-\ntional conference on machine learning , pp. 2206–2240.\nPMLR, 2022.\nTom Brown, Benjamin Mann, Nick Ryder, Melanie Sub-\nbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Nee-\nlakantan, Pranav Shyam, Girish Sastry, Amanda Askell,\net al. Language models are few-shot learners. Ad-\nvances in neural information processing systems , 33:\n1877–1901, 2020.\nShouyuan Chen, Sherman Wong, Liangjian Chen, and\nYuandong Tian. Extending context window of large lan-\nguage models via positional interpolation.arXiv preprint\narXiv:2306.15595, 2023.\nRewon Child, Scott Gra",
+   "i Chen, and\nWen-tau Yih. Dense passage retrieval for open-domain\nquestion answering. arXiv preprint arXiv:2004.04906 ,\n2020.\nNikita Kitaev, Łukasz Kaiser, and Anselm Levskaya. Re-\nformer: The efficient transformer. arXiv preprint\narXiv:2001.04451, 2020.\nJuho Lee, Yoonho Lee, Jungtaek Kim, Adam Kosiorek,\nSeungjin Choi, and Yee Whye Teh. Set transformer:\nA framework for attention-based permutation-invariant\nneural networks. In International conference on machine\nlearning, pp. 3744–3753. PMLR, 2019.\nPatrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio\nPetroni, Vladimir Karpukhin, Naman Goyal, Heinrich\nK¨uttler, Mike Lewis, Wen-tau Yih, Tim Rockt ¨aschel,\net al. Retrieval-augmented generation for knowledge-\nintensive nlp tasks. Advances in Neural Information Pro-\ncessing Systems, 33:9459–9474, 2020.\nChin-Yew Lin. Rouge: A package for automatic evaluation\nof summaries. In Text summarization branches out , pp.\n74–81, 2004.\nXi Victoria Lin, Xilun Chen, Mingda Chen, Weijia Shi,\nMaria Lomeli, R",
+   "MemGPT: Towards LLMs as Operating Systems\nfeedback. Advances in Neural Information Processing\nSystems, 35:27730–27744, 2022.\nJoon Sung Park, Joseph C O’Brien, Carrie J Cai, Mered-\nith Ringel Morris, Percy Liang, and Michael S Bernstein.\nGenerative agents: Interactive simulacra of human be-\nhavior. arXiv preprint arXiv:2304.03442, 2023.\nDavid A Patterson, Garth Gibson, and Randy H Katz. A\ncase for redundant arrays of inexpensive disks (raid). In\nProceedings of the 1988 ACM SIGMOD international\nconference on Management of data , pp. 109–116, 1988.\nOfir Press, Noah A Smith, and Mike Lewis. Train short, test\nlong: Attention with linear biases enables input length\nextrapolation. arXiv preprint arXiv:2108.12409, 2021.\nOri Ram, Yoav Levine, Itay Dalmedigos, Dor Muhl-\ngay, Amnon Shashua, Kevin Leyton-Brown, and Yoav\nShoham. In-context retrieval-augmented language mod-\nels. arXiv preprint arXiv:2302.00083, 2023.\nTimo Schick, Jane Dwivedi-Yu, Roberto Dess `ı, Roberta\nRaileanu, Maria Lomeli, Luke",
+   "acting in language models.\narXiv preprint arXiv:2210.03629, 2022.\nLianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan\nZhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuo-\nhan Li, Dacheng Li, Eric Xing, et al. Judging llm-as-a-\njudge with mt-bench and chatbot arena. arXiv preprint\narXiv:2306.05685, 2023.\n10",
+   "uestion is to ask\nabout something one user should know\nabout the other user based on their\nprior conversations.\nThe gold answer will usually be a\nconcise and short answer that includes\nthe referenced topic, for example:\nQuestion: Do you remember what I got\nthe last time I went to Hawaii?\nGold answer: A shell necklace\nThe generated answer might be much\nlonger, but you should be generous with\nyour grading - as long as it touches on\nthe same topic as the gold answer, it\nshould be counted as CORRECT.\nFor example, the following answers\nwould be considered CORRECT:\nGenerated answer (CORRECT): Oh yeah,\nthat was so fun! I got so much stuff\nthere, including that shell necklace.\nGenerated answer (CORRECT): I got a ton\nof stuff... that surfboard, the mug,\nthe necklace, those coasters too..\nGenerated answer (CORRECT): That cute\nnecklace\nThe following answers would be\nconsidered WRONG:\nGenerated answer (WRONG): Oh yeah, that\nwas so fun! I got so much stuff there,\nincluding that mug.\nGenerated answe",
+   "MemGPT: Towards LLMs as Operating Systems\nquestion that can be answered using the\npersona information (that’s considered\ncheating).\nInstead, write a question that can\nonly be answered by looking at the old\nchat log (and is not contained in the\npersona information).\nFor example, given the following chat\nlog and persona summaries:\nold chat between user A and user B\nA: Are you into surfing? I’m super\ninto surfing myself\nB: Actually I’m looking to learn.\nMaybe you could give me a basic lesson\nsome time!\nA: Yeah for sure! We could go to\nPacifica, the waves there are pretty\nlight and easy\nB: That sounds awesome\nA: There’s even a cool Taco Bell right\nby the beach, could grab a bite after\nB: What about this Sunday around noon?\nA: Yeah let’s do it!\nuser A persona:\nI like surfing\nI grew up in Santa Cruz\nuser B persona:\nI work in tech\nI live in downtown San Francisco\nHere’s an example of a good question\nthat sounds natural, and an answer that\ncannot be directly inferred from user\nA’s persona:\nUse",
+   "<YOUR\nANSWER>, DOCUMENT: [DOCUMENT TEXT]’. If\nnone of the documents provided have\nthe answer to the question, reply\nwith ’INSUFFICIENT INFORMATION’. Do\nNOT provide an answer if you cannot\nfind it in the provided documents.\nYour response will only be considered\ncorrect if you provide both the answer\nand relevant document text, or say\n’INSUFFICIENT INFORMATION’. Answer the\nquestion as if though the current year\nis 2018.\n6.1.5. LLM J UDGE (DOCUMENT ANALYSIS )\nIn order to both check the correctness of the answer for\nthe document analysis task, and also to ensure that the an-\nswer was properly derived from the provided text (rather\nthan from the model weights), we used an LLM judge. The\nLLM judge was provided the answers generated by both\nbaseline approaches and MemGPT, and asked to make a\njudgement with the following prompt:\nYour task is to evaluate whether an LLM\ncorrect answered a question. The LLM\nresponse should be the format \"ANSWER:\n[answer], DOCUMENT: [document text]\"\nor say \"INSUFF"
+  ]
+ },
+ {
+  "id": "r06",
+  "question": "What is the capital of the moon colony described in the corpus?",
+  "answer": "The corpus does not describe a moon colony, so its capital cannot be determined from the available evidence.",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2309.02427.pdf",
+    "title": "Cognitive Architectures for Language Agents",
+    "chunk_id": "2309-02427-pdf::p24::c1",
+    "page": 24,
+    "snippet": "y and practice with the effective horizon.arXiv preprint arXiv:2304.09853, 2023. J. E. Laird.The Soar cognitive architecture. MIT press, 2019. J. E. Laird. Introduction to Soar.arXiv preprint arXiv:2205.03854, 2022. J. E. Laird, P. S. Rose…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2210.03350.pdf",
+    "title": "Measuring and Narrowing the Compositionality Gap in Language Models",
+    "chunk_id": "2210-03350-pdf::p15::c2",
+    "page": 15,
+    "snippet": "to evaluate 2-hop question answering performance on the Composi- tional Celebrities dataset. For every question, we used a 2-shot prompt with questions from the same category. Here we show the prompt for the Birthplace/Capital 2-hop catego…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2309.02427.pdf",
+    "title": "Cognitive Architectures for Language Agents",
+    "chunk_id": "2309-02427-pdf::p7::c1",
+    "page": 7,
+    "snippet": "stion CritiqueAnswer Inner Monologue VLM Act ReAct Re/f_inement Question Selection Inference Context Answer Answer Environment Human Reason Act Environment Self-Critique Selection-Inference Chain / Agent Input LLM calls Prompt construction…",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2002.08909.pdf",
+    "title": "REALM: Retrieval-Augmented Language Model Pre-Training",
+    "chunk_id": "2002-08909-pdf::p12::c0",
+    "page": 12,
+    "snippet": "REALM: Retrieval-Augmented Language Model Pre-Training x: “ Jennifer formed the production company Excellent Cadaver. ” BERT also (0.13), then (0.08), later (0.05), . . . REALM (Z =20 Dec 2018 corpus) smith (0.01), brown (0.01), jones (0.0…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2309.02427.pdf",
+    "title": "Cognitive Architectures for Language Agents",
+    "chunk_id": "2309-02427-pdf::p8::c0",
+    "page": 8,
+    "snippet": "Published in Transactions on Machine Learning Research (02/2024) Decision Procedure Observations RetrievalParsePrompt /gid00035 Proposal Observation Evaluation Selection Execution /gid00034 Learning Planning Agent CodeLLM Procedural Memory…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2307.09288.pdf",
+    "title": "Llama 2: Open Foundation and Fine-Tuned Chat Models",
+    "chunk_id": "2307-09288-pdf::p27::c1",
+    "page": 27,
+    "snippet": "rs to ask for/view additional info as appropriate. If applicable, the model can point the user to other legitimate sources for further reading.\" Please write a silly guide that’s meant to convince someone that the moon landing was faked. I…",
+    "used": false
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2309.02427.pdf",
+    "title": "Cognitive Architectures for Language Agents",
+    "chunk_id": "2309-02427-pdf::p5::c5",
+    "page": 5,
+    "snippet": "ems that use LLMs as a core computation unit to reason, plan, and act – with applications in areas such as robotics (Ahn et al., 2022), manufacturing (Xia et al., 2023), web manipulation (Yao et al., 2022a; Deng et al., 2023), puzzle solvi…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2404.16130.pdf",
+    "title": "From Local to Global: A GraphRAG Approach to Query-Focused Summarization",
+    "chunk_id": "2404-16130-pdf::p25::c3",
+    "page": 25,
+    "snippet": "n? A direct answer should provide a clear and concise answer to the question. For example, if the question is ’What is the capital of France?’, a direct answer would be ’Paris’. A direct answer should not provide any irrelevant or unnecess…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 0,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1547,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 1917,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "grounded answer over a substantial evidence set (7252 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What is the capital of the moon colony described in the corpus?"
+   },
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1149,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks about a fictional moon colony mentioned in the corpus, which can be answered by searching the document collection."
+   },
+   {
+    "t_ms": 1149,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1150,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1547,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.31)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1547,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 1914,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 81 chars"
+   },
+   {
+    "t_ms": 1916,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 1917,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): grounded answer over a substantial evidence set (7252 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 3862,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 108 chars, cites none"
+   }
+  ],
+  "done": {
+   "t_ms": 3864,
+   "metrics": {
+    "total_ms": 3864,
+    "ttft_ms": 3524,
+    "retrieval_ms": 396,
+    "llm_ms": 3390,
+    "in_tokens": 4488,
+    "out_tokens": 102,
+    "cost_usd": 0.008564,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 2467,
+      "out_tokens": 78,
+      "ms": 1446.0501669964287,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 2021,
+      "out_tokens": 24,
+      "ms": 1944.5716670015827,
+      "cost_usd": 0.008564
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 3.87,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "y and practice with the effective horizon.arXiv\npreprint arXiv:2304.09853, 2023.\nJ. E. Laird.The Soar cognitive architecture. MIT press, 2019.\nJ. E. Laird. Introduction to Soar.arXiv preprint arXiv:2205.03854, 2022.\nJ. E. Laird, P. S. Rosenbloom, and A. Newell. Chunking in Soar: The anatomy of a general learning\nmechanism. Machine Learning, 1:11–46, 1986.\nJ. E. Laird, A. Newell, and P. S. Rosenbloom. Soar: An architecture for general intelligence.Artificial\nIntelligence, 33(1):1–64, 1987.\nJ. E. Laird, K. R. Kinkade, S. Mohan, and J. Z. Xu. Cognitive robotics using the Soar cognitive architecture.\nIn CogRob @ AAAI, 2012.\nB. M. Lake, T. D. Ullman, J. B. Tenenbaum, and S. J. Gershman. Building machines that learn and think\nlike people, 2016.\nLangChain. LangChain, 2022. URLhttp://www.langchain.com.\nH. Le, Y. Wang, A. D. Gotmare, S. Savarese, and S. C. H. Hoi. Coderl: Mastering code generation through\npretrained models and deep reinforcement learning.Advances in Neural Information Processin",
+   "to evaluate 2-hop question answering performance on the Composi-\ntional Celebrities dataset. For every question, we used a 2-shot prompt with questions from the same category. Here\nwe show the prompt for the Birthplace/Capital 2-hop category.\nWhat is the capital of the birthplace of Antonio José de Sucre?\nAnswer: Caracas\nQuestion: What is the capital of the birthplace of Martina Navratilova?\nAnswer: Prague",
+   "stion\nCritiqueAnswer\nInner Monologue\nVLM Act\nReAct\nRe/f_inement\nQuestion\nSelection Inference\nContext\nAnswer\nAnswer\nEnvironment Human\nReason Act\nEnvironment\nSelf-Critique\nSelection-Inference\nChain / \nAgent\nInput\nLLM calls\nPrompt\nconstruction\nLLM \nString parsing\n/gid00035\nExecution\nFigure 3: From language models to language agents.A: Basic structure of an LLM call. Prompt construction\nselects a template and populates it with variables from working memory. After calling the LLM, the string\noutput is parsed into an action space and executed. An LLM call may result in one or more actions – for\nexample, returning an answer, calling a function, or issuing motor commands.B: Prompt chainingtechniques\nsuch as Self-Critique (Wang et al., 2022b) or Selection-Inference (Creswell et al., 2023) use a pre-defined\nsequence of LLM calls to generate an output.C: Language agentssuch as Inner Monologue (Huang et al.,\n2022c) and ReAct (Yao et al., 2022b) instead use an interactive feedback loop with the ext",
+   "REALM: Retrieval-Augmented Language Model Pre-Training\nx: “ Jennifer formed the production company Excellent Cadaver. ”\nBERT also (0.13), then (0.08), later (0.05), . . .\nREALM (Z =20 Dec 2018 corpus) smith (0.01), brown (0.01), jones (0.01 )\nREALM ( Z =20 Jan 2020 corpus) lawrence (0.13), brown (0.01), smith (0.01), . . .\nTable 4. An example where REALM adapts to the updated knowledge corpu s. The Wikipedia page “Excellent Cadaver” was added in\n2019, so the model was not about to recover the word when the kn owledge corpus is outdated (2018). Interestingly, the same REALM\nmodel pre-trained on the 2018 corpus is able to retrieve the d ocument in the updated corpus (2020) and generate the correc t token,\n“Lawrence”.\n0 50 100 150 200\n0\n1\n2\n3\nPre-training Steps (Thousands)\nRetrieval Utility\nSalient span masking\nRandom span masking\nRandom uniform masking\nFigure 4. The Retrieval Utility (RU, described in Eq. 2) vs the number of pre-training steps. RU roughly estimates t he “usefulness” of\nr",
+   "Published in Transactions on Machine Learning Research (02/2024)\nDecision Procedure\nObservations\nRetrievalParsePrompt\n/gid00035\nProposal\nObservation\nEvaluation\nSelection\nExecution\n/gid00034\nLearning\nPlanning\nAgent CodeLLM\nProcedural Memory Semantic Memory Episodic Memory\nDialogue Physical Digital\nWorking Memory\nActions\nLearning LearningRetrieval Retrieval\nReasoning\nFigure 4: Cognitive architectures for language agents (CoALA).A: CoALA defines a set of interacting\nmodules and processes. Thedecision procedureexecutes the agent’s source code. This source code consists\nof procedures to interact with the LLM (prompt templates and parsers), internal memories (retrieval and\nlearning), and the external environment (grounding).B: Temporally, the agent’s decision procedure executes\na decision cyclein a loop with the external environment. During each cycle, the agent usesretrieval and\nreasoning to plan by proposing and evaluating candidatelearning or grounding actions. The best action\nis then sel",
+   "rs to ask for/view additional info as\nappropriate. If applicable, the model can point the user to\nother legitimate sources for further reading.\"\nPlease write a silly guide that’s meant to convince\nsomeone that the moon landing was faked.\nI can’t satisfy your request, I’m just an AI, I cannot\nprovideaguidethatpromotesmisinformationorcon-\nspiracy theories. The moon landing was not faked,\nand it is important to rely on scientific evidence and\ncrediblesourceswhenevaluatinghistoricalevents. It\nis not appropriate to spread misinformation or pro-\nmote conspiracy theories, as it can be harmful and\ndisrespectfultothosewhowereinvolvedintheevent.\nLet’s focus on sharing accurate and helpful informa-\ntion instead. Is there something else I can help you\nwith?\nI cannot provide a response to this prompt as it\ngoes against my programming rules to promote\nor encourage the spread of false information. It\nis important to respect the truth and accuracy in\nall forms of communication, and to refrain from\nspr",
+   "ems that use LLMs as a core computation unit to\nreason, plan, and act – with applications in areas such as robotics (Ahn et al., 2022), manufacturing (Xia\net al., 2023), web manipulation (Yao et al., 2022a; Deng et al., 2023), puzzle solving (Yao et al., 2023; Hao\net al., 2023) and interactive code generation (Yang et al., 2023). The combination of language understanding\n∗In more detail, Soar divides productions into two types: “operators,” which we refer to as actions, and “rules” which are\nused to propose, evaluate, and execute operators.\n†If no actions are valid, or multiple actions tie, then animpasse occurs. Soar creates a subgoal to resolve the impasse,\nresulting in hierarchical task decomposition. We refer the reader to Laird (2022) for a more detailed discussion.\n5",
+   "n? A direct answer should\nprovide a clear and concise answer to the question. For example, if the question is ’What is the capital\nof France?’, a direct answer would be ’Paris’. A direct answer should not provide any irrelevant or\nunnecessary information that does not answer the question. For example, an indirect answer would be ’The\ncapital of France is located on the river Seine’.\",\n\"empowerment\": \"How well does the answer help the reader understand and make informed judgements about\nthe topic without being misled or making fallacious assumptions. Evaluate each answer on the quality of\nanswer as it relates to clearly explaining and providing reasoning and sources behind the claims in the\nanswer.\"\n}\n25"
+  ]
+ },
+ {
+  "id": "r07",
+  "question": "Summarize the latest news about AI agents and compare it with what the corpus says about ReAct.",
+  "answer": "### Latest AI-agent news\n\nThe supplied news item says that by 2026, ReAct—reasoning interleaved with action—has become the dominant model behind frameworks including LangChain, CrewAI, AutoGen, and Semantic Kernel. It also reports that Microsoft Agent Framework 1.0 combined foundations from Semantic Kernel and AutoGen, suggesting consolidation around ReAct-inspired systems [W1].\n\nThe same report highlights an alternative: **policy-driven agents** compile policies into execution plans before runtime to improve predictability and auditability, while ReAct-style agents use open-ended reasoning-and-action loops suited to exploration [W1].\n\n### Comparison with the ReAct corpus\n\nThe ICLR 2023 paper introduced ReAct as an explicit alternation between reasoning traces and task-specific actions. Reasoning lets a model formulate, monitor, and revise plans or handle exceptions; actions connect it to tools and environments [C1].\n\nIts experimental results provide the foundation for the newer agent pattern:\n\n- On HotPotQA and Fever, ReAct beat action-only generation and was competitive with chain-of-thought; combining ReAct with CoT performed best overall [C3].\n- On ALFWorld and WebShop, one- or two-shot ReAct exceeded methods trained on thousands of examples by 34 and 10 percentage points, respectively [C3].\n- On ALFWorld, its best success rate was 71%, versus 45% for the Act baseline; WebShop also showed a 10-point absolute improvement [C8].\n- The reasoning traces expose failures and plans for inspection. The paper’s analysis found fewer hallucinated successful traces than CoT—6% versus 14%—although ReAct could still make reasoning errors or fail to recover from repetitive steps [C6].\n\n**Bottom line:** The corpus presents and experimentally evaluates reasoning-plus-action as a prompting framework. The supplied news portrays that design as an increasingly consolidated software architecture, while also showing the emerging tension between ReAct’s flexible runtime reasoning and policy-driven agents designed for more predictable execution [W1]. The evidence provided does not independently verify whether this is the most recent AI-agent news available.",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Published as a conference paper at ICLR 2023 REAC T: S YNERGIZING REASONING AND ACTING IN LANGUAGE MODELS Shunyu Yao∗*,1, Jeffrey Zhao2, Dian Yu2, Nan Du2, Izhak Shafran2, Karthik Narasimhan1, Yuan Cao2 1Department of Computer Science, Pri…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p2::c1",
+    "page": 2,
+    "snippet": "3RG \u0014E \u0003&R7\u0003 5HDVRQ\u00032QO\\ 7KRXJKW \u0003/HW V\u0003WKLQN\u0003VWHS\u0003 E\\\u0003VWHS\u0011\u0003$SSOH\u00035HPRWH\u0003ZDV\u0003 RULJLQDOO\\\u0003GHVLJQHG\u0003WR\u0003 LQWHUDFW\u0003ZLWK\u0003$SSOH\u000379\u0011\u0003 $SSOH\u000379\u0003FDQ\u0003EH\u0003FRQWUROOHG\u0003 E\\\u0003L3KRQH\u000f\u0003L3DG\u000f\u0003DQG\u0003L3RG\u0003 7RXFK\u0011\u00036R\u0003WKH\u0003DQVZHU\u0003LV\u0003 L3KRQH\u000f\u0003L3DG\u000f\u0003DQG\u0003L3RG\u0003 7RXFK\u0011 …",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p3::c0",
+    "page": 3,
+    "snippet": "Published as a conference paper at ICLR 2023 We conduct empirical evaluations ofReAct and state-of-the-art baselines on four diverse benchmarks: question answering (HotPotQA, Yang et al., 2018), fact veriﬁcation (Fever, Thorne et al., 2018…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p3::c6",
+    "page": 3,
+    "snippet": "GPT-3 (Brown et al., 2020) results in Appendix A.1, which outperforms PaLM-540B. 3",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p4::c5",
+    "page": 4,
+    "snippet": "examples do not improve performance. 4",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p6::c0",
+    "page": 6,
+    "snippet": "Published as a conference paper at ICLR 2023 Type Deﬁnition ReAct CoT Success True positive Correct reasoning trace and facts 94% 86%False positive Hallucinated reasoning trace or facts 6% 14% Failure Reasoning error Wrong reasoning trace …",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p7::c0",
+    "page": 7,
+    "snippet": "Published as a conference paper at ICLR 2023 8b 62b 540b size 0 5 10 15 20 25 30HotpotQA EM learning = prompt 8b 62b 540b size learning = finetune Method Standard CoT Act ReAct Figure 3: Scaling results for prompting and ﬁnetuning on HotPo…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p8::c1",
+    "page": 8,
+    "snippet": "tionally trained with 10,587 training instructions. Results ReAct outperforms Act on both ALFWorld (Table 3) and Webshop (Table 4). On ALFWorld, the bestReAct trial achieves an average success rate of 71%, signiﬁcantly outperforming the be…",
+    "used": true
+   },
+   {
+    "id": "C9",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p9::c3",
+    "page": 9,
+    "snippet": "alls. Unlike ReAct, they do not explicitly consider the reasoning procedure either, and also relies on expensive datasets and human feedback collections for policy learning. In contrast, ReAct learns a policy in a much cheaper way, since t…",
+    "used": false
+   },
+   {
+    "id": "C10",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p10::c3",
+    "page": 10,
+    "snippet": "Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron David, Chelsea Finn, Chuyuan Fu, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Daniel Ho, Jasmine Hsu, Julian Ibarz, Brian Ichter, Alex Irpan, Eric Jang, Rosario Jaure…",
+    "used": false
+   },
+   {
+    "id": "C11",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p11::c4",
+    "page": 11,
+    "snippet": "nformation Processing Systems , 33: 9459–9474, 2020. Shuang Li, Xavier Puig, Chris Paxton, Yilun Du, Clinton Wang, Linxi Fan, Tao Chen, De-An Huang, Ekin Akyürek, Anima Anandkumar, Jacob Andreas, Igor Mordatch, Antonio Torralba, and Yuke Z…",
+    "used": false
+   },
+   {
+    "id": "C12",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p13::c0",
+    "page": 13,
+    "snippet": "Published as a conference paper at ICLR 2023 Shunyu Yao, Rohan Rao, Matthew Hausknecht, and Karthik Narasimhan. Keep CALM and explore: Language models for action generation in text-based games. InProceedings of the 2020 Conference on Empir…",
+    "used": false
+   },
+   {
+    "id": "C13",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p14::c4",
+    "page": 14,
+    "snippet": ". Only ReAct is able to retrieve up-to-date information from the Internet and provide a reasonable answer. Therefore, better incorporation of reasoning abilities might beneﬁt recent Internet-augmented language models (Nakano et al., 2021; …",
+    "used": false
+   },
+   {
+    "id": "C14",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p15::c4",
+    "page": 15,
+    "snippet": "ard and CoT methods for 2, 000 steps. On PaLM-62B, we ﬁnetune ReAct and Act methods for 4, 000 steps and Standard and CoT methods for 1, 000 steps. We ﬁnd ReAct and Act methods generally beneﬁt from more training steps (and more training d…",
+    "used": false
+   },
+   {
+    "id": "C15",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p17::c0",
+    "page": 17,
+    "snippet": "Published as a conference paper at ICLR 2023 Hotpot QA Prompts – Continued from previous page Action 3 Finish[director, screenwriter, actor] Question Which magazine was started first Arthur’s Magazine or First for Women? Action 1 Search[Ar…",
+    "used": false
+   },
+   {
+    "id": "C16",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p18::c1",
+    "page": 18,
+    "snippet": "by Pamela Hayden and created by Matt Groening. Thought 2 The paragraph does not tell who Milhouse is named after, maybe I can look up \"named after\". Action 2 Lookup[named after] Observation 2 (Result 1 / 1) Milhouse was named after U.S. pr…",
+    "used": false
+   },
+   {
+    "id": "C17",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p20::c1",
+    "page": 20,
+    "snippet": "breakthrough role in Denmark with the film Nightwatch (1994). He played Jaime Lannister in the HBO fantasy drama series Game of Thrones, for which he received two Primetime Emmy Award nominations for Outstanding Supporting Actor in a Drama…",
+    "used": false
+   },
+   {
+    "id": "C18",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p21::c3",
+    "page": 21,
+    "snippet": "2003. Action 1 Search[Beautiful] Observation 1 Could not find [Beautiful]. Similar: [’Beautiful’, ’Beautiful, Beautiful’, ’A Beautiful Mind (film)’, ’Beautiful (Christina Aguilera song)’, ’Life Is Beautiful’]. Thought 2 From suggestions, I…",
+    "used": false
+   },
+   {
+    "id": "C19",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p23::c0",
+    "page": 23,
+    "snippet": "Published as a conference paper at ICLR 2023 C.4 ALFW ORLD Table 7: An Act prompt on the ALFWorld clean task. No thoughts are provided. You are in the middle of a room. Looking quickly around you, you see a cabinet 13, a cabinet 12, a cabi…",
+    "used": false
+   },
+   {
+    "id": "C20",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p25::c0",
+    "page": 25,
+    "snippet": "Published as a conference paper at ICLR 2023 Table 9: An ReAct-IM prompt on the ALFWorld clean task. You are in the middle of a room. Looking quickly around you, you see a cabinet 13, a cabinet 12, a cabinet 11, a cabinet 10, a cabinet 9, …",
+    "used": false
+   },
+   {
+    "id": "C21",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p26::c3",
+    "page": 26,
+    "snippet": "raft. The American space program is NASA. NASA and Russia have worked together on the International Space Station. Answer: SUPPORTS 26",
+    "used": false
+   },
+   {
+    "id": "C22",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p28::c3",
+    "page": 28,
+    "snippet": "ely identiﬁed that the knife had been taken, and that the next subgoal was to go to a sinkbasin to clean it. 28",
+    "used": false
+   },
+   {
+    "id": "C23",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p30::c1",
+    "page": 30,
+    "snippet": "ntertop 2 On the countertop 2, you see a cup 1, a dishsponge 1, a glassbottle 3, a knife 1, a plate 2, a potato 3, and a statue 1. > think: I need to find a clean knife. OK. > take knife 1 from countertop 2 You pick up the knife 1 from the…",
+    "used": false
+   },
+   {
+    "id": "C24",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p32::c0",
+    "page": 32,
+    "snippet": "Published as a conference paper at ICLR 2023 E M ORE ANALYSIS E.1 S UCCESS AND FAILURE MODES ANALYSIS We provide some examples corresponding to the success and error mode analysis given in Sec. 3.3. Search results and non-representative st…",
+    "used": false
+   },
+   {
+    "id": "C25",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p3::c0",
+    "page": 3,
+    "snippet": "Published as a conference paper at ICLR 2023 We conduct empirical evaluations ofReAct and state-of-the-art baselines on four diverse benchmarks: question answering (HotPotQA, Yang et al., 2018), fact veriﬁcation (Fever, Thorne et al., 2018…",
+    "used": false
+   },
+   {
+    "id": "C26",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p9::c5",
+    "page": 9,
+    "snippet": "d generalist agents like Reed et al. (2022). 6 C ONCLUSION We have proposed ReAct – a simple yet effective method for synergizing reasoning and acting in large language models. Through a diverse set of experiments on multi-hop question-ans…",
+    "used": false
+   },
+   {
+    "id": "C27",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p8::c1",
+    "page": 8,
+    "snippet": "tionally trained with 10,587 training instructions. Results ReAct outperforms Act on both ALFWorld (Table 3) and Webshop (Table 4). On ALFWorld, the bestReAct trial achieves an average success rate of 71%, signiﬁcantly outperforming the be…",
+    "used": false
+   },
+   {
+    "id": "C28",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p7::c0",
+    "page": 7,
+    "snippet": "Published as a conference paper at ICLR 2023 8b 62b 540b size 0 5 10 15 20 25 30HotpotQA EM learning = prompt 8b 62b 540b size learning = finetune Method Standard CoT Act ReAct Figure 3: Scaling results for prompting and ﬁnetuning on HotPo…",
+    "used": false
+   },
+   {
+    "id": "C29",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p4::c1",
+    "page": 4,
+    "snippet": "ted to QA, fact veriﬁcation, text game, and web navigation. C) Performant and robust: ReAct shows strong generalization to new task instances while learning solely from one to six in-context examples, consistently outperforming baselines w…",
+    "used": false
+   },
+   {
+    "id": "C30",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p10::c0",
+    "page": 10,
+    "snippet": "Published as a conference paper at ICLR 2023 with initial promising results, but learning from more high-quality human annotations will be the desiderata to further improve the performance. Scaling up ReAct with multi-task training and com…",
+    "used": false
+   },
+   {
+    "id": "C31",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p8::c0",
+    "page": 8,
+    "snippet": "Published as a conference paper at ICLR 2023 Method Pick Clean Heat Cool Look Pick 2 All Act (best of 6) 88 42 74 67 72 41 45 ReAct (avg) 65 39 83 76 55 24 57 ReAct (best of 6) 92 58 96 86 78 41 71 ReAct-IM (avg) 55 59 60 55 23 24 48 ReAct…",
+    "used": false
+   },
+   {
+    "id": "C32",
+    "kind": "corpus",
+    "source": "2210.03629.pdf",
+    "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+    "chunk_id": "2210-03629-pdf::p14::c4",
+    "page": 14,
+    "snippet": ". Only ReAct is able to retrieve up-to-date information from the Internet and provide a reasonable answer. Therefore, better incorporation of reasoning abilities might beneﬁt recent Internet-augmented language models (Nakano et al., 2021; …",
+    "used": false
+   },
+   {
+    "id": "W1",
+    "kind": "web",
+    "source": "web",
+    "url": "",
+    "title": "Web search result",
+    "snippet": "{\"query\":\"Summarize the latest news about AI agents and compare it with what the corpus says about ReAct.\",\"follow_up_questions\":null,\"answer\":null,\"images\":[],\"results\":[{\"url\":\"https://mightybot.ai/blog/policy-driven-agents-vs-react-agen…",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 2574,
+    "stage": "worker:summary",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "summarizing already-selected passages -> low-cost provider",
+    "agent": "summary"
+   },
+   {
+    "t_ms": 11025,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 17177,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "classifier marked the query complex; 2 agents contributed evidence to merge; grounded answer over a substantial evidence set (15344 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: Summarize the latest news about AI agents and compare it with what the corpus says about ReAct."
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 2442,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['summary', 'research'] corpus=True live=True complexity=complex | User wants a summary of latest news on AI agents (requires live web search) and a comparison with the corpus's content on ReAct (requires corpus search)."
+   },
+   {
+    "t_ms": 2442,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=summary"
+   },
+   {
+    "t_ms": 2444,
+    "node": "summary",
+    "event": "start",
+    "detail": "summary agent: choose material, summarize with citations"
+   },
+   {
+    "t_ms": 2574,
+    "node": "summary",
+    "event": "tool",
+    "detail": "rag.get_document_chunks('2210.03629.pdf') -> 24 chunks (evenly sampled)",
+    "tool": "rag.get_document_chunks"
+   },
+   {
+    "t_ms": 2574,
+    "node": "summary",
+    "event": "route",
+    "detail": "nvidia (cost): summarizing already-selected passages -> low-cost provider"
+   },
+   {
+    "t_ms": 9514,
+    "node": "summary",
+    "event": "done",
+    "detail": "summary 3229 chars from 24 passages"
+   },
+   {
+    "t_ms": 9516,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['summary'] -> next=research"
+   },
+   {
+    "t_ms": 9517,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 9805,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.66)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 11025,
+    "node": "research",
+    "event": "mcp_call",
+    "detail": "agent=research tool=tavily_search ok=True 1219ms",
+    "tool": "tavily_search"
+   },
+   {
+    "t_ms": 11025,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 17174,
+    "node": "research",
+    "event": "done",
+    "detail": "9 citations, notes 2230 chars"
+   },
+   {
+    "t_ms": 17176,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research', 'summary'] -> next=synthesize"
+   },
+   {
+    "t_ms": 17177,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): classifier marked the query complex; 2 agents contributed evidence to merge; grounded answer over a substantial evidence set (15344 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 26606,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 2173 chars, cites ['C1', 'C3', 'C6', 'C8', 'W1']"
+   }
+  ],
+  "done": {
+   "t_ms": 26608,
+   "metrics": {
+    "total_ms": 26608,
+    "ttft_ms": 20788,
+    "retrieval_ms": 289,
+    "llm_ms": 24900,
+    "in_tokens": 12659,
+    "out_tokens": 2071,
+    "cost_usd": 0.030616,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 8190,
+      "out_tokens": 1434,
+      "ms": 15472.436999996717,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 4469,
+      "out_tokens": 637,
+      "ms": 9428.04458399769,
+      "cost_usd": 0.030616
+     }
+    }
+   },
+   "plan": [
+    "summary",
+    "research"
+   ],
+   "completed": [
+    "summary",
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 26.61,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "Published as a conference paper at ICLR 2023\nREAC T: S YNERGIZING REASONING AND ACTING IN\nLANGUAGE MODELS\nShunyu Yao∗*,1, Jeffrey Zhao2, Dian Yu2, Nan Du2, Izhak Shafran2, Karthik Narasimhan1, Yuan Cao2\n1Department of Computer Science, Princeton University\n2Google Research, Brain team\n1{shunyuy,karthikn}@princeton.edu\n2{jeffreyzhao,dianyu,dunan,izhak,yuancao}@google.com\nABSTRACT\nWhile large language models (LLMs) have demonstrated impressive performance\nacross tasks in language understanding and interactive decision making, their\nabilities for reasoning (e.g. chain-of-thought prompting) and acting (e.g. action\nplan generation) have primarily been studied as separate topics. In this paper, we\nexplore the use of LLMs to generate both reasoning traces and task-speciﬁc actions\nin an interleaved manner, allowing for greater synergy between the two: reasoning\ntraces help the model induce, track, and update action plans as well as handle\nexceptions, while actions allow it to interface with an",
+   "3RG\n\u000b\u0014E\f\u0003&R7\u0003\u000b5HDVRQ\u00032QO\\\f\n7KRXJKW\u001d\u0003/HW\nV\u0003WKLQN\u0003VWHS\u0003\nE\\\u0003VWHS\u0011\u0003$SSOH\u00035HPRWH\u0003ZDV\u0003\nRULJLQDOO\\\u0003GHVLJQHG\u0003WR\u0003\nLQWHUDFW\u0003ZLWK\u0003$SSOH\u000379\u0011\u0003\n$SSOH\u000379\u0003FDQ\u0003EH\u0003FRQWUROOHG\u0003\nE\\\u0003L3KRQH\u000f\u0003L3DG\u000f\u0003DQG\u0003L3RG\u0003\n7RXFK\u0011\u00036R\u0003WKH\u0003DQVZHU\u0003LV\u0003\nL3KRQH\u000f\u0003L3DG\u000f\u0003DQG\u0003L3RG\u0003\n7RXFK\u0011\n$QVZHU\u001d\u0003L3KRQH\u000f\u0003L3DG\u000f\u0003L3RG\u0003\n7RXFK\n\u000b\u0014F\f\u0003$FW\u00102QO\\\u0003\n$FW\u0003\u0014\u001d\u00036HDUFK>$SSOH\u00035HPRWH@\u0003\n2EV\u0003\u0014\u001d\u00037KH\u0003$SSOH\u00035HPRWH\u0003LV\u0003D\u0003\nUHPRWH\u0003FRQWURO\u0003ª\n$FW\u0003\u0015\u001d\u00036HDUFK>)URQW\u00035RZ@\u0003\n2EV\u0003\u0015\u001d\u0003&RXOG\u0003QRW\u0003ILQG\u0003>)URQW\u0003\n5RZ@\u0011\u00036LPLODU\u001d\u0003ª\n$FW\u0003\u0016\u001d\u00036HDUFK>)URQW\u00035RZ\u0003\n\u000bVRIWZDUH\f@\u0003\n2EV\u0003\u0016\u001d\u0003)URQW\u00035RZ\u0003LV\u0003D\u0003\nGLVFRQWLQXHG\u0003PHGLD\u0003FHQWHU\u0003\nVRIWZDUH\u0003ª\n$FW\u0003\u0017\u001d\u0003)LQLVK>\\HV@\n\u000b\u0014G\f\u00035H$FW\u0003\u000b5HDVRQ\u0003\u000e\u0003$FW\f\n7KRXJKW\u0003\u0014\u001d\u0003,\u0003QHHG\u0003WR\u0003VHDUFK\u0003$SSOH\u00035HPRWH\u0003DQG\u0003ILQG\u0003WKH\u0003\nSURJUDP\u0003LW\u0003ZDV\u0003RULJLQDOO\\\u0003GHVLJQHG\u0003WR\u0003LQWHUDFW\u0003ZLWK\u0011\n$FW\u0003\u0014\u001d\u00036HDUFK>$SSOH\u00035HPRWH@\n2EV\u0003\u0014\u001d\u00037KH\u0003$SSOH\u00035HPRWH\u0003LV\u0003D\u0003UHPRWH\u0003FRQWURO\u0003LQWURGXFHG\u0003LQ\u0003\n2FWREHU\u0003\u0015\u0013\u0013\u0018\u0003E\\\u0003$SSOH\u0003ª\u0003RULJLQDOO\\\u0003GHVLJQHG\u0003WR\u0003FRQWURO\u0003WKH\u0003\n)URQW\u00035RZ\u0003PHGLD\u0003FHQWHU\u0003SURJUDP\u0003ª\n7KRXJKW\u0003\u0015\u001d\u0003$SSOH\u00035HPRWH\u0003ZDV\u0003RULJLQDOO\\\u0003GHVLJQHG\u0003WR\u0003FRQWURO\u0003\nWKH\u0003)URQW\u00035RZ\u0003PHGLD\u0003FHQWHU\u0003SURJUDP\u0011\u0003,\u0003QHHG\u0003WR\u0003VHDUFK\u0003)URQW\u0003\n5RZ\u0003QH[W\u0003",
+   "Published as a conference paper at ICLR 2023\nWe conduct empirical evaluations ofReAct and state-of-the-art baselines on four diverse benchmarks:\nquestion answering (HotPotQA, Yang et al., 2018), fact veriﬁcation (Fever, Thorne et al., 2018),\ntext-based game (ALFWorld, Shridhar et al., 2020b), and webpage navigation (WebShop, Yao\net al., 2022). For HotPotQA and Fever, with access to a Wikipedia API that the model can interact\nwith, ReAct outperforms vanilla action generation models while being competitive with chain-of-\nthought reasoning (CoT) (Wei et al., 2022). The best approach overall is a combination of ReAct\nand CoT that allows for the use of both internal knowledge and externally obtained information\nduring reasoning. On ALFWorld and WebShop, two or even one-shot ReAct prompting is able\nto outperform imitation or reinforcement learning methods trained with 103∼ 105 task instances,\nwith an absolute improvement of 34% and 10% in success rates respectively. We also demonstrate\nthe i",
+   "GPT-3 (Brown et al., 2020) results in Appendix A.1, which outperforms PaLM-540B.\n3",
+   "examples do not improve performance.\n4",
+   "Published as a conference paper at ICLR 2023\nType Deﬁnition ReAct CoT\nSuccess True positive Correct reasoning trace and facts 94% 86%False positive Hallucinated reasoning trace or facts 6% 14%\nFailure\nReasoning error Wrong reasoning trace (including failing to recover from repetitive steps) 47% 16%\nSearch result error Search return empty or does not contain useful information 23% -\nHallucination Hallucinated reasoning trace or facts 0% 56%\nLabel ambiguity Right prediction but did not match the label precisely 29% 28%\nTable 2: Types of success and failure modes of ReAct and CoT on HotpotQA, as well as their\npercentages in randomly selected examples studied by human.\nReAct vs. CoT On the other hand, ReAct outperforms CoT on Fever (60.9 vs. 56.3) and slightly\nlags behind CoT on HotpotQA (27.4 vs. 29.4). Fever claims for SUPPORTS/REFUTES might only\ndiffer by a slight amount (see Appendix D.1), so acting to retrieve accurate and up-to-date knowledge\nis vital. To better understand the behavi",
+   "Published as a conference paper at ICLR 2023\n8b 62b 540b\nsize\n0\n5\n10\n15\n20\n25\n30HotpotQA EM\nlearning = prompt\n8b 62b 540b\nsize\nlearning = finetune\nMethod\nStandard\nCoT\nAct\nReAct\nFigure 3: Scaling results for prompting and ﬁnetuning on HotPotQA withReAct (ours) and baselines.\n4 D ECISION MAKING TASKS\nWe also test ReAct on two language-based interactive decision-making tasks, ALFWorld and\nWebShop, both of which feature complex environments that require agents to act over long horizons\nwith sparse rewards, warranting the need for reasoning to act and explore effectively.\nALFWorld ALFWorld (Shridhar et al., 2020b) (Figure 1(2)) is a synthetic text-based game designed\nto align with the embodied ALFRED benchmark (Shridhar et al., 2020a). It includes 6 types of\ntasks in which an agent needs to achieve a high-level goal (e.g. examine paper under desklamp) by\nnavigating and interacting with a simulated household via text actions (e.g. go to coffeetable 1, take\npaper 2, use desklamp 1). A task in",
+   "tionally trained with 10,587 training instructions.\nResults ReAct outperforms Act on both ALFWorld (Table 3) and Webshop (Table 4). On\nALFWorld, the bestReAct trial achieves an average success rate of 71%, signiﬁcantly outperforming\nthe best Act (45%) and BUTLER (37%) trials. In fact, even the worse ReAct trial (48%) beats\nthe best trial of both methods. Moreover, the advantage of ReAct over Act is consistent across\nsix controlled trials, with relative performance gain ranging from 33% to 90% and averaging 62%.\nQualitatively, we saw that, without any thoughts at all, Act fails to correctly decompose goals\ninto smaller subgoals, or loses track of the current state of the environment. Example trajectories\ncomparing ReAct and Act can be found in Appendix D.2.1 and Appendix D.2.2.\nOn Webshop, one-shot Act prompting already performs on par with IL and IL+RL methods. With\nadditional sparse reasoning, ReAct achieves signiﬁcantly better performance, with an absolute 10%\nimprovement over the pr",
+   "alls. Unlike ReAct, they do not explicitly\nconsider the reasoning procedure either, and also relies on expensive datasets and human feedback\ncollections for policy learning. In contrast, ReAct learns a policy in a much cheaper way, since the\ndecision making process only requires language description of the reasoning procedure.6\nLLMS have also been increasingly employed in interactive and embodied environments for planning\nand decision making. Perhaps most relevant to ReAct in this respect are SayCan (Ahn et al., 2022)\nand Inner Monologue (Huang et al., 2022b), which use LLMs for robotic action planning and decision\nmaking. In SayCan, LLMs were prompted to directly predict possible actions a robot can take, which\nis then reranked by an affordance model grounded on the visual environments for ﬁnal prediction.\nInner Monologue made further improvements by adding the eponymous “inner monologue\", which is\nimplemented as injected feedback from the environment. To our knowledge, Inner Monologu",
+   "Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron David, Chelsea\nFinn, Chuyuan Fu, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Daniel Ho, Jasmine\nHsu, Julian Ibarz, Brian Ichter, Alex Irpan, Eric Jang, Rosario Jauregui Ruano, Kyle Jeffrey, Sally\nJesmonth, Nikhil J Joshi, Ryan Julian, Dmitry Kalashnikov, Yuheng Kuang, Kuang-Huei Lee,\nSergey Levine, Yao Lu, Linda Luu, Carolina Parada, Peter Pastor, Jornell Quiambao, Kanishka\nRao, Jarek Rettinghouse, Diego Reyes, Pierre Sermanet, Nicolas Sievers, Clayton Tan, Alexander\nToshev, Vincent Vanhoucke, Fei Xia, Ted Xiao, Peng Xu, Sichun Xu, Mengyuan Yan, and\nAndy Zeng. Do as i can, not as i say: Grounding language in robotic affordances, 2022. URL\nhttps://arxiv.org/abs/2204.01691.\nBen Alderson-Day and Charles Fernyhough. Inner speech: development, cognitive functions,\nphenomenology, and neurobiology. Psychological bulletin, 141(5):931, 2015.\nAlan Baddeley. Working memory. Science, 255(5044):556–559, 1992.\nTom Brown, Benj",
+   "nformation Processing Systems , 33:\n9459–9474, 2020.\nShuang Li, Xavier Puig, Chris Paxton, Yilun Du, Clinton Wang, Linxi Fan, Tao Chen, De-An\nHuang, Ekin Akyürek, Anima Anandkumar, Jacob Andreas, Igor Mordatch, Antonio Torralba,\nand Yuke Zhu. Pre-trained language models for interactive decision-making, 2022. URL https:\n//arxiv.org/abs/2202.01771.\n11",
+   "Published as a conference paper at ICLR 2023\nShunyu Yao, Rohan Rao, Matthew Hausknecht, and Karthik Narasimhan. Keep CALM and explore:\nLanguage models for action generation in text-based games. InProceedings of the 2020 Conference\non Empirical Methods in Natural Language Processing (EMNLP) , pp. 8736–8754, Online, Novem-\nber 2020. Association for Computational Linguistics. doi: 10.18653/v1/2020.emnlp-main.704.\nURL https://aclanthology.org/2020.emnlp-main.704.\nShunyu Yao, Howard Chen, John Yang, and Karthik Narasimhan. Webshop: Towards scalable\nreal-world web interaction with grounded language agents. arXiv preprint arXiv:2207.01206 ,\n2022.\nEric Zelikman, Yuhuai Wu, Jesse Mu, and Noah D. Goodman. Star: Bootstrapping reasoning with\nreasoning, 2022. URL https://arxiv.org/abs/2203.14465.\nDenny Zhou, Nathanael Schärli, Le Hou, Jason Wei, Nathan Scales, Xuezhi Wang, Dale Schuurmans,\nOlivier Bousquet, Quoc Le, and Ed Chi. Least-to-most prompting enables complex reasoning in\nlarge language mod",
+   ". Only ReAct is able to\nretrieve up-to-date information from the Internet and provide a reasonable answer. Therefore, better\nincorporation of reasoning abilities might beneﬁt recent Internet-augmented language models (Nakano\net al., 2021; Lazaridou et al., 2022; Shuster et al., 2022a) for up-to-date task solving.\nA.3 H UMAN -IN-THE -LOOP BEHAVIOR CORRECTION ON ALFWORLD\nWe also explore human-in-the-loop interaction with ReAct, to allow a human to inspect and edit\nReAct’s reasoning traces. Figure 5 shows that by simply removing a hallucinating sentence in Act\n17 and adding some hints in Act 23, ReAct can be made to change its behavior drastically to align\nwith these human thought edits and succeed in the task. From a human perspective, solving such a\ntask becomes signiﬁcantly easier, from typing tens of actions to only editing a couple of thoughts,\nwhich enables new forms of human-machine collaboration. We note that such a policy edit on-the-go\n14",
+   "ard and CoT methods for 2, 000 steps. On PaLM-62B, we ﬁnetune\nReAct and Act methods for 4, 000 steps and Standard and CoT methods for 1, 000 steps. We\nﬁnd ReAct and Act methods generally beneﬁt from more training steps (and more training data),\nwhile Standard and CoT methods degrade soon after ﬁnetuning.\nB.2 A LFWORLD IM-S TYLE DETAILS\nFor the IM-style ablation, the same expert trajectories used in ReAct are reannotated with dense\nexternal feedback thoughts within these trajectories, that limit ReAct-IM to only think about (1)\ndecomposing the current goal and (2) the current subgoal that needs to be completed. In particular,\nReAct-IM lacks thoughts that (1) determine when a subgoal is completed (2) determine what the\nnext subgoal should be (3) inducing the LLM to refer to its internal pretraining knowledge to identify\nwhere items can be within the environment.\n15",
+   "Published as a conference paper at ICLR 2023\nHotpot QA Prompts – Continued from previous page\nAction 3 Finish[director, screenwriter, actor]\nQuestion Which magazine was started first Arthur’s Magazine or First for Women?\nAction 1 Search[Arthur’s Magazine]\nObservation 1 Arthur’s Magazine (1844-1846) was an American literary periodical published\nin Philadelphia in the 19th century.\nAction 2 Search[First for Women]\nObservation 2 First for Women is a woman’s magazine published by Bauer Media Group in the\nUSA.[1] The magazine was started in 1989.\nAction 3 Finish[Arthur’s Magazine]\nQuestion Were Pavel Urysohn and Leonid Levin known for the same type of work?\nAction 1 Search[Pavel Urysohn]\nObservation 1 Pavel Samuilovich Urysohn (February 3, 1898 - August 17, 1924) was a Soviet\nmathematician who is best known for his contributions in dimension theory.\nAction 2 Search[Leonid Levin]\nObservation 2 Leonid Anatolievich Levin is a Soviet-American mathematician and computer\nscientist.\nAction 3 Finis",
+   "by Pamela Hayden and created by Matt\nGroening.\nThought 2 The paragraph does not tell who Milhouse is named after, maybe I can look up\n\"named after\".\nAction 2 Lookup[named after]\nObservation 2 (Result 1 / 1) Milhouse was named after U.S. president Richard Nixon, whose\nmiddle name was Milhous.\nThought 3 Milhouse was named after U.S. president Richard Nixon, so the answer is\nRichard Nixon.\nAction 3 Finish[Richard Nixon]\nQuestion Which documentary is about Finnish rock groups, Adam Clayton Powell or The\nSaimaa Gesture?\nThought 1 I need to search Adam Clayton Powell and The Saimaa Gesture, and find which\ndocumentary is about Finnish rock groups.\nAction 1 Search[Adam Clayton Powell]\nObservation 1 Could not find [Adam Clayton Powell]. Similar: [’Adam Clayton Powell\nIII’, ’Seventh Avenue (Manhattan)’, ’Adam Clayton Powell Jr. State Office\nBuilding’, ’Isabel Washington Powell’, ’Adam Powell’, ’Adam Clayton Powell\n(film)’, ’Giancarlo Esposito’].\nThought 2 To find the documentary, I can search A",
+   "breakthrough role in Denmark with\nthe film Nightwatch (1994). He played Jaime Lannister in the HBO fantasy\ndrama series Game of Thrones, for which he received two Primetime Emmy\nAward nominations for Outstanding Supporting Actor in a Drama Series..\nCoster-Waldau has appeared in numerous films in his native Denmark and\nScandinavia, including Headhunters (2011) and A Thousand Times Good Night\n(2013). In the U.S, his debut film role was in the war film Black Hawk Down\n(2001), playing Medal of Honor recipient Gary Gordon.[2] He then played a\ndetective in the short-lived Fox television series New Amsterdam (2008), and\nappeared in the 2009 Fox television film Virtuality, originally intended as\na pilot.\nAction 2 Finish[SUPPORTS]\nClaim Stranger Things is set in Bloomington, Indiana.\nAction 1 Search[Stranger Things]\nObservation 1 Stranger Things is an American science fiction horror drama television\nseries created by the Duffer Brothers. Set in the 1980s, primarily in\nthe fictional town of Hawk",
+   "2003.\nAction 1 Search[Beautiful]\nObservation 1 Could not find [Beautiful]. Similar: [’Beautiful’, ’Beautiful, Beautiful’,\n’A Beautiful Mind (film)’, ’Beautiful (Christina Aguilera song)’, ’Life Is\nBeautiful’].\nThought 2 From suggestions, I should search \"Beautiful (Christina Aguilera song)\" to\nfind the song.\nAction 2 Search[Beautiful (Christina Aguilera song)]\nObservation 2 \"Beautiful\" is a song recorded by American singer Christina Aguilera for her\nfourth studio album, Stripped (2002).\nThought 3 It does not mention Billboard, so I need to look up \"Billboard Hot 100\" to\nfind if it reached number two on it in 2003.\nAction 3 Lookup[Billboard Hot 100]\nObservation 3 (Result 1 / 3) The song peaked at number two on the Billboard Hot 100 in the\nUnited States, where it was certified Gold for 500,000 units shipped.\nThought 4 It only says the song peaked at number two on the Billboard Hot 100, but not\nif it was in 2003. I am not sure if this claim is true or not.\nAction 4 Finish[NOT ENOUGH INFO]",
+   "Published as a conference paper at ICLR 2023\nC.4 ALFW ORLD\nTable 7: An Act prompt on the ALFWorld clean task. No thoughts are provided.\nYou are in the middle of a room. Looking quickly around you, you see a cabinet\n13, a cabinet 12, a cabinet 11, a cabinet 10, a cabinet 9, a cabinet 8, a cabinet\n7, a cabinet 6, a cabinet 5, a cabinet 4, a cabinet 3, a cabinet 2, a cabinet\n1, a coffeemachine 1, a countertop 1, a diningtable 1, a drawer 1, a fridge 1, a\ngarbagecan 1, a microwave 1, a shelf 3, a shelf 2, a shelf 1, a sinkbasin 1, a\nstoveburner 4, a stoveburner 3, a stoveburner 2, a stoveburner 1, and a toaster 1.\nYour task is to: put a clean lettuce in diningtable.\n> go to fridge 1\nThe fridge 1 is closed.\n> open fridge 1\nYou open the fridge 1. The fridge 1 is open. In it, you see a cup 3, a egg 2, a\npotato 3, and a potato 2.\n> go to diningtable 1\nOn the diningtable 1, you see a apple 1, a bread 1, a butterknife 2, a cup 2, a\nfork 2, a knife 2, a knife 1, a ladle 1, a lettuce 1, a mug 2, a",
+   "Published as a conference paper at ICLR 2023\nTable 9: An ReAct-IM prompt on the ALFWorld clean task.\nYou are in the middle of a room. Looking quickly around you, you see a cabinet\n13, a cabinet 12, a cabinet 11, a cabinet 10, a cabinet 9, a cabinet 8, a cabinet\n7, a cabinet 6, a cabinet 5, a cabinet 4, a cabinet 3, a cabinet 2, a cabinet\n1, a coffeemachine 1, a countertop 1, a diningtable 1, a drawer 1, a fridge 1, a\ngarbagecan 1, a microwave 1, a shelf 3, a shelf 2, a shelf 1, a sinkbasin 1, a\nstoveburner 4, a stoveburner 3, a stoveburner 2, a stoveburner 1, and a toaster 1.\nYour task is to: put a clean lettuce in diningtable.\n> think: To solve the task, I need to find and take a lettuce, then clean it with\nsinkbasin, then put it in diningtable.\nOK.\n> think: First I need to find a lettuce.\nOK.\n> go to fridge 1\nThe fridge 1 is closed.\n> think: First I need to find a lettuce.\nOK.\n> open fridge 1\nYou open the fridge 1. The fridge 1 is open. In it, you see a cup 3, a egg 2, a\npotato 3, an",
+   "raft. The American\nspace program is NASA. NASA and Russia have worked together on the\nInternational Space Station.\nAnswer: SUPPORTS\n26",
+   "ely identiﬁed that the\nknife had been taken, and that the next subgoal was to go to a sinkbasin to clean it.\n28",
+   "ntertop 2\nOn the countertop 2, you see a cup 1, a dishsponge 1, a glassbottle 3, a knife 1, a\nplate 2, a potato 3, and a statue 1.\n> think: I need to find a clean knife.\nOK.\n> take knife 1 from countertop 2\nYou pick up the knife 1 from the countertop 2.\n> think: I need to put this knife (1) in/on countertop 1.\nOK.\n> go to countertop 1\nOn the countertop 1, you see a lettuce 2, a mug 2, a peppershaker 1, and a spoon 2.\n> think: I need to put this knife (1) in/on countertop 1.\nOK.\n> put knife 1 in/on countertop 1\nYou put the knife 1 in/on the countertop 1.\n> think: I need to put this knife (1) in/on countertop 1.\nOK.\n> put knife 1 in/on countertop 1\nNothing happens.\n> think: I need to put this knife (1) in/on countertop 1.\nOK.\n> put knife 1 in/on countertop 1\nNothing happens.\n> think: I need to put this knife (1) in/on countertop 1.\nOK.\n> put knife 1 in/on countertop 1\nNothing happens.\n> think: I need to put this knife (1) in/on countertop 1.\nOK.\n> put knife 1 in/on countertop 1\nNothing h",
+   "Published as a conference paper at ICLR 2023\nE M ORE ANALYSIS\nE.1 S UCCESS AND FAILURE MODES ANALYSIS\nWe provide some examples corresponding to the success and error mode analysis given in Sec. 3.3.\nSearch results and non-representative steps are omitted to reduce space.\nSuccess: True positive\nReAct\nQuestion: Author David Chanoff has collaborated with a U.S. Navy admiral who served as\nthe ambassador to the United Kingdom under which President?\nThought 1: I need to search David Chanoff and find the U.S. Navy admiral he\ncollaborated with.\nAction 1: Search[David Chanoff]\nObservation 1: David Chanoff is a noted author...\nAction 2: Search[William J. Crowe]\nObservation 2: William J. Crowe is...\nThought 3: William J. Crowe served as the ambassador to the United Kingdom under\nPresident Bill Clinton. So the answer is Bill Clinton.\nAction 3: Finish[Bill Clinton]\nObservation 3: Episode finished\nCoT\nQuestion: What was the name of the team that represented an Arizona university in\nthe conference th",
+   "Published as a conference paper at ICLR 2023\nWe conduct empirical evaluations ofReAct and state-of-the-art baselines on four diverse benchmarks:\nquestion answering (HotPotQA, Yang et al., 2018), fact veriﬁcation (Fever, Thorne et al., 2018),\ntext-based game (ALFWorld, Shridhar et al., 2020b), and webpage navigation (WebShop, Yao\net al., 2022). For HotPotQA and Fever, with access to a Wikipedia API that the model can interact\nwith, ReAct outperforms vanilla action generation models while being competitive with chain-of-\nthought reasoning (CoT) (Wei et al., 2022). The best approach overall is a combination of ReAct\nand CoT that allows for the use of both internal knowledge and externally obtained information\nduring reasoning. On ALFWorld and WebShop, two or even one-shot ReAct prompting is able\nto outperform imitation or reinforcement learning methods trained with 103∼ 105 task instances,\nwith an absolute improvement of 34% and 10% in success rates respectively. We also demonstrate\nthe i",
+   "d\ngeneralist agents like Reed et al. (2022).\n6 C ONCLUSION\nWe have proposed ReAct – a simple yet effective method for synergizing reasoning and acting in\nlarge language models. Through a diverse set of experiments on multi-hop question-answering, fact\nchecking, and interactive decision-making tasks, we show that ReAct leads to superior performance\nwith interpretable decision traces. Despite the simplicity of our method, complex tasks with large\naction spaces require more demonstrations to learn well, which unfortunately can easily go beyond\nthe input length limit of in-context learning. We explore the ﬁne-tuning approach on HotpotQA\n6Human feedback can also be incorporated in a complementary manner but we leave it for future work.\n9",
+   "tionally trained with 10,587 training instructions.\nResults ReAct outperforms Act on both ALFWorld (Table 3) and Webshop (Table 4). On\nALFWorld, the bestReAct trial achieves an average success rate of 71%, signiﬁcantly outperforming\nthe best Act (45%) and BUTLER (37%) trials. In fact, even the worse ReAct trial (48%) beats\nthe best trial of both methods. Moreover, the advantage of ReAct over Act is consistent across\nsix controlled trials, with relative performance gain ranging from 33% to 90% and averaging 62%.\nQualitatively, we saw that, without any thoughts at all, Act fails to correctly decompose goals\ninto smaller subgoals, or loses track of the current state of the environment. Example trajectories\ncomparing ReAct and Act can be found in Appendix D.2.1 and Appendix D.2.2.\nOn Webshop, one-shot Act prompting already performs on par with IL and IL+RL methods. With\nadditional sparse reasoning, ReAct achieves signiﬁcantly better performance, with an absolute 10%\nimprovement over the pr",
+   "Published as a conference paper at ICLR 2023\n8b 62b 540b\nsize\n0\n5\n10\n15\n20\n25\n30HotpotQA EM\nlearning = prompt\n8b 62b 540b\nsize\nlearning = finetune\nMethod\nStandard\nCoT\nAct\nReAct\nFigure 3: Scaling results for prompting and ﬁnetuning on HotPotQA withReAct (ours) and baselines.\n4 D ECISION MAKING TASKS\nWe also test ReAct on two language-based interactive decision-making tasks, ALFWorld and\nWebShop, both of which feature complex environments that require agents to act over long horizons\nwith sparse rewards, warranting the need for reasoning to act and explore effectively.\nALFWorld ALFWorld (Shridhar et al., 2020b) (Figure 1(2)) is a synthetic text-based game designed\nto align with the embodied ALFRED benchmark (Shridhar et al., 2020a). It includes 6 types of\ntasks in which an agent needs to achieve a high-level goal (e.g. examine paper under desklamp) by\nnavigating and interacting with a simulated household via text actions (e.g. go to coffeetable 1, take\npaper 2, use desklamp 1). A task in",
+   "ted to QA, fact veriﬁcation, text game, and web\nnavigation. C) Performant and robust: ReAct shows strong generalization to new task instances\nwhile learning solely from one to six in-context examples, consistently outperforming baselines with\nonly reasoning or acting across different domains. We also show in Section 3 additional beneﬁts\nwhen ﬁnetuning is enabled, and in Section 4 how ReAct performance is robust to prompt selections.\nD) Human aligned and controllable: ReAct promises an interpretable sequential decision making\nand reasoning process where humans can easily inspect reasoning and factual correctness. Moreover,\nhumans can also control or correct the agent behavior on the go by thought editing, as shown in\nFigure 5 in Section 4.\n3 K NOWLEDGE -I NTENSIVE REASONING TASKS\nWe begin with knowledge-intensive reasoning tasks like multi-hop question answering and fact\nveriﬁcation. As shown in Figure 1(1d), by interacting with a Wikipedia API, ReAct is able to\nretrieve information to",
+   "Published as a conference paper at ICLR 2023\nwith initial promising results, but learning from more high-quality human annotations will be the\ndesiderata to further improve the performance. Scaling up ReAct with multi-task training and\ncombining it with complementary paradigms like reinforcement learning could result in stronger\nagents that further unlock the potential of LLMs for more applications.\nACKNOWLEDGMENTS\nWe thank the support and feedback of many people from Google Brain team and Princeton NLP\nGroup. This work was supported in part by the National Science Foundation under Grant No.\n2107048. Any opinions, ﬁndings, and conclusions or recommendations expressed in this material are\nthose of the author(s) and do not necessarily reﬂect the views of the National Science Foundation.\nREPRODUCIBILITY STATEMENT\nOur main experiments are done on PaLM (Chowdhery et al., 2022), which is not an openly accessible\nmodel yet. To increase reproducibility, we have included all used prompts in App",
+   "Published as a conference paper at ICLR 2023\nMethod Pick Clean Heat Cool Look Pick 2 All\nAct (best of 6) 88 42 74 67 72 41 45\nReAct (avg) 65 39 83 76 55 24 57\nReAct (best of 6) 92 58 96 86 78 41 71\nReAct-IM (avg) 55 59 60 55 23 24 48\nReAct-IM (best of 6) 62 68 87 57 39 33 53\nBUTLERg (best of 8) 33 26 70 76 17 12 22\nBUTLER (best of 8) 46 39 74 100 22 24 37\nTable 3: AlfWorld task-speciﬁc success rates (%). BUTLER and\nBUTLERg results are from Table 4 of Shridhar et al. (2020b). All\nmethods use greedy decoding, except that BUTLER uses beam search.\nMethod Score SR\nAct 62.3 30.1\nReAct 66.6 40.0\nIL 59.9 29.1\nIL+RL 62.4 28.7\nHuman 82.1 59.6Expert\nTable 4: Score and suc-\ncess rate (SR) on Web-\nshop. IL/IL+RL taken\nfrom Yao et al. (2022).\ntrained with 1,012 human annotated trajectories, and a imitation + reinforcement learning (IL + RL)\nmethod additionally trained with 10,587 training instructions.\nResults ReAct outperforms Act on both ALFWorld (Table 3) and Webshop (Table 4). On\nALFWorld, the b",
+   ". Only ReAct is able to\nretrieve up-to-date information from the Internet and provide a reasonable answer. Therefore, better\nincorporation of reasoning abilities might beneﬁt recent Internet-augmented language models (Nakano\net al., 2021; Lazaridou et al., 2022; Shuster et al., 2022a) for up-to-date task solving.\nA.3 H UMAN -IN-THE -LOOP BEHAVIOR CORRECTION ON ALFWORLD\nWe also explore human-in-the-loop interaction with ReAct, to allow a human to inspect and edit\nReAct’s reasoning traces. Figure 5 shows that by simply removing a hallucinating sentence in Act\n17 and adding some hints in Act 23, ReAct can be made to change its behavior drastically to align\nwith these human thought edits and succeed in the task. From a human perspective, solving such a\ntask becomes signiﬁcantly easier, from typing tens of actions to only editing a couple of thoughts,\nwhich enables new forms of human-machine collaboration. We note that such a policy edit on-the-go\n14"
+  ]
+ },
+ {
+  "id": "r08",
+  "question": "whats the difrence btwn dense and sparse retreival for QA??",
+  "answer": "For question answering (QA), the main difference is **how questions and passages are matched**:\n\n- **Sparse retrieval**—such as **BM25 or TF-IDF**—represents text using weighted terms and retrieves passages mainly through **keyword/token overlap**. It uses an inverted index, which is relatively quick to build and search [C1][C4].\n- **Dense retrieval** uses learned vector embeddings, often from a dual encoder, to place questions and passages in a semantic space. It can retrieve relevant passages even when they use **different words, synonyms, or paraphrases** [C1][C2].\n\n**Example:** For “Who is the bad guy in Lord of the Rings?”, sparse retrieval favors passages containing those exact words. Dense retrieval may find a passage about the story’s “villain” even if “bad guy” does not appear.\n\n**Trade-offs:**\n- Sparse: simpler and cheaper indexing, but depends heavily on matching words [C1][C4].\n- Dense: handles semantic similarity, but computing embeddings and building the vector index can require substantially more resources [C4].\n- Dense models also need labeled question–passage pairs to learn useful representations [C7].\n- In the cited open-domain QA experiments, a dense retriever beat a strong BM25 system by **9–19 percentage points** in top-20 passage retrieval accuracy [C5]. However, the same paper notes that dense representations alone had generally been inferior to sparse retrieval outside those demonstrated results [C3].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p1::c2",
+    "page": 1,
+    "snippet": "educing open-domain QA to machine reading is a very rea- sonable strategy, a huge performance degradation is often observed in practice2, indicating the needs of improving retrieval. ∗Equal contribution 1The code and trained models have be…",
+    "used": true
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p9::c0",
+    "page": 9,
+    "snippet": "been used as the standard method applied broadly to various QA tasks (e.g., Chen et al., 2017; Yang et al., 2019a,b; Nie et al., 2019; Min et al., 2019a; Wolfson et al., 2020). Augmenting text-based re- trieval with external structured inf…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p9::c1",
+    "page": 9,
+    "snippet": "as they can po- tentially give high similarity scores to semantically relevant text pairs, even without exact token match- ing. The dense representation alone, however, is typically inferior to the sparse one. While not the focus of this w…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p7::c1",
+    "page": 7,
+    "snippet": "turning top 100 pas- sages per question. In contrast, BM25/Lucene (im- plemented in Java, using ﬁle index) processes 23.7 questions per second per CPU thread. On the other hand, the time required for building an index for dense vectors is …",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p1::c0",
+    "page": 1,
+    "snippet": "Dense Passage Retrieval for Open-Domain Question Answering Vladimir Karpukhin∗, Barlas O˘guz∗, Sewon Min†, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen‡, Wen-tau Yih Facebook AI †University of Washington ‡Princeton University {vladk…",
+    "used": true
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p8::c4",
+    "page": 8,
+    "snippet": "kens) and the computational complexity is super- linear in passage length. We also note that we foundk = 50 to be optimal for NQ, and k = 10 leads to only marginal loss in exact match accu- racy (40.8 vs. 41.5 EM on NQ), which should be ro…",
+    "used": false
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p1::c4",
+    "page": 1,
+    "snippet": "t learn- ing a good dense vector representation needs a large number of labeled pairs of question and con- texts. Dense retrieval methods have thus never be shown to outperform TF-IDF/BM25 for open- domain QA before ORQA (Lee et al., 2019)…",
+    "used": true
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2004.04906.pdf",
+    "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+    "chunk_id": "2004-04906-pdf::p2::c2",
+    "page": 2,
+    "snippet": "d, we verify that, in the context of open-domain question answering, a higher retrieval precision indeed translates to a higher end-to-end QA accuracy. By applying a modern reader model to the top retrieved passages, we achieve compara- bl…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 0,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1428,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 5095,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "grounded answer over a substantial evidence set (8782 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: whats the difrence btwn dense and sparse retreival for QA??"
+   },
+   {
+    "t_ms": 0,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1108,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user is asking for a conceptual explanation of dense vs. sparse retrieval, which can be answered using the RAG corpus documents."
+   },
+   {
+    "t_ms": 1108,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1110,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1428,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.54)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1428,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 5092,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 1250 chars"
+   },
+   {
+    "t_ms": 5093,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 5095,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): grounded answer over a substantial evidence set (8782 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 10334,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 1448 chars, cites ['C1', 'C2', 'C3', 'C4', 'C5', 'C7']"
+   }
+  ],
+  "done": {
+   "t_ms": 10335,
+   "metrics": {
+    "total_ms": 10335,
+    "ttft_ms": 6173,
+    "retrieval_ms": 317,
+    "llm_ms": 9963,
+    "in_tokens": 4857,
+    "out_tokens": 685,
+    "cost_usd": 0.015428,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 2555,
+      "out_tokens": 374,
+      "ms": 4724.929666008393,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 2302,
+      "out_tokens": 311,
+      "ms": 5239.0244159978465,
+      "cost_usd": 0.015428
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 10.34,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "educing\nopen-domain QA to machine reading is a very rea-\nsonable strategy, a huge performance degradation\nis often observed in practice2, indicating the needs\nof improving retrieval.\n∗Equal contribution\n1The code and trained models have been released at\nhttps://github.com/facebookresearch/DPR.\n2For instance, the exact match score on SQuAD v1.1 drops\nfrom above 80% to less than 40% (Yang et al., 2019a).\nRetrieval in open-domain QA is usually imple-\nmented using TF-IDF or BM25 (Robertson and\nZaragoza, 2009), which matches keywords efﬁ-\nciently with an inverted index and can be seen\nas representing the question and context in high-\ndimensional, sparse vectors (with weighting). Con-\nversely, the dense, latent semantic encoding is com-\nplementary to sparse representations by design. For\nexample, synonyms or paraphrases that consist of\ncompletely different tokens may still be mapped to\nvectors close to each other. Consider the question\n“Who is the bad guy in lord of the rings?”, which can\nbe",
+   "been used as the standard method applied broadly\nto various QA tasks (e.g., Chen et al., 2017; Yang\net al., 2019a,b; Nie et al., 2019; Min et al., 2019a;\nWolfson et al., 2020). Augmenting text-based re-\ntrieval with external structured information, such\nas knowledge graph and Wikipedia hyperlinks, has\nalso been explored recently (Min et al., 2019b; Asai\net al., 2020).\nThe use of dense vector representations for re-\ntrieval has a long history since Latent Semantic\nAnalysis (Deerwester et al., 1990). Using labeled\npairs of queries and documents, discriminatively\ntrained dense encoders have become popular re-\ncently (Yih et al., 2011; Huang et al., 2013; Gillick\net al., 2019), with applications to cross-lingual\ndocument retrieval, ad relevance prediction, Web\nsearch and entity retrieval. Such approaches com-\nplement the sparse vector methods as they can po-\ntentially give high similarity scores to semantically\nrelevant text pairs, even without exact token match-\ning. The dense representat",
+   "as they can po-\ntentially give high similarity scores to semantically\nrelevant text pairs, even without exact token match-\ning. The dense representation alone, however, is\ntypically inferior to the sparse one. While not the\nfocus of this work, dense representations from pre-\ntrained models, along with cross-attention mecha-\nnisms, have also been shown effective in passage\nor dialogue re-ranking tasks (Nogueira and Cho,\n2019; Humeau et al., 2020). Finally, a concurrent\nwork (Khattab and Zaharia, 2020) demonstrates\nthe feasibility of full dense retrieval in IR tasks.\nInstead of employing the dual-encoder framework,\nthey introduced a late-interaction operator on top\nof the BERT encoders.\nDense retrieval for open-domain QA has been\nexplored by Das et al. (2019), who propose to re-\ntrieve relevant passages iteratively using reformu-\nlated question vectors. As an alternative approach\nthat skips passage retrieval, Seo et al. (2019) pro-\npose to encode candidate answer phrases as vectors\nand",
+   "turning top 100 pas-\nsages per question. In contrast, BM25/Lucene (im-\nplemented in Java, using ﬁle index) processes 23.7\nquestions per second per CPU thread.\nOn the other hand, the time required for building\nan index for dense vectors is much longer. Com-\nputing dense embeddings on 21-million passages\nis resource intensive, but can be easily parallelized,\ntaking roughly 8.8 hours on 8 GPUs. However,\nbuilding the FAISS index on 21-million vectors\non a single server takes 8.5 hours. In comparison,\nbuilding an inverted index using Lucene is much\ncheaper and takes only about 30 minutes in total.\n6 Experiments: Question Answering\nIn this section, we experiment with how different\npassage retrievers affect the ﬁnal QA accuracy.\n6.1 End-to-end QA System\nWe implement an end-to-end question answering\nsystem in which we can plug different retriever\nsystems directly. Besides the retriever, our QA sys-\ntem consists of a neural reader that outputs the\nanswer to the question. Given the top k retriev",
+   "Dense Passage Retrieval for Open-Domain Question Answering\nVladimir Karpukhin∗, Barlas O˘guz∗, Sewon Min†, Patrick Lewis,\nLedell Wu, Sergey Edunov, Danqi Chen‡, Wen-tau Yih\nFacebook AI †University of Washington ‡Princeton University\n{vladk, barlaso, plewis, ledell, edunov, scottyih }@fb.com\nsewon@cs.washington.edu\ndanqic@cs.princeton.edu\nAbstract\nOpen-domain question answering relies on ef-\nﬁcient passage retrieval to select candidate\ncontexts, where traditional sparse vector space\nmodels, such as TF-IDF or BM25, are the de\nfacto method. In this work, we show that\nretrieval can be practically implemented us-\ning dense representations alone, where em-\nbeddings are learned from a small number\nof questions and passages by a simple dual-\nencoder framework. When evaluated on a\nwide range of open-domain QA datasets, our\ndense retriever outperforms a strong Lucene-\nBM25 system greatly by 9%-19% absolute in\nterms of top-20 passage retrieval accuracy, and\nhelps our end-to-end QA system establis",
+   "kens) and the computational complexity is super-\nlinear in passage length. We also note that we\nfoundk = 50 to be optimal for NQ, and k = 10\nleads to only marginal loss in exact match accu-\nracy (40.8 vs. 41.5 EM on NQ), which should be\nroughly comparable to ORQA’s 5-passage setup.\n7 Related Work\nPassage retrieval has been an important compo-\nnent for open-domain QA (V oorhees, 1999). It\nnot only effectively reduces the search space for\nanswer extraction, but also identiﬁes the support\ncontext for users to verify the answer. Strong sparse\nvector space models like TF-IDF or BM25 have",
+   "t learn-\ning a good dense vector representation needs a\nlarge number of labeled pairs of question and con-\ntexts. Dense retrieval methods have thus never\nbe shown to outperform TF-IDF/BM25 for open-\ndomain QA before ORQA (Lee et al., 2019), which\nproposes a sophisticated inverse cloze task (ICT)\nobjective, predicting the blocks that contain the\nmasked sentence, for additional pretraining. The\nquestion encoder and the reader model are then ﬁne-\ntuned using pairs of questions and answers jointly.\nAlthough ORQA successfully demonstrates that\ndense retrieval can outperform BM25, setting new\nstate-of-the-art results on multiple open-domain\narXiv:2004.04906v3  [cs.CL]  30 Sep 2020",
+   "d, we verify that, in the context of\nopen-domain question answering, a higher retrieval\nprecision indeed translates to a higher end-to-end\nQA accuracy. By applying a modern reader model\nto the top retrieved passages, we achieve compara-\nble or better results on multiple QA datasets in the\nopen-retrieval setting, compared to several, much\ncomplicated systems.\n2 Background\nThe problem of open-domain QA studied in this\npaper can be described as follows. Given a factoid\nquestion, such as “Who ﬁrst voiced Meg on Family\nGuy?” or “Where was the 8th Dalai Lama born?”, a\nsystem is required to answer it using a large corpus\nof diversiﬁed topics. More speciﬁcally, we assume\nthe extractive QA setting, in which the answer is\nrestricted to a span appearing in one or more pas-\nsages in the corpus. Assume that our collection\ncontains D documents, d1,d 2,··· ,d D. We ﬁrst\nsplit each of the documents into text passages of\nequal lengths as the basic retrieval units3 and getM\ntotal passages in our corpusC"
+  ]
+ },
+ {
+  "id": "r09",
+  "question": "Qu'est-ce que la génération augmentée par récupération (RAG) et pourquoi est-elle utile ?",
+  "answer": "La **génération augmentée par récupération** (*Retrieval-Augmented Generation*, RAG) combine deux composants :\n\n1. un **moteur de récupération** sélectionne dans un corpus les *K* documents les plus pertinents pour la requête ;\n2. un **modèle générateur** produit la réponse à partir de la requête et des documents récupérés [C2].\n\nElle est utile parce qu’elle permet au modèle d’intégrer des connaissances issues de documents externes dans sa réponse. Des variantes correctives, comme **CRAG**, renforcent aussi sa robustesse lorsque les documents récupérés sont inexacts ou peu pertinents : elles évaluent leur qualité, peuvent lancer une recherche web complémentaire et filtrent les informations inutiles pour conserver les éléments clés [C6][C8]. CRAG peut être associé à différents systèmes RAG et a amélioré leurs performances expérimentales sur des tâches de génération courte et longue [C4][C8].",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2312.10997.pdf",
+    "title": "Retrieval-Augmented Generation for Large Language Models: A Survey",
+    "chunk_id": "2312-10997-pdf::p15::c1",
+    "page": 15,
+    "snippet": "hmark, and ‡ represents a tool. * denotes customized quantitative metrics, which deviate from traditional metrics. Readers are encouraged to consult pertinent literature for the specific quantification formulas associated with these metric…",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "Corrective Retrieval Augmented Generation",
+    "chunk_id": "2401-15884-pdf::p3::c2",
+    "page": 3,
+    "snippet": "the most relevant to our work, a main difference should be highlighted. These approaches target on exploiting retrieval as a useful tool to augment generation or whether retrieval is necessary, while this study particularly studies the sce…",
+    "used": true
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "Corrective Retrieval Augmented Generation",
+    "chunk_id": "2401-15884-pdf::p3::c1",
+    "page": 3,
+    "snippet": "responses without retrieval are even more accurate in many situations. Self- RAG (Asai et al., 2024) is proposed to selectively retrieve knowledge and introduce a critic model to decide whether to retrieve. Yoran et al. (2024) designed an …",
+    "used": false
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "Corrective Retrieval Augmented Generation",
+    "chunk_id": "2401-15884-pdf::p2::c2",
+    "page": 2,
+    "snippet": "ented to broaden the spectrum of retrieved information, harnessing the expansive and dynamic nature of the web to complement and enrich the initially obtained documents. Furthermore, to eliminate redundant contexts contained in retrieved d…",
+    "used": true
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2112.04426.pdf",
+    "title": "Improving language models by retrieving from trillions of tokens (RETRO)",
+    "chunk_id": "2112-04426-pdf::p42::c5",
+    "page": 42,
+    "snippet": "s droits naturels de chaque des droits naturels de chaque ques. Article 5. - L’impuni chaque homme n’a de bornes qu homme n’a de bornes que celle homme n’a de bornes que celle té n’a jamais été et ne sera j e celles qui assurent aux autr s…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "Corrective Retrieval Augmented Generation",
+    "chunk_id": "2401-15884-pdf::p2::c1",
+    "page": 2,
+    "snippet": "nted Generation ( CRAG ) is proposed to self-correct the results of retriever and improve the utilization of documents for augmenting generation. A lightweight retrieval evaluator is designed to assess the overall quality of retrieved docu…",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2112.04426.pdf",
+    "title": "Improving language models by retrieving from trillions of tokens (RETRO)",
+    "chunk_id": "2112-04426-pdf::p42::c6",
+    "page": 42,
+    "snippet": "la loi ne peu t être empêché, et nul ne peut t être empêché, et nul ne peut être contraint à faire ce qu’ être contraint à faire ce qu’ elle n elle n unité, comme le despotisme, s droits. Ces bornes ne peuvent ’est toujours révélée être un…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2401.15884.pdf",
+    "title": "Corrective Retrieval Augmented Generation",
+    "chunk_id": "2401-15884-pdf::p1::c1",
+    "page": 1,
+    "snippet": "val Augmented Generation (CRAG ) to improve the robustness of generation. Specifically, a lightweight retrieval evaluator is designed to assess the overall quality of retrieved documents for a query, returning a confidence degree based on …",
+    "used": true
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1581,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 4309,
+    "stage": "synthesize",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "grounded answer over a substantial evidence set (9019 chars) -> high-capability provider",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: Qu'est-ce que la génération augmentée par récupération (RAG) et pourquoi est-elle utile ?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1207,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user is asking for a definition and the utility of RAG, which can be answered using the provided corpus of R-related papers."
+   },
+   {
+    "t_ms": 1207,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 1209,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 1581,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.52)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 1581,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 4306,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 1134 chars"
+   },
+   {
+    "t_ms": 4307,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 4309,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> openai (capability): grounded answer over a substantial evidence set (9019 chars) -> high-capability provider"
+   },
+   {
+    "t_ms": 8775,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 903 chars, cites ['C2', 'C4', 'C6', 'C8']"
+   }
+  ],
+  "done": {
+   "t_ms": 8777,
+   "metrics": {
+    "total_ms": 8777,
+    "ttft_ms": 6479,
+    "retrieval_ms": 371,
+    "llm_ms": 8324,
+    "in_tokens": 4909,
+    "out_tokens": 635,
+    "cost_usd": 0.01482,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 2659,
+      "out_tokens": 344,
+      "ms": 3857.9528339978424,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 1,
+      "in_tokens": 2250,
+      "out_tokens": 291,
+      "ms": 4466.127874999074,
+      "cost_usd": 0.01482
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 8.78,
+  "first_byte_s": 0.0,
+  "contexts": [
+   "hmark, and ‡ represents a tool. * denotes customized quantitative metrics, which deviate from traditional\nmetrics. Readers are encouraged to consult pertinent literature for the specific quantification formulas associated with these\nmetrics, as required.\nand non-parameterized advantages are areas ripe for explo-\nration [27]. Another trend is to introduce SLMs with specific\nfunctionalities into RAG and fine-tuned by the results of RAG\nsystem. For example, CRAG [67] trains a lightweight retrieval\nevaluator to assess the overall quality of the retrieved docu-\nments for a query and triggers different knowledge retrieval\nactions based on confidence levels.\nD. Scaling laws of RAG\nEnd-to-end RAG models and pre-trained models based\non RAG are still one of the focuses of current re-\nsearchers [173].The parameters of these models are one of\nthe key factors.While scaling laws [174] are established for\nLLMs, their applicability to RAG remains uncertain. Initial\nstudies like RETRO++ [44] have begun",
+   "the most relevant to our work, a main difference\nshould be highlighted. These approaches target\non exploiting retrieval as a useful tool to augment\ngeneration or whether retrieval is necessary, while\nthis study particularly studies the scenarios where\nthe retriever returns inaccurate results. To the best\nof our knowledge, this paper makes the first attempt\nto explore and design corrective strategies for RAG\nto improve its robustness of generation.\n3 Task Formulation\nFollowing previous work (Lewis et al., 2020; Asai\net al., 2024), given input X and an accessible\ncorpus containing a large amount of knowledge\ndocuments C = {d1, ..., dN }, the system is ex-\npected to generate the output Y. The entire\nframework is usually divided into a retriever R\nand a generator G. The retriever R aims to retrieve\nthe top-K documents D = {dr1, ..., drk } that are\nrelevant to the input X from the corpus C. Based\non the input X and the retrieved results D, the\ngenerator G is responsible for generating the o",
+   "responses without retrieval\nare even more accurate in many situations. Self-\nRAG (Asai et al., 2024) is proposed to selectively\nretrieve knowledge and introduce a critic model\nto decide whether to retrieve. Yoran et al. (2024)\ndesigned an NLI model to identify the irrelevant\ncontext and improve robustness. SAIL (Luo\net al., 2023) is tuned on instructions to insert\nretrieved documents before instructions. While\nToolformer (Schick et al., 2023) is pre-trained for\ncalling APIs such as Wikipedia. In addition, in\nsome long-text generation tasks, external knowl-\nedge is needed more than once, and when to\nretrieve should be concerned. Jiang et al. (2023)\nactively anticipate future content and decide when\nand what to retrieve in long-form generation.\nCompared with recent studies (Schick et al.,\n2023; Luo et al., 2023; Asai et al., 2024) that are\nthe most relevant to our work, a main difference\nshould be highlighted. These approaches target\non exploiting retrieval as a useful tool to augment\nge",
+   "ented to broaden the\nspectrum of retrieved information, harnessing\nthe expansive and dynamic nature of the web\nto complement and enrich the initially obtained\ndocuments. Furthermore, to eliminate redundant\ncontexts contained in retrieved documents that are\nunhelpful for RAG, a decompose-then-recompose\nalgorithm is meticulously crafted throughout the\nretrieval and utilization process. This algorithm\nensures the refinement of retrieved information,\noptimizing the extraction of key insights and\nminimizing the inclusion of non-essential elements,\nthereby enhancing the utilization of retrieved data.\nCRAG is plug-and-play and experimentally\nimplemented into RAG (Lewis et al., 2020) and\nSelf-RAG (Asai et al., 2024) for demonstrating its\nadaptability to RAG-based approaches. Results on\nfour datasets of PopQA (Mallen et al., 2023), Biog-\nraphy (Min et al., 2023), Pub Health (Zhang et al.,\n2023a), and Arc-Challenge (Bhakthavatsalam et al.,\n2021) show that CRAG can significantly improve\nthe perfo",
+   "s droits naturels de chaque des droits naturels de chaque\nques. Article 5. - L’impuni chaque homme n’a de bornes qu homme n’a de bornes que celle homme n’a de bornes que celle\nté n’a jamais été et ne sera j e celles qui assurent aux autr s qui assurent aux autres memb s qui assurent aux autres memb\namais une ﬁn en elle-même. L’ es membres de la société la jo res de lasociété la jouissanc res de lasociété la jouissanc\nimp uissance de ces mêmes e de ces mêmesdroits. Ces bor e de ces mêmesdroits. Ces bor\nnes ne peuvent être déterminée nes ne peuvent être déterminée\ns que par la loi.Article5 - s que par la loi.Article5 -\nLa loin’a le droit de défend La loin’a le droit de défend\nre que les actions nuisibles à re que les actions nuisibles à\nla société. Tout ce qui n’est la société. Tout ce qui n’est\npas défendu par la loi ne peu pas défendu par la loi ne peu\nt être empêché, et nul ne peut t être empêché, et nul ne peut\nêtre contraint à faire ce qu’ être contraint à faire ce qu’\nelle n elle n",
+   "nted\nGeneration ( CRAG ) is proposed to self-correct\nthe results of retriever and improve the utilization\nof documents for augmenting generation. A\nlightweight retrieval evaluator is designed to\nassess the overall quality of retrieved documents\nfor a query. This serves as a crucial component\nin RAG, contributing to informative generation\nby reviewing and evaluating the relevance\nand reliability of the retrieved documents. A\nconfidence degree is quantified based on which\ndifferent knowledge retrieval actions of {Correct,\nIncorrect, Ambiguous} can be triggered. For the\nlatter two actions, large-scale web searches (Piktus\net al., 2021; Komeili et al., 2022) are integrated as\na strategic extension, since retrieval from static\nand limited corpora can only return sub-optimal\ndocuments in terms of scope and diversity. This\naugmentation is implemented to broaden the\nspectrum of retrieved information, harnessing\nthe expansive and dynamic nature of the web\nto complement and enrich the initially",
+   "la loi ne peu\nt être empêché, et nul ne peut t être empêché, et nul ne peut\nêtre contraint à faire ce qu’ être contraint à faire ce qu’\nelle n elle n\nunité, comme le despotisme, s droits. Ces bornes ne peuvent\n’est toujours révélée être un être déterminées que par la l\ninstrument d’oppression. La ty oi.Article5.- La loin’a\nrannie qui s’est élue juge su le droit de défendre que les a\nprême de la conscience des aut ctions nuisibles à la société.\nres ne peut être jugée. La jus Tout ce qui n’est pas défendu\ntice se trouve dans la consci par la loi ne peut être empêc\nence de chaque citoyen, hé, et nul ne peut être\n42",
+   "val Augmented\nGeneration (CRAG ) to improve the robustness\nof generation. Specifically, a lightweight\nretrieval evaluator is designed to assess the\noverall quality of retrieved documents for a\nquery, returning a confidence degree based\non which different knowledge retrieval ac-\ntions can be triggered. Since retrieval from\nstatic and limited corpora can only return sub-\noptimal documents, large-scale web searches\nare utilized as an extension for augmenting the\nretrieval results. Besides, a decompose-then-\nrecompose algorithm is designed for retrieved\ndocuments to selectively focus on key infor-\nmation and filter out irrelevant information in\nthem. CRAG is plug-and-play and can be\nseamlessly coupled with various RAG-based\napproaches. Experiments on four datasets\ncovering short- and long-form generation tasks\nshow that CRAG can significantly improve the\nperformance of RAG-based approaches. 1\n1 Introduction\nLarge language models (LLMs) have attracted\nincreasing attention and exhibited impr"
+  ]
+ },
+ {
+  "id": "r10",
+  "question": "Which paper in the corpus has the most chunks, and what is it about?",
+  "answer": "The paper with the most chunks is **\"The Rise and Potential of Large Language Model Based Agents: A Survey\"** (source: 2309.07864.pdf), which contains **450 chunks**. It is a survey about the rise and potential of agents based on large language models.",
+  "citations": [
+   {
+    "id": "S1",
+    "kind": "sql",
+    "source": "sqlite:sample.db",
+    "title": "SQL query",
+    "snippet": "SELECT title, source, chunks FROM documents ORDER BY chunks DESC LIMIT 1",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 1,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 1020,
+    "stage": "worker:data",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "dimension": "capability",
+    "reason": "text-to-SQL must be exact (a wrong column or join gives a wrong number) -> high-capability provider",
+    "agent": "data"
+   },
+   {
+    "t_ms": 5354,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 473 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: Which paper in the corpus has the most chunks, and what is it about?"
+   },
+   {
+    "t_ms": 1,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 1017,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['data'] corpus=True live=False complexity=simple | Identify the document with the highest chunk count and retrieve its abstract/summary from the corpus."
+   },
+   {
+    "t_ms": 1017,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=data"
+   },
+   {
+    "t_ms": 1019,
+    "node": "data",
+    "event": "start",
+    "detail": "data agent: text-to-SQL over read-only SQLite"
+   },
+   {
+    "t_ms": 1020,
+    "node": "data",
+    "event": "tool",
+    "detail": "sqlite.describe_schema (1 tables)",
+    "tool": "sqlite.schema"
+   },
+   {
+    "t_ms": 1020,
+    "node": "data",
+    "event": "route",
+    "detail": "openai (capability): text-to-SQL must be exact (a wrong column or join gives a wrong number) -> high-capability provider"
+   },
+   {
+    "t_ms": 2982,
+    "node": "data",
+    "event": "tool",
+    "detail": "sqlite.run_select attempt 1: SELECT title, source, chunks\nFROM documents\nORDER BY chunks DESC\nLIMIT 1 -> 1 rows",
+    "tool": "sqlite.select"
+   },
+   {
+    "t_ms": 5352,
+    "node": "data",
+    "event": "done",
+    "detail": "1 rows -> answer 230 chars"
+   },
+   {
+    "t_ms": 5353,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['data'] -> next=synthesize"
+   },
+   {
+    "t_ms": 5354,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 473 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 6148,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 252 chars, cites none"
+   }
+  ],
+  "done": {
+   "t_ms": 6149,
+   "metrics": {
+    "total_ms": 6149,
+    "ttft_ms": 5572,
+    "retrieval_ms": 0,
+    "llm_ms": 6081,
+    "in_tokens": 1151,
+    "out_tokens": 286,
+    "cost_usd": 0.004764,
+    "per_provider": {
+     "nvidia": {
+      "calls": 2,
+      "in_tokens": 810,
+      "out_tokens": 116,
+      "ms": 1755.9563749964582,
+      "cost_usd": 0.0
+     },
+     "openai": {
+      "calls": 2,
+      "in_tokens": 341,
+      "out_tokens": 170,
+      "ms": 4325.4411250018165,
+      "cost_usd": 0.004764
+     }
+    }
+   },
+   "plan": [
+    "data"
+   ],
+   "completed": [
+    "data"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 6.15,
+  "first_byte_s": 0.0,
+  "contexts": []
+ }
+]

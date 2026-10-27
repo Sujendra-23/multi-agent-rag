@@ -1,0 +1,230 @@
+[
+ {
+  "id": "q01",
+  "question": "What two kinds of memory does the RAG model of Lewis et al. combine?",
+  "reference": "It combines parametric memory (a pre-trained seq2seq transformer) with non-parametric memory (a dense vector index of Wikipedia accessed with a pre-trained neural retriever).",
+  "source": "2005.11401.pdf",
+  "answer": "The RAG model of Lewis et al. combines parametric memory (a pre-trained seq2seq model) and non-parametric memory (a dense vector index of Wikipedia accessed via a neural retriever). [C3][C6]",
+  "citations": [
+   {
+    "id": "C1",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p22::c1",
+    "page": 22,
+    "snippet": "is the memory that the computer can directly access and manipulate. [ ISSUP =Fully Supported ] [ Retrieve =Yes]<p>Computer memory–often associated with addressable semiconductor memory, i.e. integrated circuits consisting of silicon-based …",
+    "used": false
+   },
+   {
+    "id": "C2",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p2::c5",
+    "page": 2,
+    "snippet": "as test-time model customizations (e.g., balancing the trade-off between citation previsions and completeness). 2 R ELATED WORK Retrieval-Augmented Generation. Retrieval-Augmented Generation (RAG) augments the input space of LMs with retri…",
+    "used": false
+   },
+   {
+    "id": "C3",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p1::c1",
+    "page": 1,
+    "snippet": "ained models with a differentiable access mechanism to explicit non-parametric memory have so far been only investigated for extractive downstream tasks. We explore a general-purpose ﬁne-tuning recipe for retrieval-augmented generation (RA…",
+    "used": true
+   },
+   {
+    "id": "C4",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p9::c4",
+    "page": 9,
+    "snippet": "found that people prefer RAG’s generation over purely parametric BART, ﬁnding RAG more factual and speciﬁc. We conducted an thorough investigation of the learned retrieval component, validating its effectiveness, and we illustrated how the…",
+    "used": false
+   },
+   {
+    "id": "C5",
+    "kind": "corpus",
+    "source": "2310.11511.pdf",
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "chunk_id": "2310-11511-pdf::p3::c1",
+    "page": 3,
+    "snippet": "ther improve generation quality and attributions. Concurrent RAG work. A few concurrent works2 on RAG propose new training or prompting strategies to improve widely-adopted RAG approaches. Lin et al. (2023) fine-tune both the retriever and…",
+    "used": false
+   },
+   {
+    "id": "C6",
+    "kind": "corpus",
+    "source": "2005.11401.pdf",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunk_id": "2005-11401-pdf::p2::c1",
+    "page": 2,
+    "snippet": "earch (MIPS) to ﬁnd the top-K documentszi. For ﬁnal predictiony, we treatz as a latent variable and marginalize over seq2seq predictions given different documents. but have only explored open-domain extractive question answering. Here, we …",
+    "used": true
+   },
+   {
+    "id": "C7",
+    "kind": "corpus",
+    "source": "2309.15217.pdf",
+    "title": "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+    "chunk_id": "2309-15217-pdf::p1::c2",
+    "page": 1,
+    "snippet": "stablished with the introduction of ever larger LMs (Roberts et al., 2020). While the most recent Large Language Models (LLMs) capture enough knowledge to rival human performance across a wide variety of question answering bench- marks (Bu…",
+    "used": false
+   },
+   {
+    "id": "C8",
+    "kind": "corpus",
+    "source": "2403.14403.pdf",
+    "title": "Adaptive-RAG: Learning to Adapt Retrieval-Augmented LLMs through Question Complexity",
+    "chunk_id": "2403-14403-pdf::p14::c3",
+    "page": 14,
+    "snippet": "retrieval token above a certain threshold, and the answer generation follows. 5) Adaptive-RAG. This is our model that adap- tively selects the retrieval-augmented generation strategy, smoothly oscillating between the non- retrieval, single…",
+    "used": false
+   }
+  ],
+  "routing": [
+   {
+    "t_ms": 50,
+    "stage": "classify",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "query classification is a short, structured task -> low-cost provider",
+    "agent": "supervisor"
+   },
+   {
+    "t_ms": 6893,
+    "stage": "worker:research",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "condensing retrieved snippets into cited notes -> low-cost provider",
+    "agent": "research"
+   },
+   {
+    "t_ms": 7430,
+    "stage": "synthesize",
+    "provider": "nvidia",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "dimension": "cost",
+    "reason": "simple query, 1 agent, 7669 chars of evidence -> low-cost provider is sufficient",
+    "agent": "synthesizer"
+   }
+  ],
+  "trace": [
+   {
+    "t_ms": 50,
+    "node": "supervisor",
+    "event": "start",
+    "detail": "query: What two kinds of memory does the RAG model of Lewis et al. combine?"
+   },
+   {
+    "t_ms": 50,
+    "node": "supervisor",
+    "event": "route",
+    "detail": "classify -> nvidia (cost): query classification is a short, structured task -> low-cost provider"
+   },
+   {
+    "t_ms": 3983,
+    "node": "supervisor",
+    "event": "plan",
+    "detail": "agents=['research'] corpus=True live=False complexity=simple | The user asks a factual question about the Lewis et al. RAG model architecture, which can be answered from the RAG corpus."
+   },
+   {
+    "t_ms": 3983,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=[] -> next=research"
+   },
+   {
+    "t_ms": 3985,
+    "node": "research",
+    "event": "start",
+    "detail": "research agent: RAG retrieval + live web as needed"
+   },
+   {
+    "t_ms": 6893,
+    "node": "research",
+    "event": "tool",
+    "detail": "rag.retrieve k=8 -> 8 chunks (top score 0.56)",
+    "tool": "rag.retrieve"
+   },
+   {
+    "t_ms": 6893,
+    "node": "research",
+    "event": "route",
+    "detail": "nvidia (cost): condensing retrieved snippets into cited notes -> low-cost provider"
+   },
+   {
+    "t_ms": 7427,
+    "node": "research",
+    "event": "done",
+    "detail": "8 citations, notes 174 chars"
+   },
+   {
+    "t_ms": 7429,
+    "node": "supervisor",
+    "event": "dispatch",
+    "detail": "completed=['research'] -> next=synthesize"
+   },
+   {
+    "t_ms": 7430,
+    "node": "synthesizer",
+    "event": "route",
+    "detail": "synthesize -> nvidia (cost): simple query, 1 agent, 7669 chars of evidence -> low-cost provider is sufficient"
+   },
+   {
+    "t_ms": 7971,
+    "node": "synthesizer",
+    "event": "done",
+    "detail": "answer 190 chars, cites ['C3', 'C6']"
+   }
+  ],
+  "done": {
+   "t_ms": 7972,
+   "metrics": {
+    "total_ms": 7972,
+    "ttft_ms": 7631,
+    "retrieval_ms": 2906,
+    "llm_ms": 2035,
+    "in_tokens": 4694,
+    "out_tokens": 146,
+    "cost_usd": 0.0,
+    "per_provider": {
+     "nvidia": {
+      "calls": 3,
+      "in_tokens": 4694,
+      "out_tokens": 146,
+      "ms": 2035.7946469999958,
+      "cost_usd": 0.0
+     }
+    }
+   },
+   "plan": [
+    "research"
+   ],
+   "completed": [
+    "research"
+   ],
+   "errors": []
+  },
+  "error": null,
+  "wall_s": 8.17,
+  "first_byte_s": 0.16,
+  "contexts": [
+   "is the memory that the computer can directly access and manipulate.\n[ ISSUP =Fully Supported ] [ Retrieve =Yes]<p>Computer memory–often associated with addressable\nsemiconductor memory, i.e. integrated circuits consisting of silicon-based transistors, used for example as\nprimary storage but also other purposes in computers and other digital electronic devices. There are two main\nkinds of semiconductor memory, volatile and non-volatile. Examples of non-volatile memory are flash memory\n(used as secondary memory) and ROM, PROM, EPROM and EEPROM memory (used for storing firmware\nsuch as BIOS). Examples of volatile memory are primary storage, which is typically dynamic random-access\nmemory (DRAM), and fast CPU cache memory, which is typically static random-access memory (SRAM)\nthat is fast but energy-consuming, offering lower memory<p>[ ISREL =Relevant]Primary memory can be\naccessed quickly, but it is volatile, meaning that the data is lost if the power is turned off.[ ISSUP =Partially\nSup",
+   "as test-time model customizations\n(e.g., balancing the trade-off between citation previsions and completeness).\n2 R ELATED WORK\nRetrieval-Augmented Generation. Retrieval-Augmented Generation (RAG) augments the input\nspace of LMs with retrieved text passages (Guu et al., 2020; Lewis et al., 2020), leading to large\nimprovements in knowledge-intensive tasks after fine-tuning or used with off-the-shelf LMs (Ram\net al., 2023). A more recent work (Luo et al., 2023) instruction-tunes an LM with a fixed number\n2",
+   "ained models with a differentiable access mechanism to explicit non-parametric\nmemory have so far been only investigated for extractive downstream tasks. We\nexplore a general-purpose ﬁne-tuning recipe for retrieval-augmented generation\n(RAG) — models which combine pre-trained parametric and non-parametric mem-\nory for language generation. We introduce RAG models where the parametric\nmemory is a pre-trained seq2seq model and the non-parametric memory is a dense\nvector index of Wikipedia, accessed with a pre-trained neural retriever. We com-\npare two RAG formulations, one which conditions on the same retrieved passages\nacross the whole generated sequence, and another which can use different passages\nper token. We ﬁne-tune and evaluate our models on a wide range of knowledge-\nintensive NLP tasks and set the state of the art on three open domain QA tasks,\noutperforming parametric seq2seq models and task-speciﬁc retrieve-and-extract\narchitectures. For language generation tasks, we ﬁnd that",
+   "found that people prefer RAG’s generation over purely parametric BART, ﬁnding RAG more factual\nand speciﬁc. We conducted an thorough investigation of the learned retrieval component, validating\nits effectiveness, and we illustrated how the retrieval index can be hot-swapped to update the model\nwithout requiring any retraining. In future work, it may be fruitful to investigate if the two components\ncan be jointly pre-trained from scratch, either with a denoising objective similar to BART or some\nanother objective. Our work opens up new research directions on how parametric and non-parametric\nmemories interact and how to most effectively combine them, showing promise in being applied to a\nwide variety of NLP tasks.\n9",
+   "ther improve generation quality and attributions.\nConcurrent RAG work. A few concurrent works2 on RAG propose new training or prompting\nstrategies to improve widely-adopted RAG approaches. Lin et al. (2023) fine-tune both the retriever\nand LM on instruction-tuning datasets in two steps. While we also train our model on diverse\ninstruction-following datasets, SELF -RAG enables retrieval on demand and selection of the best\npossible model output via fine-grained self-reflection, making it widely applicable and more robust\nand controllable. Yoran et al. (2023) use a natural language inference model and Xu et al. (2023) use\na summarization model to filter out or compress retrieved passages before using them to prompt the\nLM to generate the output. SELF -R AG processes passages in parallel and filters out irrelevant ones\nthrough self-reflection, without relying on external models at inference. Moreover, our self-reflection\nmechanism also evaluates other aspects of the model output quality in",
+   "earch (MIPS) to ﬁnd the top-K documentszi. For ﬁnal predictiony, we\ntreatz as a latent variable and marginalize over seq2seq predictions given different documents.\nbut have only explored open-domain extractive question answering. Here, we bring hybrid parametric\nand non-parametric memory to the “workhorse of NLP,” i.e. sequence-to-sequence (seq2seq) models.\nWe endow pre-trained, parametric-memory generation models with a non-parametric memory through\na general-purpose ﬁne-tuning approach which we refer to as retrieval-augmented generation (RAG).\nWe build RAG models where the parametric memory is a pre-trained seq2seq transformer, and the\nnon-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural\nretriever. We combine these components in a probabilistic model trained end-to-end (Fig. 1). The\nretriever (Dense Passage Retriever [26], henceforth DPR) provides latent documents conditioned on\nthe input, and the seq2seq model (BART [32]) then conditions on",
+   "stablished with the introduction of ever\nlarger LMs (Roberts et al., 2020). While the most\nrecent Large Language Models (LLMs) capture\nenough knowledge to rival human performance\nacross a wide variety of question answering bench-\nmarks (Bubeck et al., 2023), the idea of using\nLLMs as knowledge bases still has two fundamen-\ntal limitations. First, LLMs are not able to answer\nquestions about events that have happened after\nthey were trained. Second, even the largest models\nstruggle to memorise knowledge that is only rarely\nmentioned in the training corpus (Kandpal et al.,\n2022; Mallen et al., 2023). The standard solution\nto these issues is to rely on Retrieval Augmented\nGeneration (RAG) (Lee et al., 2019; Lewis et al.,\n2020; Guu et al., 2020). Answering a question\nthen essentially involves retrieving relevant pas-\nsages from a corpus and feeding these passages,\nalong with the original question, to the LM. While\ninitial approaches relied on specialised LMs for\nretrieval-augmented language",
+   "retrieval token above a certain\nthreshold, and the answer generation follows.\n5) Adaptive-RAG. This is our model that adap-\ntively selects the retrieval-augmented generation\nstrategy, smoothly oscillating between the non-\nretrieval, single-step approach, and multi-step ap-\nproaches4 without architectural changes, based on\nthe query complexity assessed by the classifier.\n6) Multi-step Approach. This approach (Trivedi\net al., 2023) is the multi-step retrieval-augmented\nLLM, which iteratively accesses both the retriever\nand LLM with interleaved Chain-of-Thought rea-\nsoning (Wei et al., 2022b) repeatedly until it derives\nthe solution or reaches the maximum step number.\n7) Adaptive-RAG w/ Oracle This is an ideal sce-\nnario of our Adaptive-RAG equipped with an or-\nacle classifier that perfectly categorizes the query\ncomplexity.\nA.3 Implementation Details\nFor computing resources, we use A100 GPUs\nwith 80GB memory. In addition, due to the sig-\nnificant costs associated with evaluating retriev"
+  ]
+ }
+]
