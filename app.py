@@ -178,6 +178,7 @@ class State(TypedDict, total=False):
     needs_live: bool
     complexity: str  # simple | complex
     plan_reason: str
+    search_query: str  # the question made self-contained (follow-ups: "it" resolved); agents search with this
     next: list[str]  # workers to run now, in parallel: research | summary | data, or ["synthesize"]
     slots: dict[str, int]  # worker -> position in the current parallel batch (its own citation-label range)
     steps: int
@@ -1068,19 +1069,24 @@ def search_args(query: str) -> dict:
     return {"query": query}
 
 
+async def hub_call_retry(agent: str, kind: str, args: dict, tr) -> str:
+    """Tavily's per-minute limit (HTTP 429) clears within seconds: wait 3 s, then 6 s, then give up."""
+    for delay in (3, 6, 0):
+        try:
+            return await hub.call(agent, kind, args, tr)
+        except RuntimeError as e:
+            if "429" not in str(e) or not delay:
+                raise
+            if tr:
+                await tr("warn", f"Tavily rate limit (HTTP 429); retrying in {delay}s")
+            await asyncio.sleep(delay)
+
+
 async def web_search(agent: str, query: str, tr) -> str:
     args = search_args(query)
-    try:
-        raw = await hub.call(agent, "search", args, tr)
-    except RuntimeError as e:  # Tavily's per-minute limit (HTTP 429) clears within seconds: retry once
-        if "429" not in str(e):
-            raise
-        if tr:
-            await tr("warn", "Tavily rate limit (HTTP 429); retrying in 3s")
-        await asyncio.sleep(3)
-        raw = await hub.call(agent, "search", args, tr)
+    raw = await hub_call_retry(agent, "search", args, tr)
     if "topic" in args and not parse_search_results(raw):  # nothing in the news window: widen it
-        raw = await hub.call(agent, "search", {"query": query}, tr)
+        raw = await hub_call_retry(agent, "search", {"query": query}, tr)
     return raw
 
 
@@ -1303,6 +1309,39 @@ def _history_snippet(history: list[dict], n: int = 4, query: str = "") -> str:
     return "\n".join(f"{h['role']}: {LABEL_RE.sub('', h['content'])[:300]}" for h in (history or [])[-n:])
 
 
+REWRITE_SYSTEM = """Rewrite the user's latest question so it can be understood without the \
+conversation: replace words like it, they, that, this one with what they refer to. Choose the most \
+recent item that fits the question's own wording (a term coined by one paper points to that paper). \
+Keep everything else, including names and numbers, as written. If the question already stands alone, \
+repeat it unchanged. Output only the rewritten question."""
+
+
+async def resolve_followup(run: Run, tr: Tracer, state: State) -> str:
+    """A follow-up like "what were its top-5 numbers again?" means nothing to the retrievers, which
+    see only the question. Rewrite it with the recent turns so the agents search for the right thing."""
+    query = state["query"]
+    hist = _history_snippet(state.get("history", []), n=8, query=query)
+    if not hist:
+        return query
+    decision = route_cheap("rewrite", "resolving 'it' in a follow-up is a short, structured task")
+    await run.emit("route", **decision.to_dict(), agent="supervisor")
+    await tr("route", f"rewrite -> {decision.provider} ({decision.dimension}): {decision.reason}")
+    try:
+        out = await call_llm_fo(
+            run, tr, decision,
+            [SystemMessage(dated(REWRITE_SYSTEM)), HumanMessage(f"Conversation:\n{hist}\n\nLatest question: {query}")],
+        )
+    except Exception as e:  # noqa: BLE001 - keep the original question rather than fail
+        await tr("warn", f"follow-up rewrite failed ({type(e).__name__}); using the question as asked")
+        return query
+    out = re.sub(r"(?s)<think>.*?</think>", "", out or "")
+    out = LABEL_RE.sub("", out).strip().strip('"\'').strip()
+    out = out.splitlines()[0].strip() if out else ""
+    if len(out) < 3 or out.rstrip(".?! ").lower() == query.rstrip(".?! ").lower():
+        return query  # nothing resolved (or only punctuation changed)
+    return out[:400]
+
+
 # NOTE: the parameter MUST be named `config` - LangGraph looks for that exact name.
 # That is why the settings are reached through the alias `app_config` inside these functions.
 async def supervisor_node(state: State, config: RunnableConfig) -> dict:
@@ -1322,12 +1361,16 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
             sources = []
 
         plan = None
+        search_query = state["query"]
         try:
             system = CLASSIFY_SYSTEM.format(
                 corpus=app_config.CORPUS_DESCRIPTION, sources=", ".join(sources[:40]) or "(none)"
             )
-            user = state["query"]
-            hist = _history_snippet(state.get("history", []), query=state["query"])
+            search_query = await resolve_followup(run, tr, state)
+            if search_query != state["query"]:
+                await tr("plan", f"follow-up resolved: {search_query}")
+            user = search_query
+            hist = _history_snippet(state.get("history", []), n=8, query=state["query"]) if user == state["query"] else ""
             if hist:
                 user = f"Recent conversation:\n{hist}\n\nCurrent query: {state['query']}"
             raw = await call_llm_fo(run, tr, decision, [SystemMessage(dated(system)), HumanMessage(user)])
@@ -1362,6 +1405,7 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
             "needs_live": bool(plan.get("needs_live", False)),
             "complexity": complexity,
             "plan_reason": str(plan.get("reason", ""))[:300],
+            "search_query": search_query,
             "steps": 0,
             "routing": [{**decision.to_dict(), "agent": "supervisor"}],
         }
@@ -1484,7 +1528,7 @@ of filling the gap."""
 
 @safe_worker("research")
 async def research_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) -> dict:
-    query = state["query"]
+    query = state.get("search_query") or state["query"]
     await tr("start", "research agent: RAG retrieval + live web as needed")
     new_citations: list[dict] = []
     n_corpus = _next_label(state, "C", "research")
@@ -1600,7 +1644,7 @@ def _summary_target(query: str) -> str:
 
 @safe_worker("summary")
 async def summary_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) -> dict:
-    query = state["query"]
+    query = state.get("search_query") or state["query"]
     await tr("start", "summary agent: choose material, summarize with citations")
     n_corpus = _next_label(state, "C", "summary")
     n_web = _next_label(state, "W", "summary")
@@ -1615,7 +1659,7 @@ async def summary_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) 
     src = None if news_first else _match_source(query, sources, titles)
 
     if urls:
-        raw = await hub.call("summary", "extract", {"urls": urls[:1]}, tr)
+        raw = await hub_call_retry("summary", "extract", {"urls": urls[:1]}, tr)
         page_title, page_text = parse_extract_result(raw)
         new_citations.append(
             {
@@ -1788,7 +1832,7 @@ async def _hand_to_research(state: State, tr: Tracer) -> dict:
 
 @safe_worker("data")
 async def data_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer) -> dict:
-    query = state["query"]
+    query = state.get("search_query") or state["query"]
     await tr("start", "data agent: text-to-SQL over read-only SQLite")
     schema = await asyncio.to_thread(describe_schema)
     await tr("tool", f"sqlite.describe_schema ({schema.count('TABLE ')} tables)", tool="sqlite.schema")
@@ -1929,6 +1973,9 @@ async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # mus
             "Earlier turns, only for resolving words like 'it' or 'that'. Do not repeat, redo or "
             f"continue them:\n{hist}\n\n" + user.replace("Question:", "CURRENT question (answer only this):", 1)
         )
+        resolved = state.get("search_query")
+        if resolved and resolved != state["query"]:
+            user += f"(In context, this means: {resolved})\n"
     user += f"\nAgent notes:\n{notes or '(none)'}\n\nEvidence:\n{evidence or '(none)'}"
     if err_text:
         user += f"\n\nAgent problems:\n{err_text}"
@@ -2478,7 +2525,7 @@ $("form").addEventListener("submit", async (ev) => {
   try {
     const resp = await fetch("/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, history: history.slice(-6), today: localDate() }),
+      body: JSON.stringify({ query, history: history.slice(-10), today: localDate() }),
     });
     if (!resp.ok) {
       let msg = `HTTP ${resp.status}`;
