@@ -1107,6 +1107,13 @@ async def web_search(agent: str, query: str, tr) -> str:
     return raw
 
 
+def _clean_snippet(text: str, published=None) -> str:
+    """A web page sometimes contains the text "[object Object]" (its own script bug): drop it.
+    When Tavily gives a publication date, put it in front so the answer can state it."""
+    text = text.replace("[object Object]", "").strip()
+    return f"(Published: {str(published).strip()[:40]}) {text}" if published else text
+
+
 def parse_search_results(raw: str, limit: int = 5) -> list[dict]:
     """Best-effort parse of Tavily's text output into [{title, url, content}].
 
@@ -1123,7 +1130,10 @@ def parse_search_results(raw: str, limit: int = 5) -> list[dict]:
             {
                 "title": str(it.get("title") or it.get("url") or "Web result").strip(),
                 "url": str(it.get("url") or "").strip(),
-                "content": str(it.get("content") or it.get("raw_content") or "").strip()[:1500],
+                "content": _clean_snippet(
+                    str(it.get("content") or it.get("raw_content") or ""),
+                    it.get("published_date") or it.get("date"),
+                )[:1500],
             }
             for it in items
             if isinstance(it, dict) and (it.get("url") or it.get("content"))
@@ -1321,6 +1331,46 @@ def is_followup(query: str) -> bool:
     return len(query.split()) <= 6 or bool(_FOLLOWUP_RE.search(query))
 
 
+_DESTRUCTIVE_RE = re.compile(
+    r"^\s*(?:please\s+|can you\s+|could you\s+)?(?:drop|truncate|alter)\b"
+    r"|^\s*(?:please\s+|can you\s+|could you\s+)?(?:delete|erase|wipe|remove|clear|purge)\s+(?:all|every|the)\b"
+    r".*\b(?:documents?|docs?|chunks?|tables?|rows?|records?|database|db|corpus|collection|index|data)\b"
+    r"|^\s*(?:delete\s+from|update\s+\w+\s+set|insert\s+into)\b",
+    re.I | re.S,
+)
+
+
+def canned_reply(query: str) -> tuple[str, str] | None:
+    """(answer, reason) for messages that need no model: nothing readable, or a request to change
+    or delete data. The app is read-only, so the refusal is firm and does not repeat the SQL."""
+    if not re.search(r"\w", query):
+        return (
+            "I couldn't find a question in that message. Ask in words, for example about the "
+            "papers in the corpus, the latest news, or the collection's statistics.",
+            "message has no letters or digits",
+        )
+    if _DESTRUCTIVE_RE.search(query):
+        return (
+            "I can't do that. This assistant is read-only: it answers questions from the papers, "
+            "the web and read-only statistics about the collection, and it does not modify or "
+            "delete data, so I won't write a command for it either.",
+            "request to modify or delete data; the app is read-only",
+        )
+    return None
+
+
+_COLLECTION_RE = re.compile(
+    r"\b(chunks?|documents?|docs?|papers?|corpus|collection|titles?|files?|sources?|rows?|tables?"
+    r"|database|indexed|pdfs?|arxiv)\b",
+    re.I,
+)
+_PRESENCE_RE = re.compile(
+    r"\b(?:in|from|within|inside)\s+(?:the|your|this|our)\s+(?:corpus|collection|knowledge base|index)\b"
+    r"|\bdo you have\b",
+    re.I,
+)
+
+
 def needs_rewrite(query: str) -> bool:
     """Rewrite only when the question refers back ("it", "which one") or is too short to stand
     alone ("Why?"). A short question naming its subject ("What is HyDE?") already stands alone."""
@@ -1337,10 +1387,35 @@ def _history_snippet(history: list[dict], n: int = 4, query: str = "") -> str:
 
 
 REWRITE_SYSTEM = """Rewrite the user's latest question so it can be understood without the \
-conversation: replace words like it, they, that, this one with what they refer to. Choose the most \
-recent item that fits the question's own wording (a term coined by one paper points to that paper). \
-Keep everything else, including names and numbers, as written. If the question already stands alone, \
-repeat it unchanged. Output only the rewritten question."""
+conversation. Replace every pronoun or vague phrase (it, they, them, those, that one, which one) \
+with the specific thing it refers to, using the most recent turns, and keep everything else as \
+written. The result must not contain "it", "they" or "those" unless they are part of a name.
+Example. Conversation: user: Tell me about ReAct / assistant: ReAct interleaves reasoning and \
+acting. Latest question: What tasks did it evaluate on? -> What tasks did ReAct evaluate on?
+Example. Conversation: user: What tasks did ReAct evaluate on? / assistant: ReAct was evaluated on \
+HotpotQA, FEVER, ALFWorld and WebShop. Latest question: Why? -> Why was ReAct evaluated on HotpotQA, \
+FEVER, ALFWorld and WebShop?
+If the question already stands alone, repeat it unchanged. Output only the rewritten question, on one line."""
+
+_PRONOUN_RE = re.compile(r"\b(it|its|they|them|their|those|these)\b", re.I)
+_REWRITE_ECHO_RE = re.compile(r"own wording|coined by|rewritten question|without the conversation", re.I)
+
+
+async def _rewrite_once(run: Run, tr: Tracer, decision, hist: str, query: str) -> str | None:
+    try:
+        out = await call_llm_fo(
+            run, tr, decision,
+            [SystemMessage(dated(REWRITE_SYSTEM)), HumanMessage(f"Conversation:\n{hist}\n\nLatest question: {query}")],
+        )
+    except Exception as e:  # noqa: BLE001 - keep the original question rather than fail
+        await tr("warn", f"follow-up rewrite failed ({type(e).__name__}); using the question as asked")
+        return None
+    out = re.sub(r"(?s)<think>.*?</think>", "", out or "")
+    out = LABEL_RE.sub("", out).strip().strip('"\'').strip()
+    out = out.splitlines()[0].strip() if out else ""
+    if len(out) < 3 or _REWRITE_ECHO_RE.search(out) or len(out) > max(200, 8 * len(query)):
+        return None  # empty, or the model echoed its instructions instead of rewriting
+    return out[:400]
 
 
 async def resolve_followup(run: Run, tr: Tracer, state: State) -> str:
@@ -1353,20 +1428,15 @@ async def resolve_followup(run: Run, tr: Tracer, state: State) -> str:
     decision = route_cheap("rewrite", "resolving 'it' in a follow-up is a short, structured task")
     await run.emit("route", **decision.to_dict(), agent="supervisor")
     await tr("route", f"rewrite -> {decision.provider} ({decision.dimension}): {decision.reason}")
-    try:
-        out = await call_llm_fo(
-            run, tr, decision,
-            [SystemMessage(dated(REWRITE_SYSTEM)), HumanMessage(f"Conversation:\n{hist}\n\nLatest question: {query}")],
-        )
-    except Exception as e:  # noqa: BLE001 - keep the original question rather than fail
-        await tr("warn", f"follow-up rewrite failed ({type(e).__name__}); using the question as asked")
-        return query
-    out = re.sub(r"(?s)<think>.*?</think>", "", out or "")
-    out = LABEL_RE.sub("", out).strip().strip('"\'').strip()
-    out = out.splitlines()[0].strip() if out else ""
-    if len(out) < 3 or out.rstrip(".?! ").lower() == query.rstrip(".?! ").lower():
+    out = await _rewrite_once(run, tr, decision, hist, query)
+    if out and _PRONOUN_RE.search(out):  # the cheap model left a pronoun unresolved: retry once, stronger
+        strong = route_strong("rewrite", "the cheap model left a pronoun unresolved; retry on the stronger model")
+        await run.emit("route", **strong.to_dict(), agent="supervisor")
+        await tr("route", f"rewrite retry -> {strong.provider} ({strong.dimension}): {strong.reason}")
+        out = await _rewrite_once(run, tr, strong, hist, query) or out
+    if not out or out.rstrip(".?! ").lower() == query.rstrip(".?! ").lower():
         return query  # nothing resolved (or only punctuation changed)
-    return out[:400]
+    return out
 
 
 # NOTE: the parameter MUST be named `config` - LangGraph looks for that exact name.
@@ -1412,6 +1482,9 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
 
         agents = [a for a in plan.get("agents", []) if a in WORKERS] or ["research"]
         agents = list(dict.fromkeys(agents))  # de-dupe, keep order
+        if "data" in agents and not (_COLLECTION_RE.search(state["query"]) or _COLLECTION_RE.search(search_query)):
+            agents = [a for a in agents if a != "data"] or ["research"]
+            await tr("plan", "question is not about the indexed collection -> data agent dropped, research answers it")
         if "summary" not in agents and re.search(r"\bsummar(y|ise|ize)\b|\btl;?dr\b", state["query"], re.I):
             agents.insert(0, "summary")  # an explicit summary request always gets the summary agent
             await tr("plan", "query asks for a summary -> summary agent added to the plan")
@@ -1428,9 +1501,10 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
         needs_corpus = bool(plan.get("needs_corpus", True))
         needs_live = bool(plan.get("needs_live", False))
         if "research" in agents and not needs_corpus and not needs_live:
-            # a research agent with no source would answer from the model's memory, uncited
-            needs_corpus = needs_live = True
-            await tr("plan", "classifier chose no source for the research agent -> corpus and web search both enabled")
+            # a research agent with no source would answer from the model's memory, uncited:
+            # turn web search on; the corpus is still probed and used only if it clearly matches
+            needs_live = True
+            await tr("plan", "classifier chose no source for the research agent -> web search enabled (corpus probed)")
         update = {
             "planned": True,
             "plan": agents,
@@ -1555,6 +1629,10 @@ knowledge, comparisons, evaluations or generalisations ("typically", "usually", 
 that no snippet states.
 - Prefer snippets from the paper the question is about; ignore snippets that merely mention it.
 - Never invent a label and never cite a source that is not in the evidence.
+- Keep a snippet's hedges ("in the running", "expected", "reportedly", "could"): never turn a \
+candidate, bid or rumour into a confirmed fact.
+- For a price, score, weather reading or other value that changes, give the as-of date or time the \
+snippet states, or say that it does not state one.
 - A web snippet from an unknown, user-generated or low-quality site is not enough for a checkable \
 claim (a result, a date, a record). Say that the source is unreliable instead of stating the claim.
 - If the evidence does not answer the question (or part of it), say exactly what is missing instead \
@@ -1570,14 +1648,26 @@ async def research_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer)
     n_web = _next_label(state, "W", "research")
     warnings: list[str] = []
 
-    if state.get("needs_corpus", True):
+    # A plan that says "web only" can still be wrong about a paper in the corpus (a follow-up about
+    # Voyager was planned web-only): probe the corpus, and use it only if it clearly matches.
+    probe = bool(state.get("needs_live")) and not state.get("needs_corpus", True) and not _NEWS_RE.search(query)
+    if state.get("needs_corpus", True) or probe:
         t = time.perf_counter()
-        chunks = await retrieve_chunks(query)
+        try:
+            chunks = await retrieve_chunks(query)
+        except Exception:  # noqa: BLE001
+            if not probe:
+                raise
+            chunks = []
         run.retrieval_ms += (time.perf_counter() - t) * 1000
-        for i, ch in enumerate(chunks):
-            new_citations.append(_corpus_citation(f"C{n_corpus + i}", ch))
         top = f"{chunks[0]['score']:.2f}" if chunks else "n/a"
-        await tr("tool", f"rag.retrieve k={config.RAG_TOP_K} -> {len(chunks)} chunks (top score {top})", tool="rag.retrieve")
+        if probe and (not chunks or chunks[0]["score"] < CORPUS_PROBE_MIN_SCORE):
+            await tr("tool", f"rag.retrieve probe -> top score {top} < {CORPUS_PROBE_MIN_SCORE}: corpus not relevant, web only", tool="rag.retrieve")
+            chunks = []
+        else:
+            for i, ch in enumerate(chunks):
+                new_citations.append(_corpus_citation(f"C{n_corpus + i}", ch))
+            await tr("tool", f"rag.retrieve k={config.RAG_TOP_K} -> {len(chunks)} chunks (top score {top})", tool="rag.retrieve")
 
     if state.get("needs_live"):
         if not hub.enabled:
@@ -1953,9 +2043,21 @@ facts or citations. If there is no evidence at all, say you could not retrieve a
 any general-knowledge remark short and clearly marked as ungrounded.
 - Answer only the CURRENT question. Earlier turns are context only, not evidence: never cite a \
 label from them and never repeat or redo an earlier answer.
+- RAG means Retrieval-Augmented Generation.
+- Keep a snippet's hedges ("in the running", "expected", "reportedly", "could"): never turn a \
+candidate, bid or rumour into a confirmed fact.
+- For a price, score, weather reading or other value that changes, state the as-of date or time \
+the snippet gives, or say it does not give one.
+- Do not give a verdict on whether a real person is good or bad, or on a political or moral \
+question: summarize the documented facts and the range of views neutrally and say it is a matter \
+of opinion.
+- Never write SQL or commands that change or delete data (DROP, DELETE, UPDATE, INSERT, ALTER); \
+if asked for one, decline.
+- If asked whether a paper is in the corpus, answer yes or no from the corpus document list.
 - Be direct and concise."""
 
 MAX_EVIDENCE_BLOCKS = 12
+CORPUS_PROBE_MIN_SCORE = 0.45  # a web-only plan still uses the corpus when it clearly matches
 
 
 def renumber_citations(citations: list[dict], outputs: dict, plan: list[str]) -> tuple[list[dict], dict]:
@@ -2016,6 +2118,11 @@ async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # mus
             user += f"(In context, this means: {resolved})\n"
     if future_note(state["query"]):
         user += f"\n{future_note(state['query'])}\n"
+    if _PRESENCE_RE.search(state["query"]):
+        titles = await asyncio.to_thread(rag.list_titles)
+        user += "\nCorpus document list (complete; these are the only papers in the corpus):\n" + "\n".join(
+            f"- {t or src} ({src})" for src, t in sorted(titles.items())
+        ) + "\n"
     user += f"\nAgent notes:\n{notes or '(none)'}\n\nEvidence:\n{evidence or '(none)'}"
     if err_text:
         user += f"\n\nAgent problems:\n{err_text}"
@@ -2161,6 +2268,14 @@ def _rate_limited(ip: str) -> bool:
 async def _run_graph(run: Run, query: str, history: list[dict]) -> None:
     final: dict = {}
     try:
+        canned = canned_reply(query)
+        if canned:  # a guardrail answer: no planning, no model call
+            tr = Tracer(run, "supervisor")
+            await tr("start", f"query: {query[:120]}")
+            await tr("plan", f"guardrail: {canned[1]} -> answered directly, no agent or model needed")
+            await run.emit("token", text=canned[0])
+            await run.emit("citations", items=[])
+            return
         async with _run_slots:
             final = await asyncio.wait_for(
                 _graph.ainvoke({"query": query, "history": history}, config={"configurable": {"run": run}}),
@@ -2299,8 +2414,24 @@ INDEX_HTML = r'''<!doctype html>
   #messages { flex: 1; overflow-y: auto; padding: 14px; min-height: 240px; }
   .msg { margin: 0 0 14px; max-width: 100%; }
   .msg .who { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  .bubble { white-space: pre-wrap; overflow-wrap: anywhere; padding: 8px 12px; border-radius: 10px;
+  .bubble { overflow-wrap: anywhere; padding: 8px 12px; border-radius: 10px;
             background: var(--bg); border: 1px solid var(--line); }
+  .msg.user .bubble, .msg.error .bubble { white-space: pre-wrap; }
+  .bubble p { margin: 0 0 8px; }
+  .bubble ul, .bubble ol { margin: 0 0 8px; padding-left: 22px; }
+  .bubble li { margin: 0 0 3px; }
+  .bubble .mdh { font-weight: 700; margin: 8px 0 4px; }
+  .bubble blockquote { margin: 0 0 8px; padding-left: 10px; border-left: 3px solid var(--line); color: var(--muted); }
+  .bubble pre { margin: 0 0 8px; padding: 8px; overflow-x: auto; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 6px; white-space: pre; font-size: 12px; }
+  .bubble code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; background: var(--panel);
+                 padding: 0 3px; border-radius: 3px; }
+  .bubble pre code { padding: 0; background: none; }
+  .tablewrap { overflow-x: auto; max-width: 100%; margin: 0 0 8px; }
+  .bubble table { border-collapse: collapse; font-size: 12.5px; }
+  .bubble th, .bubble td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; overflow-wrap: normal; }
+  .bubble th { background: var(--panel); }
+  .bubble > :last-child { margin-bottom: 0; }
   .msg.user .bubble { background: var(--user); }
   .msg.error .bubble { border-color: var(--fb); color: var(--fb); }
   .cite { display: inline-block; font-size: 11px; font-weight: 600; padding: 0 5px; margin: 0 1px;
@@ -2469,17 +2600,78 @@ function addMsg(role, text) {
 }
 function scrollDown() { const m = $("messages"); m.scrollTop = m.scrollHeight; }
 
-function renderWithCites(el, text, turn) {
-  // Turn [C1] / [W2] / [S1] into clickable chips; everything else stays plain text (no innerHTML).
-  el.textContent = "";
-  text.split(/(\[[CWS]\d+\])/g).forEach((part) => {
-    const m = part.match(/^\[([CWS]\d+)\]$/);
-    if (!m) { el.appendChild(document.createTextNode(part)); return; }
-    const a = document.createElement("a"); a.className = "cite"; a.textContent = m[1];
-    a.onclick = () => { showTab("cites"); const t = document.getElementById(`cit-${turn}-${m[1]}`);
-      if (t) { t.scrollIntoView({ block: "center" }); t.classList.add("flash"); setTimeout(() => t.classList.remove("flash"), 1500); } };
-    el.appendChild(a);
+function chipEl(label, turn) {
+  const a = document.createElement("a"); a.className = "cite"; a.textContent = label;
+  a.onclick = () => { showTab("cites"); const t = document.getElementById(`cit-${turn}-${label}`);
+    if (t) { t.scrollIntoView({ block: "center" }); t.classList.add("flash"); setTimeout(() => t.classList.remove("flash"), 1500); } };
+  return a;
+}
+
+function inlineMd(parent, text, turn) {
+  // **bold**, *italic*, `code` and [C1] / [W2] / [S1] chips; everything else stays plain text (no innerHTML).
+  text.split(/(\*\*[^*\n]+\*\*|\*[^*\s](?:[^*\n]*[^*\s])?\*|`[^`\n]+`|\[[CWS]\d+\])/g).forEach((part) => {
+    if (!part) return;
+    let m;
+    if ((m = part.match(/^\*\*([^*\n]+)\*\*$/))) { const b = document.createElement("strong"); inlineMd(b, m[1], turn); parent.appendChild(b); }
+    else if ((m = part.match(/^\*([^*\s](?:[^*\n]*[^*\s])?)\*$/))) { const e = document.createElement("em"); inlineMd(e, m[1], turn); parent.appendChild(e); }
+    else if ((m = part.match(/^`([^`\n]+)`$/))) { const c = document.createElement("code"); c.textContent = m[1]; parent.appendChild(c); }
+    else if ((m = part.match(/^\[([CWS]\d+)\]$/))) { parent.appendChild(chipEl(m[1], turn)); }
+    else parent.appendChild(document.createTextNode(part));
   });
+}
+
+function renderWithCites(el, text, turn) {
+  // Small Markdown subset built with DOM nodes: tables, lists, headings, code, quotes, bold.
+  el.textContent = "";
+  const lines = text.split("\n");
+  const isRow = (l) => /^\s*\|.*\|\s*$/.test(l);
+  const isSep = (l) => /^\s*\|[\s:|-]*-[\s:|-]*\|\s*$/.test(l);
+  const isList = (l) => /^\s*(?:[-*•]|\d+[.)])\s+/.test(l);
+  const cells = (l) => l.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\s*```/.test(line)) {
+      const buf = []; i++;
+      while (i < lines.length && !/^\s*```/.test(lines[i])) buf.push(lines[i++]);
+      i++;
+      const pre = document.createElement("pre"); pre.textContent = buf.join("\n"); el.appendChild(pre); continue;
+    }
+    if (isRow(line) && i + 1 < lines.length && isSep(lines[i + 1])) {
+      const wrap = document.createElement("div"); wrap.className = "tablewrap";
+      const table = document.createElement("table");
+      const head = document.createElement("tr");
+      cells(line).forEach((c) => { const th = document.createElement("th"); inlineMd(th, c, turn); head.appendChild(th); });
+      table.appendChild(head);
+      i += 2;
+      while (i < lines.length && isRow(lines[i])) {
+        const tr = document.createElement("tr");
+        cells(lines[i]).forEach((c) => { const td = document.createElement("td"); inlineMd(td, c, turn); tr.appendChild(td); });
+        table.appendChild(tr); i++;
+      }
+      wrap.appendChild(table); el.appendChild(wrap); continue;
+    }
+    let m;
+    if ((m = line.match(/^\s{0,3}#{1,6}\s+(.*)$/))) { const h = document.createElement("div"); h.className = "mdh"; inlineMd(h, m[1], turn); el.appendChild(h); i++; continue; }
+    if (isList(line)) {
+      const ordered = /^\s*\d/.test(line);
+      const list = document.createElement(ordered ? "ol" : "ul");
+      while (i < lines.length && isList(lines[i])) {
+        const li = document.createElement("li"); inlineMd(li, lines[i].replace(/^\s*(?:[-*•]|\d+[.)])\s+/, ""), turn); list.appendChild(li); i++;
+      }
+      el.appendChild(list); continue;
+    }
+    if (/^\s*>\s?/.test(line)) {
+      const q = document.createElement("blockquote"); const buf = [];
+      while (i < lines.length && /^\s*>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ""));
+      inlineMd(q, buf.join(" "), turn); el.appendChild(q); continue;
+    }
+    if (/^\s*$/.test(line) || /^\s*-{3,}\s*$/.test(line)) { i++; continue; }
+    const p = document.createElement("p"); const buf = [];
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^\s*```/.test(lines[i]) && !isList(lines[i]) && !/^\s{0,3}#{1,6}\s/.test(lines[i]) && !(isRow(lines[i]) && i + 1 < lines.length && isSep(lines[i + 1])) && !/^\s*>\s?/.test(lines[i])) buf.push(lines[i++]);
+    buf.forEach((l, k) => { if (k) p.appendChild(document.createElement("br")); inlineMd(p, l, turn); });
+    el.appendChild(p);
+  }
 }
 
 function clearEmpty(pane) { const e = pane.querySelector(".empty"); if (e) e.remove(); }
