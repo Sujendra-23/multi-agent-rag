@@ -6,8 +6,10 @@ Multi-agent RAG system: a LangGraph **supervisor** pattern with three specialise
 
 ```mermaid
 flowchart TD
-    U([Browser: POST /chat]) --> S
-    S{{"supervisor<br/>(plans once, then dispatches all pending workers in parallel)"}}
+    U([Browser: POST /chat]) --> G["guardrail<br/>(no question, or a change/delete request?)"]
+    G -->|yes: fixed reply, no model call| Y
+    G -->|no| S
+    S{{"supervisor<br/>(rewrites a short follow-up, plans once, then dispatches all pending workers in parallel)"}}
     S -->|next includes research| R["research agent<br/>rag.retrieve + tavily_search"]
     S -->|next includes summary| M["summary agent<br/>corpus doc / tavily_extract / tavily_search"]
     S -->|next includes data| D["data agent<br/>text-to-SQL, read-only SQLite"]
@@ -24,7 +26,7 @@ flowchart TD
     D --> Q[(SQLite)]
 ```
 
-Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge from the supervisor driven by `state["next"]`, `worker → supervisor` for every worker, and `synthesizer → END`. Nothing is hard-coded per query: the supervisor classifies the query with an LLM (falling back to a regex heuristic plan if the call or its JSON fails), writes the plan into state, and on every visit sends **all** unfinished workers in `state["plan"]` at once: `state["next"]` is a list, and LangGraph runs the listed workers in parallel in one step, then returns to the supervisor once they have all finished. Workers do not depend on each other (the data agent's handoff to research adds research to the plan, and the supervisor dispatches it on the next visit). `MAX_STEPS = 6` bounds the loop. Parallel dispatch cut the worker phase of a three-agent question (summary, research, data) from 19 s to 14 s, and the mixed news + ReAct question from 41 s to 22 s in total; the run now takes as long as its slowest worker, not the sum.
+Before the graph runs, `_run_graph` calls `canned_reply`: a message with no letters or digits, "tell me everything" with no topic, or a request to modify or delete data is answered directly (a trace line `guardrail: ...`, no agent, no model call). Everything else enters the graph. Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge from the supervisor driven by `state["next"]`, `worker → supervisor` for every worker, and `synthesizer → END`. Nothing is hard-coded per query: the supervisor classifies the query with an LLM (falling back to a regex heuristic plan if the call or its JSON fails), writes the plan into state, and on every visit sends **all** unfinished workers in `state["plan"]` at once: `state["next"]` is a list, and LangGraph runs the listed workers in parallel in one step, then returns to the supervisor once they have all finished. Workers do not depend on each other (the data agent's handoff to research adds research to the plan, and the supervisor dispatches it on the next visit). `MAX_STEPS = 6` bounds the loop. Parallel dispatch cut the worker phase of a three-agent question (summary, research, data) from 19 s to 14 s, and the mixed news + ReAct question from 41 s to 22 s in total; the run now takes as long as its slowest worker, not the sum.
 
 **Citation labels under parallel dispatch.** Workers started together cannot see each other's citations, so each starts its labels in its own block (`slots`, `LABEL_BLOCK`: C 40, W 10, S 5 apart) and every citation is tagged with the agent that made it. The synthesizer then puts the citations in plan order, numbers each kind 1..n, and rewrites the labels inside the agents' notes to match, so the answer and the Citations tab show `C1, C2, W1, S1…` with no gaps.
 
@@ -33,6 +35,7 @@ Edges are defined in `build_graph()`: `START → supervisor`, a conditional edge
 | Field | Type | Reducer | Purpose |
 |---|---|---|---|
 | `query`, `history` | `str`, `list[dict]` | overwrite | input; history is sent by the browser (stateless server) |
+| `search_query` | str | overwrite | the question made self-contained: a short follow-up ("what were its top-5 numbers again?") rewritten with the recent turns; the agents retrieve and search with this |
 | `planned`, `plan`, `needs_corpus`, `needs_live`, `complexity`, `plan_reason` | bool / list / bool / bool / `simple\|complex` / str | overwrite | the supervisor's inspectable routing decision |
 | `next`, `slots`, `steps` | `list[str]`, `dict[str,int]`, int | overwrite | workers to run now (several = in parallel) and each one's citation-label block; loop counter |
 | `completed` | `list[str]` | `operator.add` | workers that finished (success or failure) |
@@ -51,11 +54,11 @@ Specialisation is by **distinct tools and distinct system prompts**, not labels.
 
 | Agent | Tools | System prompt (summary) | Provider for its LLM step |
 |---|---|---|---|
-| **Supervisor** | none (planner) | `CLASSIFY_SYSTEM`: choose the fewest agents, set `needs_corpus`, `needs_live`, `complexity`, one-line reason; JSON only | cheap (NVIDIA) |
-| **Research** | `rag.retrieve` (Chroma, hybrid dense + BM25, k=8), `tavily_search` (MCP) | `RESEARCH_SYSTEM`: write notes using only labelled evidence, cite `[C#]`/`[W#]` after every claim, never invent labels, state what is missing | cheap (NVIDIA) |
+| **Supervisor** | none (planner); before it, the guardrail check (`canned_reply`, no model) and, for short follow-ups, the rewrite step (`resolve_followup`) | `CLASSIFY_SYSTEM`: choose the fewest agents, set `needs_corpus`, `needs_live`, `complexity`, one-line reason; JSON only. Code rules after the model: summary requests always get the summary agent; the data agent is kept only for questions about the collection; a research plan with no source gets web search | cheap (NVIDIA); the rewrite is cheap too, and only a bare "Why?" is retried on OpenAI |
+| **Research** | `rag.retrieve` (Chroma, hybrid dense + BM25, k=8; for a web-only plan a probe that keeps the corpus only if the best score is at least 0.45), `tavily_search` (MCP) | `RESEARCH_SYSTEM`: write notes using only labelled evidence, cite `[C#]`/`[W#]` after every claim, never invent labels, keep a source's hedges, do not rely on a low-quality site for a checkable claim, state what is missing | cheap (NVIDIA) |
 | **Summary** | corpus document reader (finds the paper by file name, arXiv id or paper name such as "the Self-RAG paper"; all its chunks, evenly down-sampled to 24), `tavily_extract` for URLs, `tavily_search` as fallback | `SUMMARY_SYSTEM`: summarise in reading order, preserve citation labels, add no facts | cheap (NVIDIA) |
 | **Data** | `sqlite.describe_schema`, `sqlite.run_select` (read-only connection, `PRAGMA query_only`, single SELECT/WITH that must read FROM a table, forbidden-keyword filter, one retry with the error fed back); if the database cannot answer (`NO_SQL` or a constant SELECT) it hands the question to research by adding it to the plan in state | `SQL_SYSTEM` to write the query, `DATA_ANSWER_SYSTEM` to state the result and cite `[S#]` | strong (OpenAI): exact SQL matters |
-| **Synthesizer** | none | `SYNTH_SYSTEM`: ground every claim in evidence, cite labels exactly as given, admit gaps and failed agents, no invented facts | routed per query (table below) |
+| **Synthesizer** | none | `SYNTH_SYSTEM`: ground every claim in evidence, cite labels exactly as given, admit gaps and failed agents, no invented facts; use today's date for "this week"; keep hedges; state an as-of time for changing values; stay neutral on moral judgments about real people; never write data-changing commands; answer only the current question | routed per query (table below) |
 
 The SQLite database (`data/sample.db`) is built by `ingest` and holds a `documents` table (one row per paper with title, source and chunk count), so the data agent answers corpus-statistics questions such as "how many chunks does each document have?".
 
@@ -66,6 +69,9 @@ Providers: **NVIDIA NIM** `nvidia/nemotron-3.5-lightning-30b-a3b` (free/low-cost
 | Step | Rule (in `app.py`) | Dimension | Provider |
 |---|---|---|---|
 | Query classification | always a short structured task (`route_cheap`) | cost | NVIDIA |
+| Follow-up rewrite (a question of 12 words or fewer that refers back: "it", "which one", "Why?") | a short structured task (`route_cheap`); skipped for long or self-contained questions | cost | NVIDIA |
+| Follow-up rewrite retry (a bare "Why?" whose rewrite still contains a pronoun) | the cheap model could not resolve it, one retry (`route_strong`) | capability | OpenAI |
+| Guardrail reply (no readable question, "everything" with no topic, a request to change or delete data) | answered by `canned_reply`; no model runs, so no routing row is emitted | none | none |
 | Research and summary LLM steps (notes, summary) | condensing retrieved material (`route_cheap`) | cost | NVIDIA |
 | Data agent LLM steps (SQL, result sentence) | a wrong column or join gives a wrong number (`route_strong`) | capability | OpenAI |
 | Final answer, short lookup | one agent, little evidence (at most 6,000 characters), classifier said `simple` (short data answers such as a top 3, short web results) | cost | NVIDIA |
@@ -98,6 +104,21 @@ User:   Question: <query>
         <web snippet ...>
 ```
 
+The final answer is written from a second template (`synthesizer_node`); the bracketed lines appear only when they apply:
+
+```
+System: <SYNTH_SYSTEM> + "Today's date is <the user's local date>"
+User:   [follow-ups only] Earlier turns, only for resolving words like 'it'. Do not repeat or
+        redo them: <last 4 turns, citation labels stripped>
+        CURRENT question (answer only this): <query>
+        [rewrite changed it]   (In context, this means: <rewritten question>)
+        [year after today]     NOTE: the question mentions 2030, which is after today's date ...
+        [asks "is X in the corpus?"]  Corpus document list (complete) ...
+        Agent notes:  --- notes from research agent --- ...   --- notes from summary agent --- ...
+        Evidence:     [C1] (<source>.pdf, p.<page>) ...  [W1] (<url>) (Published: <date>) ...  [S1] ...
+        [failures]    Agent problems: - research agent: <error>
+```
+
 6. **Generation with citations**: the synthesizer receives the agents' notes plus the evidence blocks (at most 12) and writes the answer; `[C#]` chips in the UI open the exact source chunk through `GET /api/chunk/{id}`.
 
 ## 5. MCP tool sharing (rubric item 7)
@@ -110,6 +131,11 @@ One `TavilyHub` holds a single `langchain-mcp-adapters` connection to `https://m
 - Every LLM call has a 25 s no-output deadline (the provider SDK timeouts were not reliable), and a failed worker or synthesis call fails over to another provider and emits a `reset` event so the UI discards partial tokens.
 - Time limits at every step: 25 s without output for an LLM call or a Tavily call, 60 s for a whole worker LLM call (`LLM_WORKER_TOTAL_SECONDS`; then failover), NVIDIA research/summary notes capped at 1,200 output tokens, 15 s for the query embedding (then keyword-only retrieval), 45 s for the whole retrieval step, and 240 s for the whole question (`RUN_DEADLINE_S`, below Cloud Run's 300 s). When the last one is hit the stream sends an `error` event and then `done`, so the UI never hangs. Worker LLM calls are not streamed to the browser, so the trace prints "<agent> still working (10s)" every 10 s while one runs.
 - Citation labels are checked against this turn's evidence: labels are stripped from the conversation history before it reaches any prompt, the final-answer prompt says history is context only, and any `[X#]` in the answer that has no matching citation is removed (the trace logs a warning and the answer is resent clean). Found when a URL summary cited `C4`, `S1` and `U1` from an earlier turn.
+- Tavily failure degrades to corpus-only evidence, or an honest "could not retrieve" answer.
+- Verified by injection tests: bad Tavily key, bad NVIDIA key (everything fails over to OpenAI), missing SQLite file; each still ended with a `done` event and an answer.
+
+### Guardrails, follow-ups and answer rules
+
 - The plan always includes the summary agent when the request asks for a summary, even if the classifier left it out.
 - A research plan always has a source: if the classifier sets both `needs_corpus` and `needs_live` to false (it did for "Explain what a vector database is"), the supervisor turns web search on, so the answer is retrieved and cited instead of coming from the model's memory. Independently, a web-only plan still *probes* the corpus (`CORPUS_PROBE_MIN_SCORE` 0.45) and uses it only when it clearly matches, except for news-style questions: a follow-up about Voyager that was planned web-only now cites the paper (`[C1]`), while "capital of Australia" (best corpus score 0.20) stays web-only and carries no irrelevant chunks. Tavily is still used only when a question needs it.
 - The data agent is planned only for questions about the collection itself (documents, chunks, papers, titles, files, rows, tables): a plan that sends "What is 15% of 240?" or "capital of Australia" to the SQL agent is changed to research, which saves an OpenAI call and a detour through the data agent's hand-off.
@@ -120,10 +146,8 @@ One `TavilyHub` holds a single `langchain-mcp-adapters` connection to `https://m
 - The page renders the Markdown that models produce (tables, lists, headings, bold, italic, code, quotes) with DOM nodes and no `innerHTML`; a table scrolls inside its message on a phone instead of widening the page.
 - The plan also adds the summary agent when a comparison has live news on one side ("Compare the latest AI agent news with what the ReAct paper proposed"): the summary agent gathers the news through Tavily, the research agent reads the paper, and the two run in parallel. A classifier that picks one research agent for this would still answer, but only one agent would use the shared MCP connection.
 - If the question names a year later than today ("Who won the 2030 World Cup?"), the research and final-answer prompts add a note that nothing in that year can have happened yet, and both prompts say a snippet from an unknown or low-quality site cannot carry a checkable claim alone. Failover and timeout warnings are also written to the container log with the reason (`[warn] <node>: ...`), so a mid-request provider error can be diagnosed from Cloud Run logs.
-- Earlier turns reach the classifier and the final-answer prompt only when the new question is a follow-up (a short question, or one using words like "it", "they", "again"). A self-contained question or a URL is answered without them, and the history is labelled as context for resolving references, so a previous answer cannot be repeated inside the new one.
+- Earlier turns reach the classifier and the final-answer prompt only when the new question is a follow-up (a question of 6 words or fewer, or one of up to 12 words that uses words like "it", "they", "again"). A self-contained question or a URL is answered without them, and the history is labelled as context for resolving references, so a previous answer cannot be repeated inside the new one.
 - A follow-up is rewritten before planning (`resolve_followup`, one cheap NVIDIA call, shown in the Routing panel as `rewrite`): "What were its top-5 skill-retrieval accuracy numbers again?" becomes "What were Voyager's top-5 skill-retrieval accuracy numbers again?" and the agents retrieve and search with the rewritten question (`search_query` in the state). Before this, only the final-answer step saw the conversation, so the retriever matched DPR's top-k tables and the answer was about DPR. The final-answer prompt also gets the resolved meaning. If the rewrite fails or changes nothing, the question is used as asked. The rewrite runs only when the question refers back ("it", "which one") or is too short to stand alone, so "What is HyDE?" costs no extra call.
-- Tavily failure degrades to corpus-only evidence, or an honest "could not retrieve" answer.
-- Verified by injection tests: bad Tavily key, bad NVIDIA key (everything fails over to OpenAI), missing SQLite file; each still ended with a `done` event and an answer.
 
 ## 7. State and deployment
 

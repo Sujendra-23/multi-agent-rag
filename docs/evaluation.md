@@ -223,3 +223,28 @@ All five faults below were re-run on the final code (new index, `gpt-5.6-sol`): 
 ## 6. Security checks
 
 A regular-expression scan of every captured SSE stream (`sk-…`, `tvly-…`, `nvapi-…`, `tavilyApiKey=…`) found nothing, including the bad-key runs. On Cloud Run (earlier revision), `gcloud run services logs read` for the same patterns returned nothing, `gcloud run services describe` showed the keys only as `secretKeyRef` entries, and `gcloud meta list-files-for-upload .` confirmed `.env` is not in the build context. The submission zip was scanned for key patterns and contains no `.env`.
+
+
+## 7. Independent acceptance testing
+
+Beyond the 25-question RAGAS set, an outside tester ran an 81-item checklist twice through the live page on 27 October 2026 (71 prompts each time: 70 answers plus one deliberate 2,200-character input that must be rejected). The checklist covered core and multi-agent questions, follow-ups, limits and honesty, arbitrary questions (news, general knowledge, code, arithmetic, typos, Spanish, prompt injection, destructive SQL), the routing, trace and citation panels, the UI, key leakage and speed. Timings are the page's own metrics, not independent server measurements, and a changed answer between runs can come from model variation as well as from a code change.
+
+| | Run 1 | Run 2 |
+|---|---|---|
+| Pass / partial / fail / not verifiable | 63 / 7 / 8 / 3 | 66 / 8 / 4 / 3 |
+| Median TTFT | 6.120 s | 6.124 s |
+| Median total | 7.659 s | 7.761 s (includes three instant guardrail replies) |
+| Answers under 40 s | 69 of 70 | 68 of 70 |
+| Second consecutive "What is REPLUG?" (warm) | 21.781 s (one slow NVIDIA call) | 5.619 s |
+
+Each failure the tester reported is a row in the failure table in section 5 with its cause and fix. Run 1 led to the guardrails (emoji-only input, "Drop table documents;"), the follow-up rewrite with its retry, the data-agent gate, the corpus probe, the Markdown renderer, and the neutrality, hedge, as-of-time and corpus-list rules. Run 2 showed that the rewrite had become too eager (long questions slowed to 40 to 55 s and one was narrowed using earlier turns), which led to the 12-word limit on the rewrite, the retry only for a bare "Why?", the reply to "Tell me everything", and mapping "the first document" to the corpus order. After that fix, rerun on the live service in a conversation with earlier topics: the tool-use question answers Toolformer in 6.2 s, news versus ReAct takes 25.4 s, the 12-method comparison 30.1 s, and "What tasks did it evaluate on?" then "Why?" still resolve to ReAct. The full 81-item checklist was not run a third time.
+
+A final check of four browser items: the 375 px mobile layout passed (no sideways scroll with a long answer and a table, matching our headless Chrome measurement); no API keys appear in the page, scripts or `/api/config`; the page also calls `/api/chunk/{id}` (same origin, used by the citation pop-up; it looks up one chunk and returns 404 for unknown or traversal-style ids), so traffic is first-party only; the private-window check needs a manual run.
+
+Known limits that remain:
+
+- When the cheap provider writes the final answer (a simple question with one agent), it follows the as-of-time and hedge rules less reliably than the strong provider: a "last night" NBA question was answered from a 9 June recap, a Bitcoin price had no time, and a 2031 Super Bowl answer named joint hosts that the sources did not confirm.
+- News items carry exact dates only when Tavily returns a publication date.
+- A comparison of 12 methods retrieves 8 chunks, so most methods are marked "not established by the retrieved evidence" instead of guessed.
+- The heaviest questions (a six-paper comparison with a recommendation) still take about 45 to 55 s.
+- Tests 13 and 14 of the tester's list expected "corpus and web both enabled" for general-knowledge questions. The design is now "web search enabled, corpus probed and used only when it clearly matches", so those answers are web-only by choice.
