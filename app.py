@@ -1317,7 +1317,7 @@ LABEL_RE = re.compile(r"\[([A-Z]{1,2}\d+)\]")
 _FOLLOWUP_RE = re.compile(
     r"\b(it|its|they|them|their|those|these|he|she|again|previous|earlier|above|former|latter|same|"
     r"what about|how about|and the|elaborate|expand|continue|which one|that one|this one|the other|"
-    r"the second|the first|the latter)\b",
+    r"the (?:first|second|third) one|the latter)\b",
     re.I,
 )
 
@@ -1328,7 +1328,8 @@ def is_followup(query: str) -> bool:
     the previous answer cannot leak into this one."""
     if re.search(r"https?://", query):
         return False
-    return len(query.split()) <= 6 or bool(_FOLLOWUP_RE.search(query))
+    words = len(query.split())
+    return words <= 6 or (words <= 12 and bool(_FOLLOWUP_RE.search(query)))
 
 
 _DESTRUCTIVE_RE = re.compile(
@@ -1340,6 +1341,9 @@ _DESTRUCTIVE_RE = re.compile(
 )
 
 
+_VAGUE_RE = re.compile(r"^\s*(?:please\s+)?(?:(?:tell|show|give)\s+me\s+)?(?:everything|anything|something|all of it)\W*$", re.I)
+
+
 def canned_reply(query: str) -> tuple[str, str] | None:
     """(answer, reason) for messages that need no model: nothing readable, or a request to change
     or delete data. The app is read-only, so the refusal is firm and does not repeat the SQL."""
@@ -1348,6 +1352,12 @@ def canned_reply(query: str) -> tuple[str, str] | None:
             "I couldn't find a question in that message. Ask in words, for example about the "
             "papers in the corpus, the latest news, or the collection's statistics.",
             "message has no letters or digits",
+        )
+    if _VAGUE_RE.match(query):
+        return (
+            "\u201cEverything\u201d is too broad. Name a paper, a topic or a question, for example "
+            "\u201cWhat does the Reflexion paper say about memory?\u201d or \u201cWhat is the latest news about AI agents?\u201d.",
+            "request for \u201ceverything\u201d has no topic",
         )
     if _DESTRUCTIVE_RE.search(query):
         return (
@@ -1374,9 +1384,11 @@ _PRESENCE_RE = re.compile(
 def needs_rewrite(query: str) -> bool:
     """Rewrite only when the question refers back ("it", "which one") or is too short to stand
     alone ("Why?"). A short question naming its subject ("What is HyDE?") already stands alone."""
+    words = query.split()
+    if len(words) > 12:  # a long question stands alone; an "it" in it refers within the sentence
+        return False
     if _FOLLOWUP_RE.search(query):
         return True
-    words = query.split()
     return len(words) <= 3 and not any(w[:1].isupper() for w in words[1:])
 
 
@@ -1413,8 +1425,8 @@ async def _rewrite_once(run: Run, tr: Tracer, decision, hist: str, query: str) -
     out = re.sub(r"(?s)<think>.*?</think>", "", out or "")
     out = LABEL_RE.sub("", out).strip().strip('"\'').strip()
     out = out.splitlines()[0].strip() if out else ""
-    if len(out) < 3 or _REWRITE_ECHO_RE.search(out) or len(out) > max(200, 8 * len(query)):
-        return None  # empty, or the model echoed its instructions instead of rewriting
+    if len(out) < 3 or _REWRITE_ECHO_RE.search(out) or len(out) > 3 * len(query) + 80:
+        return None  # empty, echoed the instructions, or grew far beyond the question (imported context)
     return out[:400]
 
 
@@ -1429,7 +1441,7 @@ async def resolve_followup(run: Run, tr: Tracer, state: State) -> str:
     await run.emit("route", **decision.to_dict(), agent="supervisor")
     await tr("route", f"rewrite -> {decision.provider} ({decision.dimension}): {decision.reason}")
     out = await _rewrite_once(run, tr, decision, hist, query)
-    if out and _PRONOUN_RE.search(out):  # the cheap model left a pronoun unresolved: retry once, stronger
+    if out and _PRONOUN_RE.search(out) and len(query.split()) <= 4:  # a bare "Why?": retry once, stronger
         strong = route_strong("rewrite", "the cheap model left a pronoun unresolved; retry on the stronger model")
         await run.emit("route", **strong.to_dict(), agent="supervisor")
         await tr("route", f"rewrite retry -> {strong.provider} ({strong.dimension}): {strong.reason}")
@@ -1742,6 +1754,11 @@ def _norm(text: str) -> str:
 def _match_source(query: str, sources: list[str], titles: dict[str, str] | None = None) -> str | None:
     """Pick the corpus document a query refers to: by file name, arXiv-style id, or paper name
     (the part of the title before ':' and any '(Acronym)')."""
+    ordinal = re.search(r"\b(first|1st|second|2nd|third|3rd|last)\s+(?:document|paper|file|pdf)\b", query, re.I)
+    if ordinal and sources:  # the corpus is listed in file-name order, the same as the chunk table
+        pos = {"first": 0, "1st": 0, "second": 1, "2nd": 1, "third": 2, "3rd": 2, "last": -1}[ordinal.group(1).lower()]
+        if -len(sources) <= pos < len(sources):
+            return sources[pos]
     q = _norm(query)
     for s in sources:
         stem = Path(s).stem
