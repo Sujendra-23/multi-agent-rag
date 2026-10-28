@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import csv
+import datetime as dt
 import functools
 import json
 import math
@@ -26,6 +27,7 @@ import sqlite3
 import time
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -1022,8 +1024,25 @@ def _flatten(result: Any) -> str:
     return str(result)
 
 
+# The user's calendar date for the current request (set from the browser); None means use UTC.
+_client_date: ContextVar[dt.date | None] = ContextVar("client_date", default=None)
+
+
+def parse_client_date(text: str | None) -> dt.date | None:
+    """Accept the browser's local date (YYYY-MM-DD) only if it is a real date within a day of
+    UTC today, which covers every timezone and keeps a bad value out of the prompts."""
+    try:
+        d = dt.date.fromisoformat(text or "")
+    except ValueError:
+        return None
+    return d if abs((d - dt.datetime.now(dt.timezone.utc).date()).days) <= 1 else None
+
+
 def today_line() -> str:
     """The model has no clock: without this it guesses the date from its training data."""
+    d = _client_date.get()
+    if d:
+        return f"Today's date is {d.strftime('%A, %d %B %Y')} (the user's local date)."
     return f"Today's date is {time.strftime('%A, %d %B %Y', time.gmtime())} (UTC)."
 
 
@@ -2034,6 +2053,7 @@ class Turn(BaseModel):
 class ChatRequest(BaseModel):
     query: str = Field(min_length=1, max_length=2000)
     history: list[Turn] = Field(default_factory=list, max_length=12)
+    today: str | None = None  # browser's local date, YYYY-MM-DD; anything invalid falls back to UTC
 
 
 def _sse(event: str, data: dict) -> str:
@@ -2086,6 +2106,7 @@ async def chat(req: ChatRequest, request: Request):
 
     run = Run()
     history = [t.model_dump() for t in req.history]
+    _client_date.set(parse_client_date(req.today))  # copied into the graph task below
     task = asyncio.create_task(_run_graph(run, req.query, history))
 
     async def stream():
@@ -2305,6 +2326,11 @@ function parseSSE(buffer) {
 
 if (typeof document !== "undefined") {
 const $ = (id) => document.getElementById(id);
+function localDate() {         // the user's calendar date, so "today" matches their clock
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 const history = [];            // [{role, content}] sent with each request (server is stateless)
 let busy = false, turnNo = 0;
 const AGENT_COLOR = (a) => `var(--c-${a}, var(--muted))`;
@@ -2452,7 +2478,7 @@ $("form").addEventListener("submit", async (ev) => {
   try {
     const resp = await fetch("/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, history: history.slice(-6) }),
+      body: JSON.stringify({ query, history: history.slice(-6), today: localDate() }),
     });
     if (!resp.ok) {
       let msg = `HTTP ${resp.status}`;
