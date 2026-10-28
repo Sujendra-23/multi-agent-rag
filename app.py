@@ -263,6 +263,8 @@ class Tracer:
     async def __call__(self, event: str, detail: str = "", **extra: Any) -> None:
         entry = {"t_ms": self.run.now_ms(), "node": self.node, "event": event, "detail": detail, **extra}
         self.entries.append(entry)
+        if event == "warn":  # failovers and timeouts: keep the reason in the container log too
+            print(f"[warn] {self.node}: {scrub(detail)[:300]}", flush=True)
         await self.run.emit("trace", **{k: v for k, v in entry.items() if k != "t_ms"})
 
 
@@ -1039,6 +1041,21 @@ def parse_client_date(text: str | None) -> dt.date | None:
     return d if abs((d - dt.datetime.now(dt.timezone.utc).date()).days) <= 1 else None
 
 
+def future_note(query: str) -> str:
+    """A question about a year that has not happened yet cannot have a real result: a low-quality
+    web page that claims one is wrong, so say so up front instead of leaving the model to weigh it."""
+    d = _client_date.get() or dt.datetime.now(dt.timezone.utc).date()
+    years = sorted({int(y) for y in re.findall(r"\b(20\d\d)\b", query) if int(y) > d.year})
+    if not years:
+        return ""
+    return (
+        f"NOTE: the question mentions {', '.join(map(str, years))}, which is after today's date. "
+        "Nothing that happens in that year can have happened yet: any snippet reporting a result "
+        "for it is wrong or fiction. Say it has not happened yet, and give only scheduled or "
+        "planned facts that the evidence states."
+    )
+
+
 def today_line() -> str:
     """The model has no clock: without this it guesses the date from its training data."""
     d = _client_date.get()
@@ -1289,7 +1306,8 @@ LABEL_RE = re.compile(r"\[([A-Z]{1,2}\d+)\]")
 
 _FOLLOWUP_RE = re.compile(
     r"\b(it|its|they|them|their|those|these|he|she|again|previous|earlier|above|former|latter|same|"
-    r"what about|how about|and the|elaborate|expand|continue)\b",
+    r"what about|how about|and the|elaborate|expand|continue|which one|that one|this one|the other|"
+    r"the second|the first|the latter)\b",
     re.I,
 )
 
@@ -1301,6 +1319,15 @@ def is_followup(query: str) -> bool:
     if re.search(r"https?://", query):
         return False
     return len(query.split()) <= 6 or bool(_FOLLOWUP_RE.search(query))
+
+
+def needs_rewrite(query: str) -> bool:
+    """Rewrite only when the question refers back ("it", "which one") or is too short to stand
+    alone ("Why?"). A short question naming its subject ("What is HyDE?") already stands alone."""
+    if _FOLLOWUP_RE.search(query):
+        return True
+    words = query.split()
+    return len(words) <= 3 and not any(w[:1].isupper() for w in words[1:])
 
 
 def _history_snippet(history: list[dict], n: int = 4, query: str = "") -> str:
@@ -1321,7 +1348,7 @@ async def resolve_followup(run: Run, tr: Tracer, state: State) -> str:
     see only the question. Rewrite it with the recent turns so the agents search for the right thing."""
     query = state["query"]
     hist = _history_snippet(state.get("history", []), n=8, query=query)
-    if not hist:
+    if not hist or not needs_rewrite(query):
         return query
     decision = route_cheap("rewrite", "resolving 'it' in a follow-up is a short, structured task")
     await run.emit("route", **decision.to_dict(), agent="supervisor")
@@ -1522,6 +1549,8 @@ knowledge, comparisons, evaluations or generalisations ("typically", "usually", 
 that no snippet states.
 - Prefer snippets from the paper the question is about; ignore snippets that merely mention it.
 - Never invent a label and never cite a source that is not in the evidence.
+- A web snippet from an unknown, user-generated or low-quality site is not enough for a checkable \
+claim (a result, a date, a record). Say that the source is unreliable instead of stating the claim.
 - If the evidence does not answer the question (or part of it), say exactly what is missing instead \
 of filling the gap."""
 
@@ -1585,7 +1614,7 @@ async def research_node(state: State, cfg: RunnableConfig, run: Run, tr: Tracer)
         run,
         tr,
         decision,
-        [SystemMessage(dated(RESEARCH_SYSTEM)), HumanMessage(f"Question: {query}\n\nEvidence:\n{evidence}")],
+        [SystemMessage(dated(RESEARCH_SYSTEM)), HumanMessage(f"Question: {query}\n{future_note(query)}\nEvidence:\n{evidence}")],
         max_tokens=WORKER_NOTES_MAX_TOKENS,
     )
     await tr("done", f"{len(new_citations)} citations, notes {len(notes)} chars")
@@ -1905,6 +1934,9 @@ e.g. [C1], [W2], [S1]. Only use labels that appear in the evidence. A table or l
 one SQL result needs its [S#] label once (e.g. after the table), not on every row. When the \
 user asks about each or all items and the data agent returned a list, include every row.
 - Cite even short or well-known facts when a snippet states them (e.g. "Canberra [W1]").
+- Check the question against today's date: if it asks for the result of something that has not \
+happened yet, say so, even if a snippet claims otherwise. A snippet from an unknown, user-generated \
+or low-quality site is not enough for a checkable claim: say the source is unreliable.
 - For "this week", "this month" or "latest", use today's date below; do not guess the date, and \
 say when an item's date is unclear.
 - Use only what the notes and evidence state. Do not add background knowledge, qualifiers or \
@@ -1976,6 +2008,8 @@ async def synthesizer_node(state: State, config: RunnableConfig) -> dict:  # mus
         resolved = state.get("search_query")
         if resolved and resolved != state["query"]:
             user += f"(In context, this means: {resolved})\n"
+    if future_note(state["query"]):
+        user += f"\n{future_note(state['query'])}\n"
     user += f"\nAgent notes:\n{notes or '(none)'}\n\nEvidence:\n{evidence or '(none)'}"
     if err_text:
         user += f"\n\nAgent problems:\n{err_text}"
