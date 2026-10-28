@@ -1425,11 +1425,17 @@ async def supervisor_node(state: State, config: RunnableConfig) -> dict:
             agents.insert(0, "summary")  # news on one side of a comparison: the summary agent gathers it
             await tr("plan", "query compares live news with other material -> summary agent added to the plan")
         complexity = "complex" if plan.get("complexity") == "complex" or len(agents) > 1 else "simple"
+        needs_corpus = bool(plan.get("needs_corpus", True))
+        needs_live = bool(plan.get("needs_live", False))
+        if "research" in agents and not needs_corpus and not needs_live:
+            # a research agent with no source would answer from the model's memory, uncited
+            needs_corpus = needs_live = True
+            await tr("plan", "classifier chose no source for the research agent -> corpus and web search both enabled")
         update = {
             "planned": True,
             "plan": agents,
-            "needs_corpus": bool(plan.get("needs_corpus", True)),
-            "needs_live": bool(plan.get("needs_live", False)),
+            "needs_corpus": needs_corpus,
+            "needs_live": needs_live,
             "complexity": complexity,
             "plan_reason": str(plan.get("reason", ""))[:300],
             "search_query": search_query,
