@@ -1,0 +1,11 @@
+{
+  "note": "Same query sent twice to the live service (https://multi-agent-rag-135663485077.us-west1.run.app), revision multi-agent-rag-00012-x7h, 28 Oct 2026. Run 2 is the warm run (course definition). Metrics are the done-event metrics (ms).",
+  "runs": [
+    {"query": "What is the difference between Self-RAG and Corrective RAG?", "run": 1, "ttft_ms": 22250, "total_ms": 43817, "retrieval_ms": 739, "llm_ms": 42501},
+    {"query": "What is the difference between Self-RAG and Corrective RAG?", "run": 2, "ttft_ms": 10235, "total_ms": 13717, "retrieval_ms": 265, "llm_ms": 13161},
+    {"query": "What is REPLUG?", "run": 1, "ttft_ms": 6175, "total_ms": 8257, "retrieval_ms": 367, "llm_ms": 7342},
+    {"query": "What is REPLUG?", "run": 2, "ttft_ms": 4865, "total_ms": 7679, "retrieval_ms": 303, "llm_ms": 6849},
+    {"query": "What is the latest news about AI agents this week?", "run": 1, "ttft_ms": 9711, "total_ms": 14326, "retrieval_ms": 0, "llm_ms": 13053},
+    {"query": "What is the latest news about AI agents this week?", "run": 2, "ttft_ms": 9280, "total_ms": 14286, "retrieval_ms": 0, "llm_ms": 12747}
+  ]
+}
